@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="SPMB SMP KP 1 BALEENDAH - Sistem Penerimaan Murid Baru. Daftarkan putra-putri Anda sekarang untuk Tahun Ajaran 2025/2026.">
-    <title>SPMB SMP KP 1 BALEENDAH - Penerimaan Murid Baru</title>
+    <meta name="description" content="Website Resmi & SPMB Online SMP KP 1 BALEENDAH - Sekolah Berkarakter, Berprestasi, dan Berakhlak Mulia di Baleendah Kabupaten Bandung.">
+    <title>SMP KP 1 BALEENDAH - Website Resmi & Portal SPMB</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,32 +14,78 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- AOS - Animate On Scroll -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
-
     <!-- Main Stylesheet -->
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 
     <!-- ============================================
-         NAVBAR
+         1. TOPBAR INFORMASI
+         ============================================ -->
+    <div class="topbar">
+        <div class="container topbar-container">
+            <div class="topbar-info">
+                <span class="topbar-badge" data-cms="akreditasi">Akreditasi A</span>
+                <span class="topbar-info-item">
+                    <i class="fas fa-map-marker-alt"></i> 
+                    <span data-cms="topbarAlamat">Baleendah, Kab. Bandung</span>
+                </span>
+                <span class="topbar-info-item">
+                    <i class="fas fa-phone-alt"></i> 
+                    <a href="tel:0221234567" data-cms-href="telepon" data-cms="telepon">(022) 1234-5678</a>
+                </span>
+                <span class="topbar-info-item">
+                    <i class="fas fa-envelope"></i> 
+                    <a href="mailto:info@smpkp1baleendah.sch.id" data-cms-href="email" data-cms="email">info@smpkp1baleendah.sch.id</a>
+                </span>
+            </div>
+            <div class="topbar-social">
+                <span style="font-size:0.78rem;color:#94a3b8;margin-right:4px;">Media Sosial:</span>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         2. PENGUMUMAN BERJALAN (RUNNING TEXT)
+         ============================================ -->
+    <div class="announcement-bar">
+        <div class="container announcement-inner">
+            <span class="announcement-badge"><i class="fas fa-bullhorn"></i> INFO SPMB</span>
+            <div class="announcement-text" data-cms="runningText">
+                Penerimaan Peserta Didik Baru (SPMB) SMP KP 1 Baleendah Tahun Ajaran 2025/2026 telah dibuka. Segera daftarkan putra-putri Anda melalui portal resmi ini!
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         3. NAVBAR UTAMA
          ============================================ -->
     <nav class="navbar" id="navbar">
-        <div class="nav-container">
+        <div class="container nav-container">
             <a href="/" class="nav-logo">
-                <div class="logo-icon">KP</div>
-                <div class="logo-text">SMP <span class="logo-highlight">KP 1</span></div>
+                <div class="logo-symbol">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="logo-text-group">
+                    <span class="logo-main" data-cms="namaSekolah">SMP KP 1 BALEENDAH</span>
+                    <span class="logo-sub" data-cms="taglineSekolah">Unggul, Berkarakter & Berprestasi</span>
+                </div>
             </a>
 
             <div class="nav-menu" id="navMenu">
                 <a href="/" class="nav-link active">Beranda</a>
-                <a href="/pendaftaran.html" class="nav-link">Pendaftaran</a>
+                <a href="#profil" class="nav-link">Profil</a>
+                <a href="#alur" class="nav-link">Alur SPMB</a>
+                <a href="/pendaftaran.html" class="nav-link nav-cta"><i class="fas fa-file-signature"></i> Daftar Online</a>
                 <a href="/cek-status.html" class="nav-link">Cek Status</a>
-                <a href="/pengumuman.html" class="nav-link">Pengumuman</a>
+                <a href="/pengumuman.html" class="nav-link">Informasi & Berita</a>
                 <a href="/galeri.html" class="nav-link">Galeri</a>
-                <a href="/jadwal.html" class="nav-link">Jadwal</a>
-                <a href="/admin/" class="nav-link nav-admin-link"><i class="fas fa-lock"></i> Admin</a>
+                <a href="#kontak" class="nav-link">Kontak</a>
+                <a href="/admin/" class="nav-link nav-admin-link" title="Portal Petugas"><i class="fas fa-lock"></i> Admin</a>
             </div>
 
             <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
@@ -51,266 +97,432 @@
     </nav>
 
     <!-- ============================================
-         HERO SECTION
+         4. HERO PORTAL RESMI SEKOLAH
          ============================================ -->
-    <section class="hero">
-        <div class="hero-shapes">
-            <div class="hero-shape"></div>
-            <div class="hero-shape"></div>
-            <div class="hero-shape"></div>
-            <div class="hero-shape"></div>
-            <div class="hero-shape"></div>
-            <div class="hero-shape"></div>
-        </div>
-
-        <div class="hero-container">
-            <div class="hero-content">
-                <h1 class="hero-title" data-aos="fade-up">
-                    <span>Selamat Datang di SPMB</span>
-                    <span class="highlight">SMP KP 1 BALEENDAH</span>
-                </h1>
-                <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="100">
-                    Wujudkan masa depan cerah buah hati Anda bersama kami. Pendaftaran Tahun Ajaran 2025/2026 telah dibuka!
-                </p>
-                <div class="hero-buttons" data-aos="fade-up" data-aos-delay="200">
-                    <a href="/pendaftaran.html" class="btn btn-primary btn-lg">
-                        <i class="fas fa-edit"></i> Daftar Sekarang
-                    </a>
-                    <a href="/cek-status.html" class="btn btn-secondary btn-lg" style="background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.4);">
-                        <i class="fas fa-search"></i> Cek Status
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Wave Divider -->
-        <div class="wave-divider" style="position: absolute; bottom: 0; left: 0; width: 100%;">
-            <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="display: block; width: 100%; height: 80px;">
-                <path d="M0 80L48 74.7C96 69 192 59 288 53.3C384 48 480 48 576 53.3C672 59 768 69 864 69.3C960 69 1056 59 1152 53.3C1248 48 1344 48 1392 48L1440 48V120H1392C1344 120 1248 120 1152 120C1056 120 960 120 864 120C768 120 672 120 576 120C480 120 384 120 288 120C192 120 96 120 48 120H0V80Z" fill="#F0F4FF"/>
-            </svg>
-        </div>
-    </section>
-
-    <!-- ============================================
-         MENGAPA MEMILIH KAMI
-         ============================================ -->
-    <section class="section">
+    <section class="hero-portal">
         <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <h2 class="section-title">Mengapa Memilih Kami?</h2>
-                <p class="section-subtitle">Kami berkomitmen memberikan pendidikan terbaik untuk generasi masa depan</p>
-            </div>
-
-            <div class="cards-grid">
-                <div class="card" data-aos="fade-up" data-aos-delay="0">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #4361EE, #4CC9F0);">📚</div>
-                    <h3 class="card-title">Kurikulum Terbaik</h3>
-                    <p class="card-text">Kurikulum merdeka yang mengembangkan potensi setiap siswa secara optimal</p>
-                </div>
-
-                <div class="card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #F72585, #7209B7);">👨‍🏫</div>
-                    <h3 class="card-title">Guru Berkualitas</h3>
-                    <p class="card-text">Tenaga pengajar profesional dan berpengalaman di bidangnya</p>
-                </div>
-
-                <div class="card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #06D6A0, #4CC9F0);">🏫</div>
-                    <h3 class="card-title">Fasilitas Lengkap</h3>
-                    <p class="card-text">Laboratorium, perpustakaan, lapangan olahraga, dan ruang multimedia</p>
-                </div>
-
-                <div class="card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #FFD166, #F72585);">🛡️</div>
-                    <h3 class="card-title">Lingkungan Aman</h3>
-                    <p class="card-text">Lingkungan sekolah yang aman, nyaman, dan kondusif untuk belajar</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================
-         STATS SECTION
-         ============================================ -->
-    <section class="stats-section">
-        <div class="container">
-            <div class="stats-grid-home">
-                <div class="stat-item" data-aos="fade-up" data-aos-delay="0">
-                    <span class="stat-number">500+</span>
-                    <span class="stat-label">Siswa Aktif</span>
-                </div>
-                <div class="stat-item" data-aos="fade-up" data-aos-delay="100">
-                    <span class="stat-number">50+</span>
-                    <span class="stat-label">Guru & Staff</span>
-                </div>
-                <div class="stat-item" data-aos="fade-up" data-aos-delay="200">
-                    <span class="stat-number">100+</span>
-                    <span class="stat-label">Prestasi</span>
-                </div>
-                <div class="stat-item" data-aos="fade-up" data-aos-delay="300">
-                    <span class="stat-number">30+</span>
-                    <span class="stat-label">Tahun Berdiri</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================
-         ALUR PENDAFTARAN
-         ============================================ -->
-    <section class="section" style="background: #fff;">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <h2 class="section-title">Alur Pendaftaran</h2>
-                <p class="section-subtitle">Proses pendaftaran yang mudah dan transparan untuk calon siswa baru</p>
-            </div>
-
-            <div class="cards-grid">
-                <div class="card" data-aos="fade-up" data-aos-delay="0" style="text-align: center;">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #4361EE, #3A0CA3); margin: 0 auto 20px;">📝</div>
-                    <h3 class="card-title">1. Isi Formulir</h3>
-                    <p class="card-text">Lengkapi formulir pendaftaran online dengan data yang benar</p>
-                </div>
-
-                <div class="card" data-aos="fade-up" data-aos-delay="100" style="text-align: center;">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #7209B7, #F72585); margin: 0 auto 20px;">📤</div>
-                    <h3 class="card-title">2. Upload Dokumen</h3>
-                    <p class="card-text">Unggah dokumen persyaratan yang diperlukan</p>
-                </div>
-
-                <div class="card" data-aos="fade-up" data-aos-delay="200" style="text-align: center;">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #4CC9F0, #06D6A0); margin: 0 auto 20px;">✅</div>
-                    <h3 class="card-title">3. Verifikasi</h3>
-                    <p class="card-text">Tim kami akan memverifikasi data dan dokumen Anda</p>
-                </div>
-
-                <div class="card" data-aos="fade-up" data-aos-delay="300" style="text-align: center;">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #06D6A0, #FFD166); margin: 0 auto 20px;">🎉</div>
-                    <h3 class="card-title">4. Pengumuman</h3>
-                    <p class="card-text">Hasil seleksi akan diumumkan sesuai jadwal</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================
-         CTA SECTION
-         ============================================ -->
-    <section class="cta-section">
-        <div class="container" data-aos="fade-up">
-            <h2>Siap Bergabung Bersama Kami?</h2>
-            <p>Jangan lewatkan kesempatan untuk menjadi bagian dari keluarga besar SMP KP 1 Baleendah. Daftarkan putra-putri Anda sekarang!</p>
-            <a href="/pendaftaran.html" class="btn btn-white btn-lg">
-                <i class="fas fa-edit"></i> Daftar Sekarang
-            </a>
-        </div>
-    </section>
-
-    <!-- ============================================
-         FOOTER
-         ============================================ -->
-    <footer class="footer">
-        <div class="footer-wave">
-            <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="display: block; width: 100%; height: 80px;">
-                <path d="M0 40L48 45.3C96 51 192 61 288 64C384 67 480 64 576 56C672 48 768 35 864 32C960 29 1056 35 1152 42.7C1248 51 1344 61 1392 66L1440 71V120H1392C1344 120 1248 120 1152 120C1056 120 960 120 864 120C768 120 672 120 576 120C480 120 384 120 288 120C192 120 96 120 48 120H0V40Z" fill="#3A0CA3"/>
-            </svg>
-        </div>
-        <div class="footer-content" style="background: linear-gradient(135deg, #3A0CA3 0%, #7209B7 100%);">
-            <div class="footer-container">
-                <div class="footer-col">
-                    <h3><i class="fas fa-school"></i> SMP KP 1 Baleendah</h3>
-                    <p>Membentuk generasi unggul, berkarakter, dan berprestasi sejak tahun 1994. Bergabunglah bersama kami untuk masa depan yang lebih cerah.</p>
-                    <div class="footer-social">
-                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                        <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            <div class="hero-portal-grid">
+                <div class="hero-portal-content">
+                    <div class="hero-pill">
+                        <i class="fas fa-award"></i>
+                        <span data-cms="heroBadge">Penerimaan Murid Baru Tahun Ajaran 2025/2026</span>
+                    </div>
+                    <h1 class="hero-portal-title" data-cms="heroTitle">
+                        Wujudkan Generasi Cerdas, <span class="highlight">Berkarakter & Berakhlak Mulia</span>
+                    </h1>
+                    <p class="hero-portal-subtitle" data-cms="heroSubtitle">
+                        Selamat datang di portal resmi SMP KP 1 Baleendah. Kami hadir mendampingi masa depan buah hati Anda melalui pendidikan berkualitas dengan kurikulum merdeka dan pembiasaan nilai-nilai islami.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="/pendaftaran.html" class="btn btn-gold btn-lg">
+                            <i class="fas fa-edit"></i> Daftar Sekarang
+                        </a>
+                        <a href="/cek-status.html" class="btn btn-outline-white btn-lg">
+                            <i class="fas fa-search"></i> Cek Status Pendaftaran
+                        </a>
+                    </div>
+                    <div class="hero-stats-row">
+                        <div class="hero-stat-card">
+                            <div class="hero-stat-num" data-cms="stat1Value">500+</div>
+                            <div class="hero-stat-desc" data-cms="stat1Label">Siswa Aktif</div>
+                        </div>
+                        <div class="hero-stat-card">
+                            <div class="hero-stat-num" data-cms="stat2Value">40+</div>
+                            <div class="hero-stat-desc" data-cms="stat2Label">Guru & Staf Pendidik</div>
+                        </div>
+                        <div class="hero-stat-card">
+                            <div class="hero-stat-num" data-cms="stat3Value">15+</div>
+                            <div class="hero-stat-desc" data-cms="stat3Label">Ekstrakurikuler</div>
+                        </div>
+                        <div class="hero-stat-card">
+                            <div class="hero-stat-num" data-cms="stat4Value">A</div>
+                            <div class="hero-stat-desc" data-cms="stat4Label">Terakreditasi BAN-S/M</div>
+                        </div>
                     </div>
                 </div>
 
+                <!-- SPMB Quick Card -->
+                <div class="hero-widget-card">
+                    <span class="hero-widget-badge"><i class="fas fa-clock"></i> Periode Pendaftaran Aktif</span>
+                    <h3 class="hero-widget-title">Pendaftaran SPMB Online</h3>
+                    <p class="hero-widget-desc">Proses pendaftaran mudah, cepat, dan transparan langsung dari rumah.</p>
+
+                    <div class="widget-timeline">
+                        <div class="widget-timeline-item">
+                            <div class="widget-timeline-icon"><i class="fas fa-check"></i></div>
+                            <div class="widget-timeline-text">
+                                <h4>Gelombang 1 Reguler</h4>
+                                <p>1 Oktober - 30 November 2025</p>
+                            </div>
+                        </div>
+                        <div class="widget-timeline-item">
+                            <div class="widget-timeline-icon"><i class="fas fa-file-alt"></i></div>
+                            <div class="widget-timeline-text">
+                                <h4>Syarat Berkas</h4>
+                                <p>Pas Foto, KK, dan Akta Kelahiran</p>
+                            </div>
+                        </div>
+                        <div class="widget-timeline-item">
+                            <div class="widget-timeline-icon"><i class="fas fa-print"></i></div>
+                            <div class="widget-timeline-text">
+                                <h4>Bukti Pendaftaran</h4>
+                                <p>Dapat langsung diunduh format PDF</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="/pendaftaran.html" class="btn btn-primary btn-block">
+                        <i class="fas fa-arrow-right"></i> Buka Formulir Pendaftaran
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         5. SAMBUTAN KEPALA SEKOLAH
+         ============================================ -->
+    <section class="section" id="profil">
+        <div class="container">
+            <div class="sambutan-box">
+                <div class="kepsek-photo-col">
+                    <div class="kepsek-img-wrapper" id="kepsekImgContainer">
+                        <div class="kepsek-placeholder">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                    </div>
+                    <div class="kepsek-name" data-cms="kepsekNama">H. Asep Supriatna, S.Pd., M.M.</div>
+                    <div class="kepsek-title" data-cms="kepsekJabatan">Kepala SMP KP 1 Baleendah</div>
+                </div>
+                <div class="sambutan-content">
+                    <div class="section-tag"><i class="fas fa-quote-left"></i> Sambutan Kepala Sekolah</div>
+                    <h2 style="font-size:1.8rem;margin-bottom:16px;color:var(--primary-dark);">
+                        Selamat Datang di Portal Resmi SMP KP 1 Baleendah
+                    </h2>
+                    <div class="sambutan-text" data-cms="kepsekSambutan">
+                        "Puji dan syukur kita panjatkan ke hadirat Tuhan Yang Maha Esa. Kami menyambut hangat kehadiran bapak, ibu orang tua, dan calon peserta didik baru di SMP KP 1 Baleendah. Komitmen kami adalah memberikan ruang terbaik bagi setiap anak untuk tumbuh menjadi pribadi yang berilmu, bertakwa, santun dalam tutur kata, dan berdaya saing global melalui lingkungan pendidikan yang aman, nyaman, dan berkarakter."
+                    </div>
+                    <div style="display:flex;gap:12px;align-items:center;">
+                        <span style="font-weight:700;color:var(--primary);"><i class="fas fa-check-circle"></i> Berakhlak Mulia</span>
+                        <span style="color:#cbd5e1;">•</span>
+                        <span style="font-weight:700;color:var(--primary);"><i class="fas fa-check-circle"></i> Cerdas & Mandiri</span>
+                        <span style="color:#cbd5e1;">•</span>
+                        <span style="font-weight:700;color:var(--primary);"><i class="fas fa-check-circle"></i> Berprestasi</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         6. VISI & MISI SEKOLAH
+         ============================================ -->
+    <section class="section section-alt">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Arah & Nilai Sekolah</span>
+                <h2 class="section-title">Visi & Misi Sekolah</h2>
+                <p class="section-subtitle">Fondasi utama kami dalam membimbing generasi penerus bangsa menuju masa depan yang gemilang.</p>
+            </div>
+
+            <div class="visi-misi-grid">
+                <!-- Visi -->
+                <div class="visi-card">
+                    <div class="card-header-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3 style="font-size:1.4rem;color:var(--accent-green);margin-bottom:14px;">Visi Sekolah</h3>
+                    <p style="font-size:1.05rem;line-height:1.75;color:var(--text-dark);font-weight:500;" data-cms="visiSekolah">
+                        "Terwujudnya peserta didik yang religius, berprestasi, berwawasan lingkungan, dan berdaya saing global dengan berlandaskan profil pelajar Pancasila."
+                    </p>
+                </div>
+
+                <!-- Misi -->
+                <div class="misi-card">
+                    <div class="card-header-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3 style="font-size:1.4rem;color:var(--primary);margin-bottom:14px;">Misi Sekolah</h3>
+                    <div class="misi-list" id="misiContainer" data-cms="misiSekolah">
+                        <div class="misi-item">
+                            <div class="misi-num">1</div>
+                            <p>Menyelenggarakan pembelajaran berkualitas yang berpusat pada minat, bakat, dan potensi peserta didik.</p>
+                        </div>
+                        <div class="misi-item">
+                            <div class="misi-num">2</div>
+                            <p>Menanamkan nilai-nilai keimanan, ketaqwaan, dan pembiasaan akhlak mulia dalam kehidupan sehari-hari.</p>
+                        </div>
+                        <div class="misi-item">
+                            <div class="misi-num">3</div>
+                            <p>Mengembangkan literasi digital dan penguasaan teknologi informasi untuk menghadapi tantangan masa depan.</p>
+                        </div>
+                        <div class="misi-item">
+                            <div class="misi-num">4</div>
+                            <p>Menciptakan lingkungan sekolah yang asri, bersih, aman, dan ramah anak.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         7. PROGRAM UNGGULAN
+         ============================================ -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Keunggulan Pendidikan</span>
+                <h2 class="section-title">Program Unggulan</h2>
+                <p class="section-subtitle">Program pembelajaran komprehensif yang dirancang untuk mengoptimalkan potensi akademis dan non-akademis siswa.</p>
+            </div>
+
+            <div class="program-grid">
+                <div class="program-card">
+                    <div class="program-icon"><i class="fas fa-book-open"></i></div>
+                    <h3 data-cms="prog1Judul">Kurikulum Merdeka</h3>
+                    <p data-cms="prog1Desc">Pembelajaran intrakurikuler yang beragam di mana konten dirancang lebih optimal agar peserta didik memiliki cukup waktu mendalami konsep.</p>
+                </div>
+                <div class="program-card">
+                    <div class="program-icon"><i class="fas fa-mosque"></i></div>
+                    <h3 data-cms="prog2Judul">Pembiasaan Keagamaan</h3>
+                    <p data-cms="prog2Desc">Sholat dhuha dan dzuhur berjamaah, tahfidz Al-Quran juz 30, serta pembinaan akhlak mulia sebagai fondasi moral peserta didik.</p>
+                </div>
+                <div class="program-card">
+                    <div class="program-icon"><i class="fas fa-laptop-code"></i></div>
+                    <h3 data-cms="prog3Judul">Literasi Digital & IT</h3>
+                    <p data-cms="prog3Desc">Pengenalan komputasi dasar, pemanfaatan laboratorium komputer modern, serta pembelajaran berbasis teknologi ramah siswa.</p>
+                </div>
+                <div class="program-card">
+                    <div class="program-icon"><i class="fas fa-trophy"></i></div>
+                    <h3 data-cms="prog4Judul">Ekstrakurikuler & Prestasi</h3>
+                    <p data-cms="prog4Desc">Wadah pembinaan minat bakat mulai dari Pramuka, Paskibra, PMR, Futsal, Seni Musik, hingga Club Matematika & Sains.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         8. ALUR PENDAFTARAN SPMB
+         ============================================ -->
+    <section class="section section-alt" id="alur">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Panduan Pendaftaran</span>
+                <h2 class="section-title">Alur Pendaftaran SPMB Online</h2>
+                <p class="section-subtitle">4 Langkah mudah dan praktis untuk mendaftar sebagai peserta didik baru di SMP KP 1 Baleendah.</p>
+            </div>
+
+            <div class="alur-grid">
+                <div class="alur-card">
+                    <div class="alur-step-badge">1</div>
+                    <h3>Isi Formulir Online</h3>
+                    <p>Lengkapi formulir identitas calon siswa dan data orang tua/wali secara online.</p>
+                </div>
+                <div class="alur-card">
+                    <div class="alur-step-badge">2</div>
+                    <h3>Upload Dokumen</h3>
+                    <p>Unggah berkas persyaratan: Pas Foto 3x4, Kartu Keluarga (KK), dan Akta Kelahiran.</p>
+                </div>
+                <div class="alur-card">
+                    <div class="alur-step-badge">3</div>
+                    <h3>Simpan Bukti Pendaftaran</h3>
+                    <p>Dapatkan Nomor Pendaftaran resmi dan unduh dokumen bukti registrasi dalam format PDF.</p>
+                </div>
+                <div class="alur-card">
+                    <div class="alur-step-badge">4</div>
+                    <h3>Cek Status & Pengumuman</h3>
+                    <p>Pantau hasil seleksi melalui menu Cek Status kapan saja secara transparan.</p>
+                </div>
+            </div>
+
+            <div style="text-align:center;margin-top:40px;">
+                <a href="/pendaftaran.html" class="btn btn-primary btn-lg">
+                    <i class="fas fa-file-signature"></i> Mulai Isi Formulir Sekarang
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         9. INFORMASI & BERITA TERBARU (TABS)
+         ============================================ -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Pusat Informasi</span>
+                <h2 class="section-title">Informasi, Pengumuman & Berita</h2>
+                <p class="section-subtitle">Dapatkan kabar terbaru, jadwal resmi, dan ragam kegiatan sekolah.</p>
+            </div>
+
+            <!-- Tab Filter Poin 2 Permintaan User -->
+            <div class="info-tabs">
+                <button class="info-tab-btn active" data-filter="all"><i class="fas fa-th-large"></i> Semua Informasi</button>
+                <button class="info-tab-btn" data-filter="pengumuman"><i class="fas fa-bullhorn"></i> Pengumuman</button>
+                <button class="info-tab-btn" data-filter="info"><i class="fas fa-info-circle"></i> Info Terbaru</button>
+                <button class="info-tab-btn" data-filter="berita"><i class="fas fa-newspaper"></i> Berita Sekolah</button>
+            </div>
+
+            <div class="news-grid" id="homeNewsGrid">
+                <!-- Item 1: Pengumuman -->
+                <div class="news-card" data-category="pengumuman">
+                    <div class="news-header-thumb" style="background: linear-gradient(135deg, #153e7e, #1e40af);">
+                        <span class="news-category-badge badge-pengumuman">Pengumuman</span>
+                        <i class="fas fa-scroll"></i>
+                    </div>
+                    <div class="news-body">
+                        <div class="news-meta">
+                            <span><i class="far fa-calendar-alt"></i> 15 Okt 2025</span>
+                            <span><i class="far fa-user"></i> Panitia SPMB</span>
+                        </div>
+                        <h3 class="news-title">Pendaftaran Murid Baru Gelombang I Resmi Dibuka</h3>
+                        <p class="news-excerpt">Pendaftaran online untuk Tahun Ajaran 2025/2026 telah dibuka. Pastikan Anda telah mempersiapkan dokumen Pas Foto, KK, dan Akta Kelahiran.</p>
+                        <a href="/pendaftaran.html" class="news-readmore">Daftar Sekarang <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Item 2: Info Terbaru -->
+                <div class="news-card" data-category="info">
+                    <div class="news-header-thumb" style="background: linear-gradient(135deg, #0284c7, #0ea5e9);">
+                        <span class="news-category-badge badge-info">Info Terbaru</span>
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="news-body">
+                        <div class="news-meta">
+                            <span><i class="far fa-calendar-alt"></i> 10 Okt 2025</span>
+                            <span><i class="far fa-user"></i> Tata Usaha</span>
+                        </div>
+                        <h3 class="news-title">Jadwal Pelayanan Informasi & Konsultasi SPMB</h3>
+                        <p class="news-excerpt">Layanan konsultasi offline di sekretariat panitia dibuka setiap hari Senin hingga Jumat pukul 08.00 - 14.00 WIB bagi orang tua yang membutuhkan bantuan teknis.</p>
+                        <a href="/jadwal.html" class="news-readmore">Lihat Jadwal <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Item 3: Berita -->
+                <div class="news-card" data-category="berita">
+                    <div class="news-header-thumb" style="background: linear-gradient(135deg, #059669, #10b981);">
+                        <span class="news-category-badge badge-berita">Berita</span>
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <div class="news-body">
+                        <div class="news-meta">
+                            <span><i class="far fa-calendar-alt"></i> 05 Okt 2025</span>
+                            <span><i class="far fa-user"></i> Humas</span>
+                        </div>
+                        <h3 class="news-title">Siswa SMP KP 1 Baleendah Raih Prestasi di Tingkat Kabupaten</h3>
+                        <p class="news-excerpt">Selamat kepada kontingen siswa yang berhasil mempersembahkan medali emas pada ajang kompetisi sains dan seni tingkat SMP se-Kabupaten Bandung.</p>
+                        <a href="/pengumuman.html" class="news-readmore">Baca Selengkapnya <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align:center;margin-top:36px;">
+                <a href="/pengumuman.html" class="btn btn-secondary">
+                    <i class="fas fa-layer-group"></i> Lihat Semua Informasi & Pengumuman
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         10. CTA SECTION
+         ============================================ -->
+    <section class="section" style="padding-top:0;">
+        <div class="container">
+            <div class="cta-banner">
+                <h2>Bergabunglah Bersama Keluarga Besar SMP KP 1 Baleendah</h2>
+                <p>Masa depan gemilang putra-putri Anda dimulai dari pilihan sekolah yang tepat, berkarakter, dan berkualitas.</p>
+                <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
+                    <a href="/pendaftaran.html" class="btn btn-gold btn-lg">
+                        <i class="fas fa-file-signature"></i> Daftar Online Sekarang
+                    </a>
+                    <a href="https://wa.me/628123456789" target="_blank" class="btn btn-outline-white btn-lg" data-cms-wa="telepon">
+                        <i class="fab fa-whatsapp"></i> Hubungi WhatsApp Panitia
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         11. FOOTER RESMI SEKOLAH
+         ============================================ -->
+    <footer class="footer-official" id="kontak">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- Col 1 -->
+                <div class="footer-col footer-about">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                        <div style="width:36px;height:36px;background:var(--secondary);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3 style="margin:0;padding:0;border:none;color:#fff;" data-cms="namaSekolah">SMP KP 1 BALEENDAH</h3>
+                    </div>
+                    <p data-cms="deskripsi">
+                        Sekolah Menengah Pertama Karya Pembangunan 1 Baleendah berkomitmen mencetak generasi bangsa yang cerdas, berakhlak mulia, dan siap menghadapi tantangan masa depan dengan pendidikan berkualitas.
+                    </p>
+                </div>
+
+                <!-- Col 2 -->
                 <div class="footer-col">
-                    <h3>Link Cepat</h3>
-                    <ul>
-                        <li><a href="/"><i class="fas fa-chevron-right"></i> Beranda</a></li>
-                        <li><a href="/pendaftaran.html"><i class="fas fa-chevron-right"></i> Pendaftaran</a></li>
-                        <li><a href="/cek-status.html"><i class="fas fa-chevron-right"></i> Cek Status</a></li>
-                        <li><a href="/pengumuman.html"><i class="fas fa-chevron-right"></i> Pengumuman</a></li>
-                        <li><a href="/jadwal.html"><i class="fas fa-chevron-right"></i> Jadwal</a></li>
-                        <li><a href="/galeri.html"><i class="fas fa-chevron-right"></i> Galeri</a></li>
+                    <h3>Navigasi</h3>
+                    <ul class="footer-links">
+                        <li><a href="/"><i class="fas fa-angle-right"></i> Beranda</a></li>
+                        <li><a href="#profil"><i class="fas fa-angle-right"></i> Profil & Sambutan</a></li>
+                        <li><a href="#alur"><i class="fas fa-angle-right"></i> Alur Pendaftaran</a></li>
+                        <li><a href="/pengumuman.html"><i class="fas fa-angle-right"></i> Pengumuman & Berita</a></li>
+                        <li><a href="/galeri.html"><i class="fas fa-angle-right"></i> Galeri Kegiatan</a></li>
                     </ul>
                 </div>
 
+                <!-- Col 3 -->
                 <div class="footer-col">
-                    <h3>Kontak Kami</h3>
-                    <ul>
-                        <li><a href="#"><i class="fas fa-map-marker-alt"></i> Jl. Baleendah, Kab. Bandung</a></li>
-                        <li><a href="tel:+62221234567"><i class="fas fa-phone"></i> (022) 123-4567</a></li>
-                        <li><a href="mailto:info@smpkp1baleendah.sch.id"><i class="fas fa-envelope"></i> info@smpkp1baleendah.sch.id</a></li>
-                        <li><a href="#"><i class="fas fa-clock"></i> Senin - Jumat: 07.00 - 15.00</a></li>
+                    <h3>Layanan SPMB</h3>
+                    <ul class="footer-links">
+                        <li><a href="/pendaftaran.html"><i class="fas fa-angle-right"></i> Pendaftaran Online</a></li>
+                        <li><a href="/cek-status.html"><i class="fas fa-angle-right"></i> Cek Status Seleksi</a></li>
+                        <li><a href="/jadwal.html"><i class="fas fa-angle-right"></i> Jadwal & Persyaratan</a></li>
+                        <li><a href="/admin/"><i class="fas fa-angle-right"></i> Login Petugas SPMB</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4 -->
+                <div class="footer-col">
+                    <h3>Kontak Resmi</h3>
+                    <ul class="footer-contact-list">
+                        <li>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span data-cms="alamat">Jl. Adipati Agung, No. 32 Baleendah, Bandung, Jawa Barat 40375</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-phone-alt"></i>
+                            <span data-cms="telepon">(022) 1234-5678</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <span data-cms="email">info@smpkp1baleendah.sch.id</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-clock"></i>
+                            <span data-cms="jamLayanan">Senin - Jumat: 07.30 - 15.00 WIB</span>
+                        </li>
                     </ul>
                 </div>
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; <span id="footerYear"></span> SPMB SMP KP 1 Baleendah. Hak Cipta Dilindungi.</p>
+                <div>
+                    &copy; <span id="currentYear">2026</span> <strong data-cms="namaSekolah">SMP KP 1 BALEENDAH</strong>. Seluruh Hak Cipta Dilindungi.
+                </div>
+                <div>
+                    Portal Resmi Penerimaan Murid Baru
+                </div>
             </div>
         </div>
     </footer>
 
-    <!-- ============================================
-         SCRIPTS
-         ============================================ -->
-    <!-- AOS Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-
-    <!-- Config -->
+    <!-- Scripts -->
     <script src="/js/config.js"></script>
-
-    <!-- App -->
     <script src="/js/app.js"></script>
-
-    <script>
-        // Initialize AOS
-        AOS.init({
-            duration: 800,
-            once: true
-        });
-
-        // Navbar scroll effect
-        window.addEventListener('scroll', function() {
-            const navbar = document.getElementById('navbar');
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-
-        // Mobile nav toggle
-        const navToggle = document.getElementById('navToggle');
-        const navMenu = document.getElementById('navMenu');
-
-        if (navToggle) {
-            navToggle.addEventListener('click', function() {
-                this.classList.toggle('active');
-                navMenu.classList.toggle('active');
-            });
-        }
-
-        // Close mobile nav on link click
-        document.querySelectorAll('.nav-link').forEach(function(link) {
-            link.addEventListener('click', function() {
-                navToggle.classList.remove('active');
-                navMenu.classList.remove('active');
-            });
-        });
-
-        // Footer year
-        var footerYearEl = document.getElementById('footerYear');
-        if (footerYearEl) {
-            footerYearEl.textContent = new Date().getFullYear();
-        }
-    </script>
-
 </body>
 </html>
