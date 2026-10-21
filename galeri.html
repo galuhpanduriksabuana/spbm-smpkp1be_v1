@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeri - SPMB SMP KP 1 BALEENDAH</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <span class="logo-icon">🎓</span>
+                <span class="logo-text">SPMB <span class="logo-highlight">SMP KP 1</span></span>
+            </a>
+            <div class="nav-menu" id="navMenu">
+                <a href="/" class="nav-link">Beranda</a>
+                <a href="/pendaftaran.html" class="nav-link">Pendaftaran</a>
+                <a href="/cek-status.html" class="nav-link">Cek Status</a>
+                <a href="/pengumuman.html" class="nav-link">Pengumuman</a>
+                <a href="/galeri.html" class="nav-link active">Galeri</a>
+                <a href="/jadwal.html" class="nav-link">Jadwal</a>
+                <a href="/admin/" class="nav-link nav-admin-link"><i class="fas fa-lock"></i> Admin</a>
+            </div>
+            <button class="nav-toggle" id="navToggle" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="page-hero-content">
+            <h1 data-aos="fade-up">Galeri Foto</h1>
+            <p data-aos="fade-up" data-aos-delay="100">Lihat suasana belajar dan kegiatan di SMP KP 1 Baleendah</p>
+            <div class="breadcrumb" data-aos="fade-up" data-aos-delay="200">
+                <a href="/">Beranda</a>
+                <span><i class="fas fa-chevron-right"></i></span>
+                <span class="current">Galeri</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="section">
+        <div class="container">
+            <!-- Gallery Filter -->
+            <div class="gallery-filter" data-aos="fade-up">
+                <button class="filter-btn active" data-filter="all">Semua</button>
+                <button class="filter-btn" data-filter="fasilitas">Fasilitas</button>
+                <button class="filter-btn" data-filter="kegiatan">Kegiatan</button>
+                <button class="filter-btn" data-filter="prestasi">Prestasi</button>
+            </div>
+
+            <!-- Gallery Grid -->
+            <div class="gallery-grid">
+                <!-- Item 1 -->
+                <div class="gallery-item" data-category="fasilitas" data-aos="fade-up" data-aos-delay="0">
+                    <div class="gallery-image" style="background: linear-gradient(135deg, #4361EE, #4CC9F0);">
+                        <span class="gallery-emoji">🏫</span>
+                    </div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-caption">Gedung Sekolah</span>
+                        <span class="gallery-category">Fasilitas</span>
+                    </div>
+                </div>
+
+                <!-- Item 2 -->
+                <div class="gallery-item" data-category="fasilitas" data-aos="fade-up" data-aos-delay="100">
+                    <div class="gallery-image" style="background: linear-gradient(135deg, #06D6A0, #4CC9F0);">
+                        <span class="gallery-emoji">📚</span>
+                    </div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-caption">Perpustakaan</span>
+                        <span class="gallery-category">Fasilitas</span>
+                    </div>
+                </div>
+
+                <!-- Item 3 -->
+                <div class="gallery-item" data-category="fasilitas" data-aos="fade-up" data-aos-delay="200">
+                    <div class="gallery-image" style="background: linear-gradient(135deg, #7209B7, #F72585);">
+                        <span class="gallery-emoji">🔬</span>
+                    </div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-caption">Laboratorium IPA</span>
+                        <span class="gallery-category">Fasilitas</span>
+                    </div>
+                </div>
+
+                <!-- Item 4 -->
+                <div class="gallery-item" data-category="kegiatan" data-aos="fade-up" data-aos-delay="0">
+                    <div class="gallery-image" style="background: linear-gradient(135deg, #EF476F, #FFD166);">
+                        <span class="gallery-emoji">🏃</span>
+                    </div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-caption">Kegiatan Olahraga</span>
+                        <span class="gallery-category">Kegiatan</span>
+                    </div>
+                </div>
+
+                <!-- Item 5 -->
+                <div class="gallery-item" data-category="kegiatan" data-aos="fade-up" data-aos-delay="100">
+                    <div class="gallery-image" style="background: linear-gradient(135deg, #F72585, #7209B7);">
+                        <span class="gallery-emoji">🎨</span>
+                    </div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-caption">Kelas Seni</span>
+                        <span class="gallery-category">Kegiatan</span>
+                    </div>
+                </div>
+
+                <!-- Item 6 -->
+                <div class="gallery-item" data-category="kegiatan" data-aos="fade-up" data-aos-delay="200">
+                    <div class="gallery-image" style="background: linear-gradient(135deg, #06D6A0, #4361EE);">
+                        <span class="gallery-emoji">🏕️</span>
+                    </div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-caption">Perkemahan Pramuka</span>
+                        <span class="gallery-category">Kegiatan</span>
+                    </div>
+                </div>
+
+                <!-- Item 7 -->
+                <div class="gallery-item" data-category="prestasi" data-aos="fade-up" data-aos-delay="0">
+                    <div class="gallery-image" style="background: linear-gradient(135deg, #FFD166, #EF476F);">
+                        <span class="gallery-emoji">🏆</span>
+                    </div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-caption">Juara Olimpiade</span>
+                        <span class="gallery-category">Prestasi</span>
+                    </div>
+                </div>
+
+                <!-- Item 8 -->
+                <div class="gallery-item" data-category="prestasi" data-aos="fade-up" data-aos-delay="100">
+                    <div class="gallery-image" style="background: linear-gradient(135deg, #4CC9F0, #7209B7);">
+                        <span class="gallery-emoji">🥇</span>
+                    </div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-caption">Lomba Cerdas Cermat</span>
+                        <span class="gallery-category">Prestasi</span>
+                    </div>
+                </div>
+
+                <!-- Item 9 -->
+                <div class="gallery-item" data-category="fasilitas" data-aos="fade-up" data-aos-delay="200">
+                    <div class="gallery-image" style="background: linear-gradient(135deg, #4361EE, #06D6A0);">
+                        <span class="gallery-emoji">💻</span>
+                    </div>
+                    <div class="gallery-overlay">
+                        <span class="gallery-caption">Lab Komputer</span>
+                        <span class="gallery-category">Fasilitas</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox Modal -->
+    <div class="lightbox-modal" id="galleryLightbox">
+        <button class="lightbox-close" id="lightboxClose">&times;</button>
+        <div class="lightbox-content">
+            <div class="lightbox-image" id="lightboxImage"></div>
+            <div class="lightbox-caption" id="lightboxCaption"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-wave">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" preserveAspectRatio="none">
+                <path fill="currentColor" d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,64C960,75,1056,85,1152,80C1248,75,1344,53,1392,42.7L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z"></path>
+            </svg>
+        </div>
+        <div class="footer-content">
+            <div class="footer-container">
+                <div class="footer-col">
+                    <h3>🎓 SMP KP 1 BALEENDAH</h3>
+                    <p>Mencetak generasi penerus bangsa yang cerdas, berakhlak mulia, dan siap menghadapi tantangan masa depan.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Link Cepat</h3>
+                    <ul>
+                        <li><a href="/pendaftaran.html"><i class="fas fa-chevron-right"></i> Pendaftaran</a></li>
+                        <li><a href="/cek-status.html"><i class="fas fa-chevron-right"></i> Cek Status</a></li>
+                        <li><a href="/pengumuman.html"><i class="fas fa-chevron-right"></i> Pengumuman</a></li>
+                        <li><a href="/galeri.html"><i class="fas fa-chevron-right"></i> Galeri</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Kontak Kami</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> Baleendah, Kab. Bandung</li>
+                        <li><i class="fas fa-phone"></i> (022) xxx-xxxx</li>
+                        <li><i class="fas fa-envelope"></i> info@smpkp1baleendah.sch.id</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SMP KP 1 BALEENDAH. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/app.js"></script>
+    <script>AOS.init({ duration: 800, once: true });</script>
+</body>
+</html>

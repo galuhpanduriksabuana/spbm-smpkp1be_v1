@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Status - SPMB SMP KP 1 BALEENDAH</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <span class="logo-icon">🎓</span>
+                <span class="logo-text">SPMB <span class="logo-highlight">SMP KP 1</span></span>
+            </a>
+            <div class="nav-menu" id="navMenu">
+                <a href="/" class="nav-link">Beranda</a>
+                <a href="/pendaftaran.html" class="nav-link">Pendaftaran</a>
+                <a href="/cek-status.html" class="nav-link active">Cek Status</a>
+                <a href="/pengumuman.html" class="nav-link">Pengumuman</a>
+                <a href="/galeri.html" class="nav-link">Galeri</a>
+                <a href="/jadwal.html" class="nav-link">Jadwal</a>
+                <a href="/admin/" class="nav-link nav-admin-link"><i class="fas fa-lock"></i> Admin</a>
+            </div>
+            <button class="nav-toggle" id="navToggle" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="page-hero-content">
+            <h1 data-aos="fade-up">Cek Status Pendaftaran</h1>
+            <p data-aos="fade-up" data-aos-delay="100">Masukkan nomor pendaftaran untuk melihat status terkini</p>
+            <div class="breadcrumb" data-aos="fade-up" data-aos-delay="200">
+                <a href="/">Beranda</a>
+                <span><i class="fas fa-chevron-right"></i></span>
+                <span class="current">Cek Status</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Check Status Section -->
+    <section class="section">
+        <div class="container">
+            <div class="status-check-card" data-aos="fade-up">
+                <div class="status-check-header">
+                    <div class="status-check-icon">🔍</div>
+                    <h2>Masukkan Nomor Pendaftaran</h2>
+                    <p>Cek status pendaftaran Anda dengan memasukkan nomor pendaftaran yang diperoleh saat mendaftar</p>
+                </div>
+                <form id="statusForm" class="status-check-form">
+                    <div class="form-group">
+                        <div class="input-with-icon">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="noPendaftaranInput" class="form-control" placeholder="Contoh: SPMB-2026-001" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" id="btnCekStatus">
+                        <i class="fas fa-search"></i> Cek Status
+                    </button>
+                </form>
+
+                <!-- Loading Spinner -->
+                <div class="loading-spinner" id="statusLoading" style="display:none;">
+                    <div class="spinner"></div>
+                    <p>Mencari data pendaftaran...</p>
+                </div>
+            </div>
+
+            <!-- Status Result -->
+            <div id="statusResult" class="status-result" style="display:none;" data-aos="fade-up">
+                <div class="status-result-card">
+                    <div class="status-result-icon" id="statusIcon"></div>
+                    <div class="status-result-badge" id="statusBadge"></div>
+                    <div class="status-result-info">
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-user"></i> Nama Lengkap</span>
+                            <span class="info-value" id="resultNama"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-hashtag"></i> No. Pendaftaran</span>
+                            <span class="info-value" id="resultNoPendaftaran"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label"><i class="fas fa-info-circle"></i> Status</span>
+                            <span class="info-value" id="resultStatus"></span>
+                        </div>
+                    </div>
+                    <div class="status-result-actions" id="statusActions"></div>
+                </div>
+            </div>
+
+            <!-- Status Error -->
+            <div id="statusError" class="status-error" style="display:none;" data-aos="fade-up">
+                <div class="status-error-card">
+                    <div class="status-error-icon">❌</div>
+                    <h3>Data Tidak Ditemukan</h3>
+                    <p id="statusErrorMessage">Nomor pendaftaran tidak ditemukan. Pastikan nomor yang Anda masukkan benar.</p>
+                    <button class="btn btn-secondary" onclick="resetStatusCheck()">
+                        <i class="fas fa-redo"></i> Coba Lagi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-wave">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" preserveAspectRatio="none">
+                <path fill="currentColor" d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,64C960,75,1056,85,1152,80C1248,75,1344,53,1392,42.7L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z"></path>
+            </svg>
+        </div>
+        <div class="footer-content">
+            <div class="footer-container">
+                <div class="footer-col">
+                    <h3>🎓 SMP KP 1 BALEENDAH</h3>
+                    <p>Mencetak generasi penerus bangsa yang cerdas, berakhlak mulia, dan siap menghadapi tantangan masa depan.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Link Cepat</h3>
+                    <ul>
+                        <li><a href="/pendaftaran.html"><i class="fas fa-chevron-right"></i> Pendaftaran</a></li>
+                        <li><a href="/cek-status.html"><i class="fas fa-chevron-right"></i> Cek Status</a></li>
+                        <li><a href="/pengumuman.html"><i class="fas fa-chevron-right"></i> Pengumuman</a></li>
+                        <li><a href="/galeri.html"><i class="fas fa-chevron-right"></i> Galeri</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Kontak Kami</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> Baleendah, Kab. Bandung</li>
+                        <li><i class="fas fa-phone"></i> (022) xxx-xxxx</li>
+                        <li><i class="fas fa-envelope"></i> info@smpkp1baleendah.sch.id</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SMP KP 1 BALEENDAH. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/app.js"></script>
+    <script>AOS.init({ duration: 800, once: true });</script>
+</body>
+</html>

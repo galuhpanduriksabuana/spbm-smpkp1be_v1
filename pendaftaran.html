@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran - SPMB SMP KP 1 BALEENDAH</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <span class="logo-icon">🎓</span>
+                <span class="logo-text">SPMB <span class="logo-highlight">SMP KP 1</span></span>
+            </a>
+            <div class="nav-menu" id="navMenu">
+                <a href="/" class="nav-link">Beranda</a>
+                <a href="/pendaftaran.html" class="nav-link active">Pendaftaran</a>
+                <a href="/cek-status.html" class="nav-link">Cek Status</a>
+                <a href="/pengumuman.html" class="nav-link">Pengumuman</a>
+                <a href="/galeri.html" class="nav-link">Galeri</a>
+                <a href="/jadwal.html" class="nav-link">Jadwal</a>
+                <a href="/admin/" class="nav-link nav-admin-link"><i class="fas fa-lock"></i> Admin</a>
+            </div>
+            <button class="nav-toggle" id="navToggle" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="page-hero-content">
+            <h1 data-aos="fade-up">Formulir Pendaftaran</h1>
+            <p data-aos="fade-up" data-aos-delay="100">Lengkapi data di bawah ini untuk mendaftar sebagai calon siswa baru</p>
+            <div class="breadcrumb" data-aos="fade-up" data-aos-delay="200">
+                <a href="/">Beranda</a>
+                <span><i class="fas fa-chevron-right"></i></span>
+                <span class="current">Pendaftaran</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Registration Form Section -->
+    <section class="section">
+        <div class="container">
+            <!-- Step Indicator -->
+            <div class="step-indicator" id="stepIndicator" data-aos="fade-up">
+                <div class="step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Data Pribadi</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Data Orang Tua</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Upload Dokumen</div>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form id="registrationForm" data-aos="fade-up" data-aos-delay="100">
+                <!-- Step 1: Data Pribadi -->
+                <div class="form-step active" id="step1">
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <h2><i class="fas fa-user"></i> Data Pribadi</h2>
+                            <p>Lengkapi data diri calon siswa baru</p>
+                        </div>
+                        <div class="form-card-body">
+                            <div class="form-group">
+                                <label for="nama_lengkap"><i class="fas fa-user"></i> Nama Lengkap <span class="required">*</span></label>
+                                <input type="text" id="nama_lengkap" name="Nama Lengkap" class="form-control" placeholder="Masukkan nama lengkap" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="nik"><i class="fas fa-id-card"></i> NIK <span class="required">*</span></label>
+                                <input type="text" id="nik" name="NIK" class="form-control" placeholder="Masukkan 16 digit NIK" pattern="\d{16}" maxlength="16" required>
+                                <small class="form-hint">NIK terdiri dari 16 digit angka</small>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="tempat_lahir"><i class="fas fa-map-marker-alt"></i> Tempat Lahir <span class="required">*</span></label>
+                                    <input type="text" id="tempat_lahir" name="Tempat Lahir" class="form-control" placeholder="Kota/Kabupaten" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tanggal_lahir"><i class="fas fa-calendar"></i> Tanggal Lahir <span class="required">*</span></label>
+                                    <input type="date" id="tanggal_lahir" name="Tanggal Lahir" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="jenis_kelamin"><i class="fas fa-venus-mars"></i> Jenis Kelamin <span class="required">*</span></label>
+                                <select id="jenis_kelamin" name="Jenis Kelamin" class="form-control" required>
+                                    <option value="">-- Pilih Jenis Kelamin --</option>
+                                    <option value="Laki-laki">Laki-laki</option>
+                                    <option value="Perempuan">Perempuan</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="alamat"><i class="fas fa-home"></i> Alamat Lengkap <span class="required">*</span></label>
+                                <textarea id="alamat" name="Alamat" class="form-control" rows="3" placeholder="Masukkan alamat lengkap" required></textarea>
+                            </div>
+                        </div>
+                        <div class="form-card-footer">
+                            <div></div>
+                            <button type="button" class="btn btn-primary btn-next" onclick="nextStep(1)">
+                                Selanjutnya <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Data Orang Tua -->
+                <div class="form-step" id="step2">
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <h2><i class="fas fa-users"></i> Data Orang Tua / Wali</h2>
+                            <p>Lengkapi data orang tua atau wali</p>
+                        </div>
+                        <div class="form-card-body">
+                            <div class="form-group">
+                                <label for="nama_ortu"><i class="fas fa-user-tie"></i> Nama Orang Tua/Wali <span class="required">*</span></label>
+                                <input type="text" id="nama_ortu" name="Nama Orang Tua" class="form-control" placeholder="Masukkan nama orang tua/wali" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="no_hp"><i class="fab fa-whatsapp"></i> No. WhatsApp Aktif <span class="required">*</span></label>
+                                <input type="text" id="no_hp" name="No HP" class="form-control" placeholder="Contoh: 08123456789" required>
+                                <small class="form-hint">Pastikan nomor WhatsApp aktif untuk menerima informasi</small>
+                            </div>
+                        </div>
+                        <div class="form-card-footer">
+                            <button type="button" class="btn btn-secondary btn-prev" onclick="prevStep(2)">
+                                <i class="fas fa-arrow-left"></i> Sebelumnya
+                            </button>
+                            <button type="button" class="btn btn-primary btn-next" onclick="nextStep(2)">
+                                Selanjutnya <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Upload Dokumen -->
+                <div class="form-step" id="step3">
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <h2><i class="fas fa-cloud-upload-alt"></i> Upload Dokumen</h2>
+                            <p>Upload dokumen yang diperlukan untuk pendaftaran</p>
+                        </div>
+                        <div class="form-card-body">
+                            <!-- Pas Foto -->
+                            <div class="form-group">
+                                <label><i class="fas fa-camera"></i> Pas Foto 3x4 <span class="required">*</span></label>
+                                <div class="file-upload-area" id="uploadFoto" data-input="foto_siswa">
+                                    <input type="file" id="foto_siswa" name="Foto Siswa" accept="image/*" hidden>
+                                    <div class="file-upload-content">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Klik atau drag file ke sini</p>
+                                        <small>Format: JPG, PNG (Maks. 2MB)</small>
+                                    </div>
+                                    <div class="file-preview" id="previewFoto" style="display:none;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Kartu Keluarga -->
+                            <div class="form-group">
+                                <label><i class="fas fa-file-alt"></i> Kartu Keluarga <span class="required">*</span></label>
+                                <div class="file-upload-area" id="uploadKK" data-input="kartu_keluarga">
+                                    <input type="file" id="kartu_keluarga" name="Kartu Keluarga" accept="image/*,application/pdf" hidden>
+                                    <div class="file-upload-content">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Klik atau drag file ke sini</p>
+                                        <small>Format: JPG, PNG, PDF (Maks. 2MB)</small>
+                                    </div>
+                                    <div class="file-preview" id="previewKK" style="display:none;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Akta Kelahiran -->
+                            <div class="form-group">
+                                <label><i class="fas fa-file-alt"></i> Akta Kelahiran <span class="required">*</span></label>
+                                <div class="file-upload-area" id="uploadAkta" data-input="akta_kelahiran">
+                                    <input type="file" id="akta_kelahiran" name="Akta Kelahiran" accept="image/*,application/pdf" hidden>
+                                    <div class="file-upload-content">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Klik atau drag file ke sini</p>
+                                        <small>Format: JPG, PNG, PDF (Maks. 2MB)</small>
+                                    </div>
+                                    <div class="file-preview" id="previewAkta" style="display:none;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-card-footer">
+                            <button type="button" class="btn btn-secondary btn-prev" onclick="prevStep(3)">
+                                <i class="fas fa-arrow-left"></i> Sebelumnya
+                            </button>
+                            <button type="submit" class="btn btn-success btn-submit" id="btnSubmit">
+                                <i class="fas fa-paper-plane"></i> Kirim Pendaftaran
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Success Section -->
+            <div id="successSection" class="success-section" style="display:none;" data-aos="zoom-in">
+                <div class="success-card">
+                    <div class="success-icon">✅</div>
+                    <h2>Pendaftaran Berhasil!</h2>
+                    <div class="success-nopendaftaran">
+                        <p>Nomor Pendaftaran Anda:</p>
+                        <h3 id="noPendaftaranDisplay"></h3>
+                    </div>
+                    <p class="success-note">Simpan nomor pendaftaran ini untuk mengecek status pendaftaran Anda.</p>
+                    <div class="success-actions">
+                        <button class="btn btn-primary" id="btnCetakBukti" onclick="cetakBuktiPendaftaran()">
+                            <i class="fas fa-print"></i> Cetak Bukti Pendaftaran
+                        </button>
+                        <a href="/cek-status.html" class="btn btn-secondary">
+                            <i class="fas fa-search"></i> Cek Status Pendaftaran
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-wave">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" preserveAspectRatio="none">
+                <path fill="currentColor" d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,64C960,75,1056,85,1152,80C1248,75,1344,53,1392,42.7L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z"></path>
+            </svg>
+        </div>
+        <div class="footer-content">
+            <div class="footer-container">
+                <div class="footer-col">
+                    <h3>🎓 SMP KP 1 BALEENDAH</h3>
+                    <p>Mencetak generasi penerus bangsa yang cerdas, berakhlak mulia, dan siap menghadapi tantangan masa depan.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Link Cepat</h3>
+                    <ul>
+                        <li><a href="/pendaftaran.html"><i class="fas fa-chevron-right"></i> Pendaftaran</a></li>
+                        <li><a href="/cek-status.html"><i class="fas fa-chevron-right"></i> Cek Status</a></li>
+                        <li><a href="/pengumuman.html"><i class="fas fa-chevron-right"></i> Pengumuman</a></li>
+                        <li><a href="/galeri.html"><i class="fas fa-chevron-right"></i> Galeri</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Kontak Kami</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> Baleendah, Kab. Bandung</li>
+                        <li><i class="fas fa-phone"></i> (022) xxx-xxxx</li>
+                        <li><i class="fas fa-envelope"></i> info@smpkp1baleendah.sch.id</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SMP KP 1 BALEENDAH. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="/js/config.js"></script>
+    <script src="/js/app.js"></script>
+    <script>AOS.init({ duration: 800, once: true });</script>
+</body>
+</html>
