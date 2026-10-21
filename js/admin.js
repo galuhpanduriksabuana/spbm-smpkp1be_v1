@@ -1,5 +1,5 @@
 /**
- * SPMB SMP KP 1 BALEENDAH - Admin Script
+ * SPMB SMP KP 1 BALEENDAH - Admin Script (Dashboard & CMS)
  */
 
 let allRegistrants = [];
@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function () {
    1. AUTH & LOGIN
    ========================================================================== */
 function initAdminLogin() {
-    // If already logged in, redirect to dashboard
     if (localStorage.getItem('adminLoggedIn') === 'true') {
         window.location.href = '/admin/dashboard.html';
         return;
@@ -50,11 +49,9 @@ function initAdminLogin() {
 
         if (!username || !password) return;
 
-        // Reset error state
         if (loginError) loginError.classList.remove('show');
         if (loginCard) loginCard.classList.remove('shake');
 
-        // Loading state
         loginBtn.disabled = true;
         if (loginSpinner) loginSpinner.style.display = 'inline-block';
         if (loginBtnText) loginBtnText.textContent = 'Memeriksa...';
@@ -107,7 +104,6 @@ function initAdminLogin() {
    2. DASHBOARD INITIALIZATION
    ========================================================================== */
 function initAdminDashboard() {
-    // Auth Guard
     if (localStorage.getItem('adminLoggedIn') !== 'true') {
         window.location.href = '/admin/index.html';
         return;
@@ -164,7 +160,6 @@ function initTabNavigation() {
             const tabId = this.getAttribute('data-tab');
             switchTab(tabId);
 
-            // Close mobile sidebar
             const sidebar = document.getElementById('adminSidebar');
             const overlay = document.getElementById('sidebarOverlay');
             if (sidebar) sidebar.classList.remove('active');
@@ -188,9 +183,10 @@ window.switchTab = function (tabId) {
     if (targetContent) targetContent.classList.add('active');
 
     const titles = {
-        'dashboard': 'Dashboard',
-        'pendaftar': 'Data Pendaftar',
-        'pengaturan': 'Pengaturan SPMB'
+        'dashboard': 'Dashboard SPMB',
+        'pendaftar': 'Data Pendaftar Siswa Baru',
+        'cms': 'Edit Konten Website (CMS)',
+        'pengaturan': 'Pengaturan Sistem'
     };
     if (pageTitle && titles[tabId]) {
         pageTitle.textContent = titles[tabId];
@@ -252,7 +248,7 @@ function animateCount(elementId, targetValue) {
     if (!el) return;
 
     let start = 0;
-    const duration = 600;
+    const duration = 500;
     const stepTime = 20;
     const steps = duration / stepTime;
     const increment = targetValue / steps;
@@ -281,7 +277,6 @@ function renderCharts() {
     const monthlyCanvas = document.getElementById('monthlyChart');
     if (!statusCanvas || !monthlyCanvas || !window.Chart) return;
 
-    // 1. Status Distribution
     let diterima = 0, proses = 0, ditolak = 0;
     allRegistrants.forEach(item => {
         const s = (item.Status || 'Proses').toLowerCase();
@@ -297,7 +292,7 @@ function renderCharts() {
             labels: ['Diterima', 'Sedang Diproses', 'Ditolak'],
             datasets: [{
                 data: [diterima, proses, ditolak],
-                backgroundColor: ['#06D6A0', '#FFD166', '#EF476F'],
+                backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
                 borderWidth: 2,
                 borderColor: '#ffffff'
             }]
@@ -311,7 +306,6 @@ function renderCharts() {
         }
     });
 
-    // 2. Registrations Timeline (last 6 days/entries grouped)
     const monthCounts = {};
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
@@ -328,7 +322,7 @@ function renderCharts() {
     const monthlyValues = Object.values(monthCounts);
 
     if (monthlyLabels.length === 0) {
-        monthlyLabels.push('Bulan Ini');
+        monthlyLabels.push('Periode Ini');
         monthlyValues.push(allRegistrants.length);
     }
 
@@ -340,8 +334,8 @@ function renderCharts() {
             datasets: [{
                 label: 'Jumlah Pendaftar',
                 data: monthlyValues,
-                backgroundColor: '#4361EE',
-                borderRadius: 8
+                backgroundColor: '#153e7e',
+                borderRadius: 6
             }]
         },
         options: {
@@ -361,7 +355,7 @@ function renderCharts() {
 }
 
 /* ==========================================================================
-   5. TABLES (RECENT & MAIN)
+   5. TABLES & SEARCH
    ========================================================================== */
 function renderRecentTable() {
     const tbody = document.getElementById('recentTableBody');
@@ -489,7 +483,7 @@ function renderMainTable(page = 1) {
                 <td><strong>${noReg}</strong></td>
                 <td>${nama}</td>
                 <td>${nik}</td>
-                <td><span style="font-weight:600;color:${jk === 'L' ? '#4361EE' : '#F72585'};">${jk}</span></td>
+                <td><span style="font-weight:600;color:${jk === 'L' ? '#153e7e' : '#d97706'};">${jk}</span></td>
                 <td>
                     <a href="https://wa.me/${formatWaNumber(hp)}" target="_blank" style="color:var(--success);text-decoration:none;">
                         <i class="fab fa-whatsapp"></i> ${hp}
@@ -501,7 +495,7 @@ function renderMainTable(page = 1) {
                         <button class="btn-icon-sm btn-primary" onclick="openDetailModal('${noReg}')" title="Lihat Detail">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button class="btn-icon-sm btn-outline" onclick='generateStudentPDF(${JSON.stringify(item).replace(/'/g, "\\'")})' title="Cetak Bukti PDF">
+                        <button class="btn-icon-sm btn-secondary" onclick='generateStudentPDF(${JSON.stringify(item).replace(/'/g, "\\'")})' title="Cetak Bukti PDF">
                             <i class="fas fa-print"></i>
                         </button>
                     </div>
@@ -510,7 +504,6 @@ function renderMainTable(page = 1) {
         `;
     }).join('');
 
-    // Render pagination
     if (pagination) {
         let pagesHtml = '';
         if (totalPages > 1) {
@@ -522,7 +515,7 @@ function renderMainTable(page = 1) {
                     pagesHtml += `<span style="padding:4px 8px;">...</span>`;
                 }
             }
-            pagesHtml += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="renderMainTable(${currentPage + 1})"><i class="fas fa-chevron-right"></i></button>`;
+            pagesHtml += `<button class="page-btn ${currentPage === totalPages ? 'disabled' : ''} onclick="renderMainTable(${currentPage + 1})"><i class="fas fa-chevron-right"></i></button>`;
         }
         pagination.innerHTML = pagesHtml;
     }
@@ -542,7 +535,7 @@ function formatWaNumber(phone) {
 }
 
 /* ==========================================================================
-   6. DETAIL MODAL & STATUS UPDATE
+   6. DETAIL MODAL & UPDATE STATUS SISWA
    ========================================================================== */
 window.openDetailModal = function (noPendaftaran) {
     const item = allRegistrants.find(r => r['No Pendaftaran'] === noPendaftaran);
@@ -557,10 +550,10 @@ window.openDetailModal = function (noPendaftaran) {
     const currentStatus = item['Status'] || 'Proses';
 
     modalBody.innerHTML = `
-        <div style="background:#f0f4ff;padding:16px 20px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div style="background:#eff6ff;padding:16px 20px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border:1px solid #bfdbfe;">
             <div>
-                <span style="font-size:0.85rem;color:#666;">Nomor Pendaftaran</span>
-                <h2 style="margin:2px 0 0 0;font-size:1.4rem;color:var(--primary);">${item['No Pendaftaran'] || '-'}</h2>
+                <span style="font-size:0.82rem;color:#64748b;font-weight:600;">Nomor Registrasi:</span>
+                <h2 style="margin:2px 0 0 0;font-size:1.35rem;color:var(--primary-dark);">${item['No Pendaftaran'] || '-'}</h2>
             </div>
             <div style="display:flex;align-items:center;gap:10px;">
                 <select id="modalStatusSelect" class="form-select" style="padding:8px 12px;font-weight:600;">
@@ -574,23 +567,23 @@ window.openDetailModal = function (noPendaftaran) {
             </div>
         </div>
 
-        <h4 style="margin-bottom:12px;color:var(--text-dark);"><i class="fas fa-user"></i> Informasi Pribadi</h4>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:20px;">
-            <div><small style="color:#666;">Nama Lengkap:</small><br><strong>${item['Nama Lengkap'] || '-'}</strong></div>
-            <div><small style="color:#666;">NIK:</small><br><strong>${item['NIK'] || '-'}</strong></div>
-            <div><small style="color:#666;">Tempat, Tgl Lahir:</small><br><strong>${item['Tempat Lahir'] || '-'}, ${item['Tanggal Lahir'] || '-'}</strong></div>
-            <div><small style="color:#666;">Jenis Kelamin:</small><br><strong>${item['Jenis Kelamin'] || '-'}</strong></div>
-            <div style="grid-column:1/-1;"><small style="color:#666;">Alamat Lengkap:</small><br><strong>${item['Alamat'] || '-'}</strong></div>
+        <h4 style="margin-bottom:12px;color:var(--text-dark);font-size:1rem;"><i class="fas fa-user"></i> Data Diri Calon Siswa</h4>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:20px;background:#f8fafc;padding:16px;border-radius:8px;">
+            <div><small style="color:#64748b;">Nama Lengkap:</small><br><strong>${item['Nama Lengkap'] || '-'}</strong></div>
+            <div><small style="color:#64748b;">NIK:</small><br><strong>${item['NIK'] || '-'}</strong></div>
+            <div><small style="color:#64748b;">Tempat, Tgl Lahir:</small><br><strong>${item['Tempat Lahir'] || '-'}, ${item['Tanggal Lahir'] || '-'}</strong></div>
+            <div><small style="color:#64748b;">Jenis Kelamin:</small><br><strong>${item['Jenis Kelamin'] || '-'}</strong></div>
+            <div style="grid-column:1/-1;"><small style="color:#64748b;">Alamat Lengkap:</small><br><strong>${item['Alamat'] || '-'}</strong></div>
         </div>
 
-        <h4 style="margin-bottom:12px;color:var(--text-dark);"><i class="fas fa-users"></i> Informasi Kontak & Orang Tua</h4>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:20px;">
-            <div><small style="color:#666;">Nama Orang Tua / Wali:</small><br><strong>${item['Nama Orang Tua'] || '-'}</strong></div>
-            <div><small style="color:#666;">Nomor WhatsApp:</small><br><strong>${item['No HP'] || '-'}</strong></div>
-            <div><small style="color:#666;">Waktu Pendaftaran:</small><br><strong>${item['Timestamp'] ? new Date(item['Timestamp']).toLocaleString('id-ID') : '-'}</strong></div>
+        <h4 style="margin-bottom:12px;color:var(--text-dark);font-size:1rem;"><i class="fas fa-users"></i> Kontak & Wali Siswa</h4>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:20px;background:#f8fafc;padding:16px;border-radius:8px;">
+            <div><small style="color:#64748b;">Nama Orang Tua / Wali:</small><br><strong>${item['Nama Orang Tua'] || '-'}</strong></div>
+            <div><small style="color:#64748b;">WhatsApp Aktif:</small><br><strong>${item['No HP'] || '-'}</strong></div>
+            <div><small style="color:#64748b;">Waktu Pendaftaran:</small><br><strong>${item['Timestamp'] ? new Date(item['Timestamp']).toLocaleString('id-ID') : '-'}</strong></div>
         </div>
 
-        <h4 style="margin-bottom:12px;color:var(--text-dark);"><i class="fas fa-folder-open"></i> Berkas Dokumen</h4>
+        <h4 style="margin-bottom:12px;color:var(--text-dark);font-size:1rem;"><i class="fas fa-folder-open"></i> Berkas Persyaratan (Google Drive)</h4>
         <div style="margin-bottom:20px;">
             ${renderDocLink('Pas Foto 3x4', item['Foto Siswa'])}
             ${renderDocLink('Kartu Keluarga (KK)', item['Kartu Keluarga'])}
@@ -600,7 +593,7 @@ window.openDetailModal = function (noPendaftaran) {
         <div style="border-top:1px solid #e2e8f0;padding-top:16px;display:flex;justify-content:flex-end;gap:10px;">
             <button class="btn btn-secondary" onclick="closeDetailModal()">Tutup</button>
             <button class="btn btn-success" onclick='generateStudentPDF(${JSON.stringify(item).replace(/'/g, "\\'")})'>
-                <i class="fas fa-print"></i> Cetak Bukti Pendaftaran
+                <i class="fas fa-print"></i> Cetak Bukti PDF
             </button>
         </div>
     `;
@@ -664,7 +657,6 @@ window.handleUpdateStatus = async function (noPendaftaran) {
 
         if (result.status === 'success') {
             alert(`Status ${noPendaftaran} berhasil diubah menjadi "${newStatus}".`);
-            // Update local memory
             const idx = allRegistrants.findIndex(r => r['No Pendaftaran'] === noPendaftaran);
             if (idx !== -1) allRegistrants[idx]['Status'] = newStatus;
 
@@ -686,7 +678,117 @@ window.handleUpdateStatus = async function (noPendaftaran) {
 };
 
 /* ==========================================================================
-   7. SETTINGS MANAGEMENT
+   7. CMS (CONTENT MANAGEMENT SYSTEM)
+   ========================================================================== */
+const CMS_KEYS = [
+    'namaSekolah', 'taglineSekolah', 'akreditasi', 'topbarAlamat', 'runningText',
+    'heroBadge', 'heroTitle', 'heroSubtitle',
+    'stat1Value', 'stat1Label', 'stat2Value', 'stat2Label', 'stat3Value', 'stat3Label', 'stat4Value', 'stat4Label',
+    'kepsekNama', 'kepsekJabatan', 'kepsekFoto', 'kepsekSambutan',
+    'visiSekolah', 'misiSekolah',
+    'prog1Judul', 'prog1Desc', 'prog2Judul', 'prog2Desc', 'prog3Judul', 'prog3Desc', 'prog4Judul', 'prog4Desc',
+    'telepon', 'email', 'alamat', 'jamLayanan', 'deskripsi'
+];
+
+async function loadSettingsData() {
+    try {
+        const response = await fetch(CONFIG.API_URL + '?action=getSettings', { redirect: 'follow' });
+        const result = await response.json();
+
+        if (result.status === 'success' && result.data) {
+            const data = result.data;
+
+            // Pendaftaran status
+            if (data.statusPendaftaran === 'Tutup') {
+                const tutupRadio = document.getElementById('statusPendaftaranTutup');
+                if (tutupRadio) tutupRadio.checked = true;
+            } else {
+                const bukaRadio = document.getElementById('statusPendaftaranBuka');
+                if (bukaRadio) bukaRadio.checked = true;
+            }
+
+            // Populate all CMS Inputs
+            CMS_KEYS.forEach(key => {
+                const el = document.getElementById('cms_' + key);
+                if (el && data[key] !== undefined && data[key] !== null) {
+                    el.value = data[key];
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error loading settings:', e);
+    }
+}
+
+window.saveCmsContent = async function () {
+    const btnTop = document.getElementById('btnSaveCmsTop');
+    const btnBtm = document.getElementById('btnSaveCmsBottom');
+    const msg = document.getElementById('cmsMessage');
+
+    const originalTopText = btnTop ? btnTop.innerHTML : '';
+    const originalBtmText = btnBtm ? btnBtm.innerHTML : '';
+
+    if (btnTop) { btnTop.disabled = true; btnTop.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan ke Database...'; }
+    if (btnBtm) { btnBtm.disabled = true; btnBtm.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; }
+    if (msg) msg.style.display = 'none';
+
+    // Collect all CMS field values
+    const settingsPayload = {};
+    CMS_KEYS.forEach(key => {
+        const el = document.getElementById('cms_' + key);
+        if (el) {
+            settingsPayload[key] = el.value.trim();
+        }
+    });
+
+    try {
+        const response = await fetch(CONFIG.API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({
+                action: 'updateSettings',
+                settings: settingsPayload
+            }),
+            redirect: 'follow'
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            if (msg) {
+                msg.style.display = 'block';
+                msg.style.background = '#dcfce7';
+                msg.style.color = '#15803d';
+                msg.style.border = '1px solid #86efac';
+                msg.innerHTML = '<i class="fas fa-check-circle"></i> <strong>Berhasil!</strong> Seluruh konten website telah disimpan ke Google Sheets dan otomatis tampil di halaman utama.';
+                msg.scrollIntoView({ behavior: 'smooth' });
+            }
+        } else {
+            if (msg) {
+                msg.style.display = 'block';
+                msg.style.background = '#fee2e2';
+                msg.style.color = '#b91c1c';
+                msg.style.border = '1px solid #fca5a5';
+                msg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal menyimpan: ' + (result.message || 'Terjadi kesalahan');
+            }
+        }
+    } catch (error) {
+        console.error('Save CMS error:', error);
+        if (msg) {
+            msg.style.display = 'block';
+            msg.style.background = '#fee2e2';
+            msg.style.color = '#b91c1c';
+            msg.style.border = '1px solid #fca5a5';
+            msg.innerHTML = '<i class="fas fa-wifi"></i> Gagal terhubung ke server backend.';
+        }
+    } finally {
+        if (btnTop) { btnTop.disabled = false; btnTop.innerHTML = originalTopText; }
+        if (btnBtm) { btnBtm.disabled = false; btnBtm.innerHTML = originalBtmText; }
+    }
+};
+
+/* ==========================================================================
+   8. STATUS PENDAFTARAN TAB
    ========================================================================== */
 function initSettingsTab() {
     const form = document.getElementById('settingsForm');
@@ -699,15 +801,10 @@ function initSettingsTab() {
         const msg = document.getElementById('settingsMessage');
         const originalText = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan Pengaturan...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan Status...';
         if (msg) msg.style.display = 'none';
 
         const statusPendaftaran = document.getElementById('statusPendaftaranBuka').checked ? 'Buka' : 'Tutup';
-        const namaSekolah = document.getElementById('setNamaSekolah').value.trim();
-        const telepon = document.getElementById('setTelepon').value.trim();
-        const email = document.getElementById('setEmail').value.trim();
-        const alamat = document.getElementById('setAlamat').value.trim();
-        const deskripsi = document.getElementById('setDeskripsi').value.trim();
 
         try {
             const response = await fetch(CONFIG.API_URL, {
@@ -715,14 +812,7 @@ function initSettingsTab() {
                 headers: { 'Content-Type': 'text/plain' },
                 body: JSON.stringify({
                     action: 'updateSettings',
-                    settings: {
-                        statusPendaftaran,
-                        namaSekolah,
-                        telepon,
-                        email,
-                        alamat,
-                        deskripsi
-                    }
+                    settings: { statusPendaftaran }
                 }),
                 redirect: 'follow'
             });
@@ -732,22 +822,31 @@ function initSettingsTab() {
             if (result.status === 'success') {
                 if (msg) {
                     msg.style.display = 'block';
-                    msg.className = 'alert alert-success';
-                    msg.innerHTML = '<i class="fas fa-check-circle"></i> Pengaturan berhasil disimpan!';
+                    msg.style.background = '#dcfce7';
+                    msg.style.color = '#15803d';
+                    msg.style.padding = '12px 16px';
+                    msg.style.borderRadius = '8px';
+                    msg.innerHTML = '<i class="fas fa-check-circle"></i> Status pendaftaran berhasil diperbarui!';
                 }
             } else {
                 if (msg) {
                     msg.style.display = 'block';
-                    msg.className = 'alert alert-danger';
-                    msg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal menyimpan: ' + (result.message || '');
+                    msg.style.background = '#fee2e2';
+                    msg.style.color = '#b91c1c';
+                    msg.style.padding = '12px 16px';
+                    msg.style.borderRadius = '8px';
+                    msg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal: ' + (result.message || '');
                 }
             }
         } catch (error) {
-            console.error('Save settings error:', error);
+            console.error('Save status error:', error);
             if (msg) {
                 msg.style.display = 'block';
-                msg.className = 'alert alert-danger';
-                msg.innerHTML = '<i class="fas fa-wifi"></i> Gagal terhubung ke server backend.';
+                msg.style.background = '#fee2e2';
+                msg.style.color = '#b91c1c';
+                msg.style.padding = '12px 16px';
+                msg.style.borderRadius = '8px';
+                msg.innerHTML = '<i class="fas fa-wifi"></i> Gagal terhubung ke backend.';
             }
         } finally {
             btn.disabled = false;
@@ -756,34 +855,8 @@ function initSettingsTab() {
     });
 }
 
-async function loadSettingsData() {
-    try {
-        const response = await fetch(CONFIG.API_URL + '?action=getSettings', { redirect: 'follow' });
-        const result = await response.json();
-
-        if (result.status === 'success' && result.data) {
-            const data = result.data;
-            if (data.statusPendaftaran === 'Tutup') {
-                const tutupRadio = document.getElementById('statusPendaftaranTutup');
-                if (tutupRadio) tutupRadio.checked = true;
-            } else {
-                const bukaRadio = document.getElementById('statusPendaftaranBuka');
-                if (bukaRadio) bukaRadio.checked = true;
-            }
-
-            if (data.namaSekolah) document.getElementById('setNamaSekolah').value = data.namaSekolah;
-            if (data.telepon) document.getElementById('setTelepon').value = data.telepon;
-            if (data.email) document.getElementById('setEmail').value = data.email;
-            if (data.alamat) document.getElementById('setAlamat').value = data.alamat;
-            if (data.deskripsi) document.getElementById('setDeskripsi').value = data.deskripsi;
-        }
-    } catch (e) {
-        console.error('Error loading settings:', e);
-    }
-}
-
 /* ==========================================================================
-   8. EXPORT CSV & PDF
+   9. EXPORT CSV & PDF
    ========================================================================== */
 function exportToCsv() {
     if (allRegistrants.length === 0) {
@@ -824,50 +897,46 @@ window.generateStudentPDF = function (data) {
         format: 'a4'
     });
 
-    const primaryColor = [67, 97, 238];
-    const darkColor = [26, 26, 46];
+    const primaryColor = [21, 62, 126];
+    const darkColor = [15, 23, 42];
 
-    // Header Band
     doc.setFillColor(...primaryColor);
     doc.rect(0, 0, 210, 32, 'F');
 
-    // Header Text
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(18);
+    doc.setFontSize(17);
     doc.text(CONFIG.SCHOOL_NAME || 'SMP KP 1 BALEENDAH', 105, 14, { align: 'center' });
 
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text('BUKTI PENDAFTARAN SPMB ONLINE', 105, 22, { align: 'center' });
+    doc.text('BUKTI PENDAFTARAN SPMB ONLINE TAHUN AJARAN 2025/2026', 105, 22, { align: 'center' });
 
-    // Card Box
-    doc.setDrawColor(220, 225, 240);
-    doc.setFillColor(248, 250, 255);
+    doc.setDrawColor(226, 232, 240);
+    doc.setFillColor(248, 250, 252);
     doc.roundedRect(15, 40, 180, 26, 3, 3, 'FD');
 
     doc.setFontSize(10);
-    doc.setTextColor(100, 100, 120);
-    doc.text('Nomor Pendaftaran:', 22, 50);
+    doc.setTextColor(100, 116, 139);
+    doc.text('Nomor Registrasi:', 22, 50);
 
-    doc.setFontSize(16);
+    doc.setFontSize(15);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...primaryColor);
     doc.text(data['No Pendaftaran'] || '-', 22, 59);
 
     doc.setFontSize(10);
-    doc.setTextColor(100, 100, 120);
+    doc.setTextColor(100, 116, 139);
     doc.setFont('helvetica', 'normal');
     doc.text('Status:', 130, 50);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...darkColor);
     doc.text(data['Status'] || 'Proses', 130, 58);
 
-    // Section Title
-    doc.setFontSize(12);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...primaryColor);
-    doc.text('DATA LENGKAP CALON SISWA', 15, 76);
+    doc.text('DATA CALON SISWA', 15, 76);
     doc.setDrawColor(...primaryColor);
     doc.setLineWidth(0.5);
     doc.line(15, 78, 195, 78);
@@ -879,7 +948,7 @@ window.generateStudentPDF = function (data) {
         ['Jenis Kelamin', data['Jenis Kelamin'] || '-'],
         ['Alamat Lengkap', data['Alamat'] || '-'],
         ['Nama Orang Tua / Wali', data['Nama Orang Tua'] || '-'],
-        ['No. WhatsApp / HP', data['No HP'] || '-'],
+        ['No. WhatsApp', data['No HP'] || '-'],
         ['Waktu Registrasi', data['Timestamp'] ? new Date(data['Timestamp']).toLocaleString('id-ID') : '-']
     ];
 
@@ -888,12 +957,12 @@ window.generateStudentPDF = function (data) {
 
     fields.forEach(([label, val], idx) => {
         if (idx % 2 === 0) {
-            doc.setFillColor(245, 247, 252);
+            doc.setFillColor(241, 245, 249);
             doc.rect(15, currentY - 5, 180, 8, 'F');
         }
 
         doc.setFont('helvetica', 'bold');
-        doc.setTextColor(70, 70, 90);
+        doc.setTextColor(71, 85, 105);
         doc.text(label, 20, currentY);
 
         doc.setFont('helvetica', 'normal');
