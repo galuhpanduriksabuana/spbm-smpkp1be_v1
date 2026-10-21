@@ -1,15 +1,18 @@
 /**
  * SPMB SMP KP 1 BALEENDAH - Frontend Application Script
+ * Features: Dynamic CMS Content Loading, Multi-step Form, PDF Receipt, Status Check, Information Tabs
  */
 
-// Store registration data in memory for PDF printing
 let lastRegistrationData = null;
 
 document.addEventListener('DOMContentLoaded', function () {
     initNavbar();
+    initCmsLoader();
+    initInfoTabs();
     initRegistrationForm();
     initStatusCheck();
     initGallery();
+    initCurrentYear();
 });
 
 /* ==========================================================================
@@ -26,7 +29,6 @@ function initNavbar() {
             navToggle.classList.toggle('active');
         });
 
-        // Close mobile menu on link click
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', () => {
                 navMenu.classList.remove('active');
@@ -35,7 +37,6 @@ function initNavbar() {
         });
     }
 
-    // Scroll effect
     if (navbar) {
         window.addEventListener('scroll', function () {
             if (window.scrollY > 40) {
@@ -44,14 +45,141 @@ function initNavbar() {
                 navbar.classList.remove('scrolled');
             }
         });
-        if (window.scrollY > 40) {
-            navbar.classList.add('scrolled');
-        }
     }
 }
 
+function initCurrentYear() {
+    const el = document.getElementById('currentYear');
+    if (el) el.textContent = new Date().getFullYear();
+}
+
 /* ==========================================================================
-   2. REGISTRATION FORM (pendaftaran.html)
+   2. CMS DYNAMIC CONTENT LOADER
+   ========================================================================== */
+async function initCmsLoader() {
+    try {
+        const response = await fetch(CONFIG.API_URL + '?action=getSettings', { redirect: 'follow' });
+        const result = await response.json();
+
+        if (result.status === 'success' && result.data) {
+            const data = result.data;
+
+            // Update School Name in Config
+            if (data.namaSekolah) {
+                CONFIG.SCHOOL_NAME = data.namaSekolah;
+            }
+
+            // 1. Text elements with [data-cms="key"]
+            document.querySelectorAll('[data-cms]').forEach(el => {
+                const key = el.getAttribute('data-cms');
+                if (data[key] && data[key].trim() !== '') {
+                    // Special treatment for misiSekolah (list)
+                    if (key === 'misiSekolah') {
+                        renderMisiList(el, data[key]);
+                    } else {
+                        el.textContent = data[key];
+                    }
+                }
+            });
+
+            // 2. Links with [data-cms-href="key"]
+            document.querySelectorAll('[data-cms-href]').forEach(el => {
+                const key = el.getAttribute('data-cms-href');
+                if (data[key]) {
+                    if (key === 'telepon') el.href = 'tel:' + data[key].replace(/\D/g, '');
+                    else if (key === 'email') el.href = 'mailto:' + data[key];
+                    else el.href = data[key];
+                }
+            });
+
+            // 3. WhatsApp Links with [data-cms-wa="key"]
+            document.querySelectorAll('[data-cms-wa]').forEach(el => {
+                const key = el.getAttribute('data-cms-wa');
+                if (data[key]) {
+                    let clean = data[key].replace(/\D/g, '');
+                    if (clean.startsWith('0')) clean = '62' + clean.slice(1);
+                    el.href = 'https://wa.me/' + clean;
+                }
+            });
+
+            // 4. Principal Photo with [data-cms-img="kepsekFoto"] or #kepsekImgContainer
+            if (data.kepsekFoto && data.kepsekFoto.trim() !== '') {
+                const container = document.getElementById('kepsekImgContainer');
+                if (container) {
+                    container.innerHTML = `<img src="${data.kepsekFoto}" alt="${data.kepsekNama || 'Kepala Sekolah'}" style="width:100%;height:100%;object-fit:cover;">`;
+                }
+            }
+
+            // 5. Pendaftaran Closed Banner Check
+            if (data.statusPendaftaran === 'Tutup') {
+                const regForm = document.getElementById('registrationForm');
+                const stepIndicator = document.getElementById('stepIndicator');
+                if (regForm && stepIndicator) {
+                    stepIndicator.style.display = 'none';
+                    regForm.innerHTML = `
+                        <div style="background:#fee2e2;border:1px solid #f87171;color:#b91c1c;padding:36px;border-radius:16px;text-align:center;max-width:600px;margin:40px auto;">
+                            <div style="font-size:3rem;margin-bottom:12px;">🚪</div>
+                            <h2 style="color:#991b1b;margin-bottom:8px;">Pendaftaran Sedang Ditutup</h2>
+                            <p style="color:#7f1d1d;font-size:1rem;margin-bottom:20px;">
+                                Mohon maaf, penerimaan peserta didik baru (SPMB) SMP KP 1 Baleendah saat ini sedang tidak dibuka. Silakan pantau pengumuman resmi di website ini untuk jadwal pendaftaran gelombang berikutnya.
+                            </p>
+                            <a href="/pengumuman.html" class="btn btn-primary">Lihat Pengumuman Terbaru</a>
+                        </div>
+                    `;
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('CMS Loader using default content:', e);
+    }
+}
+
+function renderMisiList(container, text) {
+    if (!text) return;
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    if (lines.length === 0) return;
+
+    container.innerHTML = lines.map((line, idx) => {
+        // Strip out existing numbering like "1.", "1 -", etc.
+        const cleanLine = line.replace(/^\d+[\.\-\)]\s*/, '');
+        return `
+            <div class="misi-item">
+                <div class="misi-num">${idx + 1}</div>
+                <p>${cleanLine}</p>
+            </div>
+        `;
+    }).join('');
+}
+
+/* ==========================================================================
+   3. INFORMATION TABS (PENGUMUMAN / INFO TERBARU / BERITA)
+   ========================================================================== */
+function initInfoTabs() {
+    const tabBtns = document.querySelectorAll('.info-tab-btn');
+    if (!tabBtns.length) return;
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            const filter = this.getAttribute('data-filter');
+            const cards = document.querySelectorAll('.news-card[data-category]');
+
+            cards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                if (filter === 'all' || category === filter) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+}
+
+/* ==========================================================================
+   4. REGISTRATION FORM (pendaftaran.html)
    ========================================================================== */
 let currentStep = 1;
 const uploadedFiles = {
@@ -64,16 +192,13 @@ function initRegistrationForm() {
     const regForm = document.getElementById('registrationForm');
     if (!regForm) return;
 
-    // File upload triggers & drag-and-drop
     setupFileUpload('uploadFoto', 'foto_siswa', 'previewFoto', 'Foto Siswa');
     setupFileUpload('uploadKK', 'kartu_keluarga', 'previewKK', 'Kartu Keluarga');
     setupFileUpload('uploadAkta', 'akta_kelahiran', 'previewAkta', 'Akta Kelahiran');
 
-    // Form submit
     regForm.addEventListener('submit', async function (e) {
         e.preventDefault();
 
-        // Validate final step files
         if (!uploadedFiles['Foto Siswa']) {
             alert('Silakan upload Pas Foto 3x4.');
             return;
@@ -93,11 +218,9 @@ function initRegistrationForm() {
         btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim Data...';
 
         try {
-            // Collect all form values
             const formData = new FormData(regForm);
             const payload = {};
 
-            // Backend expected keys
             payload['Nama Lengkap'] = (formData.get('Nama Lengkap') || '').toString().trim();
             payload['NIK'] = (formData.get('NIK') || '').toString().trim();
             payload['Tempat Lahir'] = (formData.get('Tempat Lahir') || '').toString().trim();
@@ -107,7 +230,6 @@ function initRegistrationForm() {
             payload['Nama Orang Tua'] = (formData.get('Nama Orang Tua') || '').toString().trim();
             payload['No HP'] = (formData.get('No HP') || '').toString().trim();
 
-            // Include base64 files
             payload['Foto Siswa'] = uploadedFiles['Foto Siswa'];
             payload['Kartu Keluarga'] = uploadedFiles['Kartu Keluarga'];
             payload['Akta Kelahiran'] = uploadedFiles['Akta Kelahiran'];
@@ -126,7 +248,6 @@ function initRegistrationForm() {
                 payload['Timestamp'] = new Date().toISOString();
                 lastRegistrationData = payload;
 
-                // Show success screen
                 regForm.style.display = 'none';
                 const stepIndicator = document.getElementById('stepIndicator');
                 if (stepIndicator) stepIndicator.style.display = 'none';
@@ -151,7 +272,6 @@ function initRegistrationForm() {
     });
 }
 
-// Global step navigation functions
 window.nextStep = function (current) {
     if (!validateStep(current)) return;
 
@@ -267,11 +387,11 @@ function handleFile(file, input, preview, fieldKey) {
             const isImage = file.type.startsWith('image/');
             preview.style.display = 'flex';
             preview.innerHTML = `
-                <div style="display:flex;align-items:center;gap:12px;width:100%;background:#f0f4ff;padding:10px 14px;border-radius:10px;">
+                <div style="display:flex;align-items:center;gap:12px;width:100%;background:#eff6ff;padding:10px 14px;border-radius:10px;border:1px solid #bfdbfe;">
                     <i class="${isImage ? 'fas fa-image' : 'fas fa-file-pdf'}" style="font-size:24px;color:var(--primary);"></i>
                     <div style="flex:1;text-align:left;overflow:hidden;">
                         <strong style="display:block;font-size:13px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;">${file.name}</strong>
-                        <small style="color:#666;">${(file.size / 1024).toFixed(1)} KB</small>
+                        <small style="color:#64748b;">${(file.size / 1024).toFixed(1)} KB</small>
                     </div>
                     <span style="color:var(--success);font-size:18px;"><i class="fas fa-check-circle"></i></span>
                 </div>
@@ -301,47 +421,43 @@ window.cetakBuktiPendaftaran = function (dataOverride) {
         format: 'a4'
     });
 
-    const primaryColor = [67, 97, 238];
-    const darkColor = [26, 26, 46];
+    const primaryColor = [21, 62, 126];
+    const darkColor = [15, 23, 42];
 
-    // Header Band
     doc.setFillColor(...primaryColor);
     doc.rect(0, 0, 210, 32, 'F');
 
-    // Header Text
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(18);
+    doc.setFontSize(17);
     doc.text(CONFIG.SCHOOL_NAME || 'SMP KP 1 BALEENDAH', 105, 14, { align: 'center' });
 
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text('BUKTI PENDAFTARAN SPMB ONLINE TAHUN AJARAN 2025/2026', 105, 22, { align: 'center' });
 
-    // Card Box
-    doc.setDrawColor(220, 225, 240);
-    doc.setFillColor(248, 250, 255);
+    doc.setDrawColor(226, 232, 240);
+    doc.setFillColor(248, 250, 252);
     doc.roundedRect(15, 40, 180, 26, 3, 3, 'FD');
 
     doc.setFontSize(10);
-    doc.setTextColor(100, 100, 120);
+    doc.setTextColor(100, 116, 139);
     doc.text('Nomor Pendaftaran:', 22, 50);
 
-    doc.setFontSize(16);
+    doc.setFontSize(15);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...primaryColor);
     doc.text(data['No Pendaftaran'] || '-', 22, 59);
 
     doc.setFontSize(10);
-    doc.setTextColor(100, 100, 120);
+    doc.setTextColor(100, 116, 139);
     doc.setFont('helvetica', 'normal');
     doc.text('Tanggal Cetak:', 130, 50);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...darkColor);
     doc.text(new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }), 130, 58);
 
-    // Section Title
-    doc.setFontSize(12);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...primaryColor);
     doc.text('DATA CALON SISWA', 15, 76);
@@ -349,7 +465,6 @@ window.cetakBuktiPendaftaran = function (dataOverride) {
     doc.setLineWidth(0.5);
     doc.line(15, 78, 195, 78);
 
-    // Fields Table
     const fields = [
         ['Nama Lengkap', data['Nama Lengkap'] || '-'],
         ['NIK', data['NIK'] || '-'],
@@ -365,20 +480,18 @@ window.cetakBuktiPendaftaran = function (dataOverride) {
     doc.setFontSize(10);
 
     fields.forEach(([label, val], idx) => {
-        // Alternating row background
         if (idx % 2 === 0) {
-            doc.setFillColor(245, 247, 252);
+            doc.setFillColor(241, 245, 249);
             doc.rect(15, currentY - 5, 180, 8, 'F');
         }
 
         doc.setFont('helvetica', 'bold');
-        doc.setTextColor(70, 70, 90);
+        doc.setTextColor(71, 85, 105);
         doc.text(label, 20, currentY);
 
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(...darkColor);
 
-        // Wrap long text if address
         if (label === 'Alamat Lengkap' && val.length > 50) {
             const splitVal = doc.splitTextToSize(val, 110);
             doc.text(splitVal, 80, currentY);
@@ -390,11 +503,10 @@ window.cetakBuktiPendaftaran = function (dataOverride) {
         currentY += 8;
     });
 
-    // Important Notice Box
     currentY += 8;
     doc.setFillColor(254, 243, 199);
     doc.setDrawColor(245, 158, 11);
-    doc.roundedRect(15, currentY, 180, 28, 2, 2, 'FD');
+    doc.roundedRect(15, currentY, 180, 26, 2, 2, 'FD');
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
@@ -403,22 +515,20 @@ window.cetakBuktiPendaftaran = function (dataOverride) {
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
-    doc.text('1. Simpan lembar bukti pendaftaran ini sebagai tanda bukti resmi pendaftaran online Anda.', 20, currentY + 13);
-    doc.text('2. Cek status hasil seleksi secara berkala melalui menu "Cek Status" di website resmi.', 20, currentY + 18);
-    doc.text('3. Bawa cetakan bukti ini beserta dokumen asli saat jadwal verifikasi fisik / daftar ulang.', 20, currentY + 23);
+    doc.text('1. Simpan lembar bukti pendaftaran ini sebagai tanda bukti resmi pendaftaran online Anda.', 20, currentY + 12);
+    doc.text('2. Cek status hasil seleksi secara berkala melalui menu "Cek Status" di website resmi.', 20, currentY + 17);
+    doc.text('3. Bawa cetakan bukti ini beserta dokumen asli saat jadwal verifikasi fisik / daftar ulang.', 20, currentY + 22);
 
-    // Footer
     doc.setFontSize(8);
-    doc.setTextColor(140, 140, 160);
+    doc.setTextColor(148, 163, 184);
     doc.text(`Dicetak secara otomatis oleh Sistem SPMB ${CONFIG.SCHOOL_NAME || 'SMP KP 1 BALEENDAH'}`, 105, 285, { align: 'center' });
 
-    // Download PDF
     const filename = `Bukti_Pendaftaran_${data['No Pendaftaran'] || 'SPMB'}.pdf`;
     doc.save(filename);
 };
 
 /* ==========================================================================
-   3. STATUS CHECK (cek-status.html)
+   5. STATUS CHECK (cek-status.html)
    ========================================================================== */
 function initStatusCheck() {
     const statusForm = document.getElementById('statusForm');
@@ -436,7 +546,6 @@ function initStatusCheck() {
         const errorSec = document.getElementById('statusError');
         const btnCek = document.getElementById('btnCekStatus');
 
-        // Hide old results
         if (resultSec) resultSec.style.display = 'none';
         if (errorSec) errorSec.style.display = 'none';
         if (loading) loading.style.display = 'flex';
@@ -456,8 +565,7 @@ function initStatusCheck() {
             const result = await response.json();
 
             if (result.status === 'success' && result.data) {
-                const data = result.data;
-                displayStatusResult(data);
+                displayStatusResult(result.data);
             } else {
                 displayStatusError(result.message || 'Nomor pendaftaran tidak ditemukan.');
             }
@@ -543,7 +651,7 @@ window.resetStatusCheck = function () {
 };
 
 /* ==========================================================================
-   4. GALLERY FILTER & LIGHTBOX (galeri.html)
+   6. GALLERY FILTER & LIGHTBOX (galeri.html)
    ========================================================================== */
 function initGallery() {
     const filterBtns = document.querySelectorAll('.gallery-filter .filter-btn');
@@ -555,7 +663,6 @@ function initGallery() {
 
     if (!galleryItems.length) return;
 
-    // Filter Buttons
     filterBtns.forEach(btn => {
         btn.addEventListener('click', function () {
             filterBtns.forEach(b => b.classList.remove('active'));
@@ -574,7 +681,6 @@ function initGallery() {
         });
     });
 
-    // Lightbox open
     galleryItems.forEach(item => {
         item.addEventListener('click', function () {
             if (!lightbox) return;
@@ -595,7 +701,6 @@ function initGallery() {
         });
     });
 
-    // Lightbox close
     if (lightboxClose && lightbox) {
         lightboxClose.addEventListener('click', () => lightbox.classList.remove('active'));
         lightbox.addEventListener('click', (e) => {
