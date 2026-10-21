@@ -3,20 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - SPMB SMP KP 1 BALEENDAH</title>
+    <title>Dashboard Admin & CMS - SPMB SMP KP 1 BALEENDAH</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        /* Specific Dashboard Enhancements */
         .admin-sidebar {
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
-        .sidebar-header {
-            margin-bottom: 24px;
-        }
+        .sidebar-header { margin-bottom: 24px; }
         .sidebar-footer {
             border-top: 1px solid rgba(255,255,255,0.1);
             padding-top: 16px;
@@ -32,6 +29,7 @@
             border-radius: var(--radius-lg);
             padding: 24px;
             box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
         }
         .chart-card h3 {
             font-size: 1.1rem;
@@ -47,6 +45,7 @@
             padding: 24px;
             box-shadow: var(--shadow-sm);
             margin-bottom: 24px;
+            border: 1px solid var(--border-color);
         }
         .table-card-header {
             display: flex;
@@ -84,13 +83,8 @@
             background: rgba(0,0,0,0.5);
             z-index: 998;
         }
-        .sidebar-overlay.active {
-            display: block;
-        }
-        .action-btns {
-            display: flex;
-            gap: 6px;
-        }
+        .sidebar-overlay.active { display: block; }
+        .action-btns { display: flex; gap: 6px; }
         .btn-icon-sm {
             padding: 6px 10px;
             font-size: 0.85rem;
@@ -109,18 +103,22 @@
             border-radius: 8px;
             margin-bottom: 10px;
         }
+        .cms-section-divider {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 24px;
+            margin-top: 24px;
+        }
+        .cms-hint {
+            display: block;
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
         @media (max-width: 768px) {
             .mobile-toggle { display: block; }
-            .admin-sidebar {
-                transform: translateX(-100%);
-            }
-            .admin-sidebar.active {
-                transform: translateX(0);
-            }
-            .admin-main {
-                margin-left: 0;
-                padding: 16px;
-            }
+            .admin-sidebar { transform: translateX(-100%); }
+            .admin-sidebar.active { transform: translateX(0); }
+            .admin-main { margin-left: 0; padding: 16px; }
         }
     </style>
 </head>
@@ -150,16 +148,20 @@
                         <i class="fas fa-users"></i>
                         <span>Data Pendaftar</span>
                     </a>
+                    <a href="#" class="sidebar-nav-item" data-tab="cms">
+                        <i class="fas fa-edit"></i>
+                        <span>Edit Konten Website</span>
+                    </a>
                     <a href="#" class="sidebar-nav-item" data-tab="pengaturan">
                         <i class="fas fa-cog"></i>
-                        <span>Pengaturan</span>
+                        <span>Pengaturan Sistem</span>
                     </a>
                 </nav>
             </div>
             <div class="sidebar-footer">
                 <a href="/" target="_blank" class="sidebar-nav-item" style="color: rgba(255,255,255,0.7);">
                     <i class="fas fa-external-link-alt"></i>
-                    <span>Lihat Website</span>
+                    <span>Buka Website</span>
                 </a>
                 <a href="#" class="sidebar-nav-item" id="logoutBtn" style="color: #ff8fa3;">
                     <i class="fas fa-sign-out-alt"></i>
@@ -220,7 +222,7 @@
                             </div>
                         </div>
                         <div class="chart-card">
-                            <h3><i class="fas fa-chart-bar" style="color:var(--secondary);"></i> Pendaftaran Terbaru</h3>
+                            <h3><i class="fas fa-chart-bar" style="color:var(--secondary);"></i> Pendaftaran per Periode</h3>
                             <div style="position:relative;height:260px;">
                                 <canvas id="monthlyChart"></canvas>
                             </div>
@@ -265,10 +267,10 @@
                 <div class="admin-tab-content" id="tab-pendaftar">
                     <div class="table-card">
                         <!-- Search & Filter Controls -->
-                        <div class="search-filter-bar">
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" id="searchInput" placeholder="Cari nama atau No. Pendaftaran...">
+                        <div class="search-filter-bar" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:20px;">
+                            <div class="search-box" style="flex:1;max-width:380px;position:relative;">
+                                <i class="fas fa-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#94a3b8;"></i>
+                                <input type="text" id="searchInput" class="form-input" style="padding-left:40px;" placeholder="Cari nama atau No. Pendaftaran...">
                             </div>
                             <div style="display:flex;gap:10px;flex-wrap:wrap;">
                                 <select id="statusFilter" class="form-select" style="width:auto;padding:10px 16px;">
@@ -316,65 +318,262 @@
                     </div>
                 </div>
 
-                <!-- ==================== TAB 3: PENGATURAN ==================== -->
+                <!-- ==================== TAB 3: CMS (EDIT KONTEN WEBSITE) ==================== -->
+                <div class="admin-tab-content" id="tab-cms">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+                        <div>
+                            <h2 style="font-size:1.4rem;color:var(--primary-dark);margin:0;">Manajemen Konten Halaman Utama (CMS)</h2>
+                            <p style="color:#64748b;font-size:0.88rem;margin:4px 0 0 0;">Ubah teks, judul, visi misi, sambutan kepala sekolah, dan data yang tampil di website utama.</p>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-lg" onclick="saveCmsContent()" id="btnSaveCmsTop">
+                            <i class="fas fa-save"></i> Simpan Seluruh Konten
+                        </button>
+                    </div>
+
+                    <div id="cmsMessage" style="display:none;margin-bottom:20px;padding:14px 20px;border-radius:10px;"></div>
+
+                    <form id="cmsForm">
+                        <!-- 1. Header & Identitas Sekolah -->
+                        <div class="cms-card">
+                            <div class="cms-card-header">
+                                <h3 class="cms-card-title"><i class="fas fa-school"></i> 1. Identitas & Header Sekolah</h3>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex:2;">
+                                    <label for="cms_namaSekolah">Nama Sekolah Resmi</label>
+                                    <input type="text" id="cms_namaSekolah" class="form-input" placeholder="SMP KP 1 BALEENDAH">
+                                    <span class="cms-hint">Tampil di navbar, hero, dan footer website.</span>
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_taglineSekolah">Tagline / Slogan</label>
+                                    <input type="text" id="cms_taglineSekolah" class="form-input" placeholder="Unggul, Berkarakter & Berprestasi">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_akreditasi">Status Akreditasi</label>
+                                    <input type="text" id="cms_akreditasi" class="form-input" placeholder="Akreditasi A">
+                                </div>
+                                <div class="form-group" style="flex:2;">
+                                    <label for="cms_topbarAlamat">Alamat Singkat Header</label>
+                                    <input type="text" id="cms_topbarAlamat" class="form-input" placeholder="Baleendah, Kab. Bandung">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cms_runningText">Pengumuman Berjalan (Running Banner)</label>
+                                <textarea id="cms_runningText" class="form-textarea" rows="2" placeholder="Teks pengumuman penting yang berjalan di atas navbar..."></textarea>
+                                <span class="cms-hint">Pengumuman ini tampil di pita kuning berjalan tepat di atas navbar utama.</span>
+                            </div>
+                        </div>
+
+                        <!-- 2. Hero Banner Utama -->
+                        <div class="cms-card">
+                            <div class="cms-card-header">
+                                <h3 class="cms-card-title"><i class="fas fa-flag"></i> 2. Banner Utama (Hero Section)</h3>
+                            </div>
+                            <div class="form-group">
+                                <label for="cms_heroBadge">Badge / Teks Label Kecil</label>
+                                <input type="text" id="cms_heroBadge" class="form-input" placeholder="Penerimaan Murid Baru Tahun Ajaran 2025/2026">
+                            </div>
+                            <div class="form-group">
+                                <label for="cms_heroTitle">Judul Besar Banner Utama</label>
+                                <input type="text" id="cms_heroTitle" class="form-input" placeholder="Wujudkan Generasi Cerdas, Berkarakter & Berakhlak Mulia">
+                            </div>
+                            <div class="form-group">
+                                <label for="cms_heroSubtitle">Subjudul / Deskripsi Banner</label>
+                                <textarea id="cms_heroSubtitle" class="form-textarea" rows="3" placeholder="Deskripsi sambutan singkat di banner utama..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- 3. Statistik Sekolah -->
+                        <div class="cms-card">
+                            <div class="cms-card-header">
+                                <h3 class="cms-card-title"><i class="fas fa-chart-line"></i> 3. Statistik Sekolah (4 Angka di Banner)</h3>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="cms_stat1Value">Stat 1: Angka</label>
+                                    <input type="text" id="cms_stat1Value" class="form-input" placeholder="500+">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_stat1Label">Stat 1: Keterangan</label>
+                                    <input type="text" id="cms_stat1Label" class="form-input" placeholder="Siswa Aktif">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_stat2Value">Stat 2: Angka</label>
+                                    <input type="text" id="cms_stat2Value" class="form-input" placeholder="40+">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_stat2Label">Stat 2: Keterangan</label>
+                                    <input type="text" id="cms_stat2Label" class="form-input" placeholder="Guru & Staf">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="cms_stat3Value">Stat 3: Angka</label>
+                                    <input type="text" id="cms_stat3Value" class="form-input" placeholder="15+">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_stat3Label">Stat 3: Keterangan</label>
+                                    <input type="text" id="cms_stat3Label" class="form-input" placeholder="Ekstrakurikuler">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_stat4Value">Stat 4: Nilai</label>
+                                    <input type="text" id="cms_stat4Value" class="form-input" placeholder="A">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_stat4Label">Stat 4: Keterangan</label>
+                                    <input type="text" id="cms_stat4Label" class="form-input" placeholder="Akreditasi BAN-S/M">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. Sambutan Kepala Sekolah -->
+                        <div class="cms-card">
+                            <div class="cms-card-header">
+                                <h3 class="cms-card-title"><i class="fas fa-user-tie"></i> 4. Sambutan Kepala Sekolah</h3>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_kepsekNama">Nama Kepala Sekolah Lengkap</label>
+                                    <input type="text" id="cms_kepsekNama" class="form-input" placeholder="H. Asep Supriatna, S.Pd., M.M.">
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_kepsekJabatan">Jabatan</label>
+                                    <input type="text" id="cms_kepsekJabatan" class="form-input" placeholder="Kepala SMP KP 1 Baleendah">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cms_kepsekFoto">URL Foto Kepala Sekolah (Opsional)</label>
+                                <input type="text" id="cms_kepsekFoto" class="form-input" placeholder="https://... atau biarkan kosong untuk avatar default">
+                            </div>
+                            <div class="form-group">
+                                <label for="cms_kepsekSambutan">Isi Pidato / Teks Sambutan</label>
+                                <textarea id="cms_kepsekSambutan" class="form-textarea" rows="4" placeholder="Teks sambutan hangat untuk calon peserta didik dan orang tua..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- 5. Visi & Misi Sekolah -->
+                        <div class="cms-card">
+                            <div class="cms-card-header">
+                                <h3 class="cms-card-title"><i class="fas fa-bullseye"></i> 5. Visi & Misi Sekolah</h3>
+                            </div>
+                            <div class="form-group">
+                                <label for="cms_visiSekolah">Visi Sekolah</label>
+                                <textarea id="cms_visiSekolah" class="form-textarea" rows="3" placeholder="Rumusan visi sekolah..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="cms_misiSekolah">Misi Sekolah (Pisahkan dengan baris baru untuk setiap poin misi)</label>
+                                <textarea id="cms_misiSekolah" class="form-textarea" rows="5" placeholder="Contoh:
+Menyelenggarakan pembelajaran berkualitas
+Menanamkan nilai-nilai keimanan dan ketaqwaan
+Mengembangkan literasi digital"></textarea>
+                                <span class="cms-hint">Setiap baris akan otomatis ditampilkan menjadi nomor urut (1, 2, 3...) di website.</span>
+                            </div>
+                        </div>
+
+                        <!-- 6. Program Unggulan -->
+                        <div class="cms-card">
+                            <div class="cms-card-header">
+                                <h3 class="cms-card-title"><i class="fas fa-star"></i> 6. Program Unggulan (4 Pilar)</h3>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_prog1Judul">Program 1: Judul</label>
+                                    <input type="text" id="cms_prog1Judul" class="form-input" placeholder="Kurikulum Merdeka">
+                                    <textarea id="cms_prog1Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Penjelasan program 1..."></textarea>
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_prog2Judul">Program 2: Judul</label>
+                                    <input type="text" id="cms_prog2Judul" class="form-input" placeholder="Pembiasaan Keagamaan">
+                                    <textarea id="cms_prog2Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Penjelasan program 2..."></textarea>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_prog3Judul">Program 3: Judul</label>
+                                    <input type="text" id="cms_prog3Judul" class="form-input" placeholder="Literasi Digital & IT">
+                                    <textarea id="cms_prog3Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Penjelasan program 3..."></textarea>
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_prog4Judul">Program 4: Judul</label>
+                                    <input type="text" id="cms_prog4Judul" class="form-input" placeholder="Ekstrakurikuler & Prestasi">
+                                    <textarea id="cms_prog4Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Penjelasan program 4..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 7. Kontak & Jam Operasional -->
+                        <div class="cms-card">
+                            <div class="cms-card-header">
+                                <h3 class="cms-card-title"><i class="fas fa-address-book"></i> 7. Kontak Resmi & Jam Operasional</h3>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_telepon">No. Telepon / WhatsApp Panitia</label>
+                                    <input type="text" id="cms_telepon" class="form-input" placeholder="(022) 1234-5678 / 08123456789">
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_email">Email Resmi Sekolah</label>
+                                    <input type="email" id="cms_email" class="form-input" placeholder="info@smpkp1baleendah.sch.id">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex:2;">
+                                    <label for="cms_alamat">Alamat Lengkap</label>
+                                    <input type="text" id="cms_alamat" class="form-input" placeholder="Jl. Adipati Agung, No. 32 Baleendah, Bandung, Jawa Barat 40375">
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_jamLayanan">Jam Operasional Layanan</label>
+                                    <input type="text" id="cms_jamLayanan" class="form-input" placeholder="Senin - Jumat: 07.30 - 15.00 WIB">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cms_deskripsi">Deskripsi Singkat Profil di Footer</label>
+                                <textarea id="cms_deskripsi" class="form-textarea" rows="2" placeholder="Komitmen sekolah dalam mencetak generasi cerdas dan berkarakter..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Save Button -->
+                        <div style="text-align:right;margin-top:20px;margin-bottom:40px;">
+                            <button type="button" class="btn btn-primary btn-lg" onclick="saveCmsContent()" id="btnSaveCmsBottom">
+                                <i class="fas fa-save"></i> Simpan Seluruh Konten Website
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ==================== TAB 4: PENGATURAN SISTEM ==================== -->
                 <div class="admin-tab-content" id="tab-pengaturan">
                     <div class="table-card" style="max-width:800px;">
                         <h3 style="font-size:1.2rem;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
                             <i class="fas fa-sliders-h" style="color:var(--primary);"></i>
-                            Pengaturan SPMB & Sekolah
+                            Status Pendaftaran Siswa Baru
                         </h3>
                         
                         <div id="settingsMessage" style="display:none;margin-bottom:16px;"></div>
 
                         <form id="settingsForm">
-                            <div class="form-group" style="background:#f8faff;padding:16px;border-radius:12px;border:1px solid #e0e8ff;margin-bottom:24px;">
-                                <label style="font-size:1rem;color:var(--text-dark);margin-bottom:8px;display:block;">
-                                    <strong>Status Penerimaan Siswa Baru:</strong>
+                            <div class="form-group" style="background:#f8faff;padding:20px;border-radius:12px;border:1px solid #e0e8ff;margin-bottom:24px;">
+                                <label style="font-size:1.05rem;color:var(--text-dark);margin-bottom:12px;display:block;">
+                                    <strong>Kontrol Pendaftaran Online:</strong>
                                 </label>
-                                <div style="display:flex;gap:24px;margin-top:8px;">
-                                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;color:var(--success);">
-                                        <input type="radio" name="statusPendaftaran" value="Buka" id="statusPendaftaranBuka" style="width:18px;height:18px;" checked>
+                                <div style="display:flex;gap:28px;margin-top:8px;">
+                                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;color:var(--success);font-size:1rem;">
+                                        <input type="radio" name="statusPendaftaran" value="Buka" id="statusPendaftaranBuka" style="width:20px;height:20px;" checked>
                                         <i class="fas fa-door-open"></i> Buka Pendaftaran
                                     </label>
-                                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;color:var(--danger);">
-                                        <input type="radio" name="statusPendaftaran" value="Tutup" id="statusPendaftaranTutup" style="width:18px;height:18px;">
+                                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;color:var(--danger);font-size:1rem;">
+                                        <input type="radio" name="statusPendaftaran" value="Tutup" id="statusPendaftaranTutup" style="width:20px;height:20px;">
                                         <i class="fas fa-door-closed"></i> Tutup Pendaftaran
                                     </label>
                                 </div>
-                                <small style="display:block;margin-top:6px;color:#666;">Jika ditutup, calon siswa tidak akan bisa mengirim formulir pendaftaran baru.</small>
+                                <small style="display:block;margin-top:10px;color:#64748b;line-height:1.5;">Jika status ditutup, calon siswa yang membuka halaman pendaftaran akan mendapatkan pemberitahuan bahwa penerimaan pendaftaran sedang ditutup oleh panitia.</small>
                             </div>
 
-                            <div class="form-group">
-                                <label for="setNamaSekolah">Nama Sekolah</label>
-                                <input type="text" id="setNamaSekolah" class="form-input" required>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group" style="flex:1;">
-                                    <label for="setTelepon">No. Telepon / WhatsApp</label>
-                                    <input type="text" id="setTelepon" class="form-input" required>
-                                </div>
-                                <div class="form-group" style="flex:1;">
-                                    <label for="setEmail">Email Resmi Sekolah</label>
-                                    <input type="email" id="setEmail" class="form-input" required>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="setAlamat">Alamat Lengkap Sekolah</label>
-                                <textarea id="setAlamat" class="form-textarea" rows="3" required></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="setDeskripsi">Deskripsi Singkat / Visi Misi</label>
-                                <textarea id="setDeskripsi" class="form-textarea" rows="3" required></textarea>
-                            </div>
-
-                            <div style="margin-top:24px;">
-                                <button type="submit" class="btn btn-primary btn-lg" id="saveSettingsBtn">
-                                    <i class="fas fa-save"></i> Simpan Pengaturan
-                                </button>
-                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg" id="saveSettingsBtn">
+                                <i class="fas fa-save"></i> Simpan Status Pendaftaran
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -392,9 +591,7 @@
                 </h3>
                 <button class="btn-icon" id="detailModalClose" style="background:none;border:none;font-size:1.4rem;cursor:pointer;">&times;</button>
             </div>
-            <div class="modal-body" id="detailModalBody">
-                <!-- Content injected dynamically -->
-            </div>
+            <div class="modal-body" id="detailModalBody"></div>
         </div>
     </div>
 
