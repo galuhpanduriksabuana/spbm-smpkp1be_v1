@@ -10,18 +10,37 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="container topbar-container">
+            <div class="topbar-info">
+                <span class="topbar-badge" data-cms="akreditasi">Akreditasi A</span>
+                <span class="topbar-info-item"><i class="fas fa-map-marker-alt"></i> <span data-cms="topbarAlamat">Baleendah, Kab. Bandung</span></span>
+                <span class="topbar-info-item"><i class="fas fa-phone-alt"></i> <span data-cms="telepon">(022) 1234-5678</span></span>
+            </div>
+            <div class="topbar-social">
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </div>
+
     <!-- Navbar -->
     <nav class="navbar">
-        <div class="nav-container">
+        <div class="container nav-container">
             <a href="/" class="nav-logo">
-                <span class="logo-icon">🎓</span>
-                <span class="logo-text">SPMB <span class="logo-highlight">SMP KP 1</span></span>
+                <div class="logo-symbol"><i class="fas fa-graduation-cap"></i></div>
+                <div class="logo-text-group">
+                    <span class="logo-main" data-cms="namaSekolah">SMP KP 1 BALEENDAH</span>
+                    <span class="logo-sub" data-cms="taglineSekolah">Unggul, Berkarakter & Berprestasi</span>
+                </div>
             </a>
             <div class="nav-menu" id="navMenu">
                 <a href="/" class="nav-link">Beranda</a>
-                <a href="/pendaftaran.html" class="nav-link">Pendaftaran</a>
+                <a href="/pendaftaran.html" class="nav-link nav-cta"><i class="fas fa-file-signature"></i> Daftar Online</a>
                 <a href="/cek-status.html" class="nav-link">Cek Status</a>
-                <a href="/pengumuman.html" class="nav-link">Pengumuman</a>
+                <a href="/pengumuman.html" class="nav-link">Informasi & Berita</a>
                 <a href="/galeri.html" class="nav-link">Galeri</a>
                 <a href="/jadwal.html" class="nav-link active">Jadwal</a>
                 <a href="/admin/" class="nav-link nav-admin-link"><i class="fas fa-lock"></i> Admin</a>
