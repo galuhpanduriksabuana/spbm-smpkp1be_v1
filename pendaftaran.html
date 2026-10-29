@@ -19,9 +19,9 @@
                 <span class="topbar-info-item"><i class="fas fa-phone-alt"></i> <span data-cms="telepon">(022) 1234-5678</span></span>
             </div>
             <div class="topbar-social">
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                <a href="#"><i class="fab fa-youtube"></i></a>
+                <a href="#" data-cms-href="sosialInstagram" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="#" data-cms-href="sosialFacebook" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" data-cms-href="sosialYoutube" target="_blank"><i class="fab fa-youtube"></i></a>
             </div>
         </div>
     </div>
@@ -181,7 +181,7 @@
                                     <div class="file-upload-content">
                                         <i class="fas fa-cloud-upload-alt"></i>
                                         <p>Klik atau drag file ke sini</p>
-                                        <small>Format: JPG, PNG (Maks. 2MB)</small>
+                                        <small data-cms="syaratFoto">Format: JPG, PNG (Maks. 2MB)</small>
                                     </div>
                                     <div class="file-preview" id="previewFoto" style="display:none;"></div>
                                 </div>
@@ -195,7 +195,7 @@
                                     <div class="file-upload-content">
                                         <i class="fas fa-cloud-upload-alt"></i>
                                         <p>Klik atau drag file ke sini</p>
-                                        <small>Format: JPG, PNG, PDF (Maks. 2MB)</small>
+                                        <small data-cms="syaratKK">Format: JPG, PNG, PDF (Maks. 2MB)</small>
                                     </div>
                                     <div class="file-preview" id="previewKK" style="display:none;"></div>
                                 </div>
@@ -209,7 +209,7 @@
                                     <div class="file-upload-content">
                                         <i class="fas fa-cloud-upload-alt"></i>
                                         <p>Klik atau drag file ke sini</p>
-                                        <small>Format: JPG, PNG, PDF (Maks. 2MB)</small>
+                                        <small data-cms="syaratAkta">Format: JPG, PNG, PDF (Maks. 2MB)</small>
                                     </div>
                                     <div class="file-preview" id="previewAkta" style="display:none;"></div>
                                 </div>
@@ -236,7 +236,7 @@
                         <p>Nomor Pendaftaran Anda:</p>
                         <h3 id="noPendaftaranDisplay"></h3>
                     </div>
-                    <p class="success-note">Simpan nomor pendaftaran ini untuk mengecek status pendaftaran Anda.</p>
+                    <p class="success-note" data-cms="catatanPendaftaran">Simpan nomor pendaftaran ini untuk mengecek status pendaftaran Anda.</p>
                     <div class="success-actions">
                         <button class="btn btn-primary" id="btnCetakBukti" onclick="cetakBuktiPendaftaran()">
                             <i class="fas fa-print"></i> Cetak Bukti Pendaftaran
@@ -260,13 +260,13 @@
         <div class="footer-content">
             <div class="footer-container">
                 <div class="footer-col">
-                    <h3>🎓 SMP KP 1 BALEENDAH</h3>
-                    <p>Mencetak generasi penerus bangsa yang cerdas, berakhlak mulia, dan siap menghadapi tantangan masa depan.</p>
+                    <h3>🎓 <span data-cms="namaSekolah">SMP KP 1 BALEENDAH</span></h3>
+                    <p data-cms="taglineSekolah">Mencetak generasi penerus bangsa yang cerdas, berakhlak mulia, dan siap menghadapi tantangan masa depan.</p>
                     <div class="footer-social">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" data-cms-href="sosialFacebook" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" data-cms-href="sosialInstagram" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="#" data-cms-href="sosialYoutube" target="_blank"><i class="fab fa-youtube"></i></a>
+                        <a href="#" data-cms-wa="whatsapp" target="_blank"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
                 <div class="footer-col">
@@ -281,14 +281,14 @@
                 <div class="footer-col">
                     <h3>Kontak Kami</h3>
                     <ul>
-                        <li><i class="fas fa-map-marker-alt"></i> Baleendah, Kab. Bandung</li>
-                        <li><i class="fas fa-phone"></i> (022) xxx-xxxx</li>
-                        <li><i class="fas fa-envelope"></i> info@smpkp1baleendah.sch.id</li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span data-cms="alamat">Baleendah, Kab. Bandung</span></li>
+                        <li><i class="fas fa-phone"></i> <span data-cms="telepon">(022) 1234-5678</span></li>
+                        <li><i class="fas fa-envelope"></i> <span data-cms="email">info@smpkp1baleendah.sch.id</span></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 SMP KP 1 BALEENDAH. All rights reserved.</p>
+                <p>&copy; 2026 <span data-cms="namaSekolah">SMP KP 1 BALEENDAH</span>. All rights reserved.</p>
             </div>
         </div>
     </footer>
