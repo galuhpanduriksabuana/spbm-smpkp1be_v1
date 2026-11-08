@@ -74,6 +74,7 @@ function initAdminLogin() {
             if (result.status === 'success') {
                 localStorage.setItem('adminLoggedIn', 'true');
                 localStorage.setItem('adminUsername', username);
+                sessionStorage.setItem('adminPass', password);
                 window.location.href = '/admin/dashboard.html';
             } else {
                 if (loginError && loginErrorText) {
@@ -117,6 +118,7 @@ function initAdminDashboard() {
     // Load Data
     loadRegistrantsData();
     loadSettingsData();
+    loadPhotosAdmin();
 
     // Auto refresh every 60s
     setInterval(loadRegistrantsData, 60000);
@@ -190,6 +192,9 @@ window.switchTab = function (tabId) {
     };
     if (pageTitle && titles[tabId]) {
         pageTitle.textContent = titles[tabId];
+    }
+    if (tabId === 'cms') {
+        loadPhotosAdmin();
     }
 };
 
@@ -1342,6 +1347,448 @@ window.previewDummyPdf = function() {
         "Timestamp": new Date().toISOString()
     };
     renderReceiptDocument(dummyData, currentPdfNotes, true);
+};
+
+/* ==========================================================================
+   GOOGLE DRIVE PHOTO & MEDIA MANAGEMENT
+   ========================================================================== */
+let currentPhotosList = [];
+let currentPhotoFilter = 'all';
+let selectedUploadFile = null;
+let editPhotoNewFileSelected = null;
+
+function compressImage(file, maxWidth = 1920, maxHeight = 1080, quality = 0.82) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function(event) {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = function() {
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+                if (height > maxHeight) {
+                    width = Math.round((width * maxHeight) / height);
+                    height = maxHeight;
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const outputMime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+                const compressedDataUrl = canvas.toDataURL(outputMime, quality);
+                resolve({
+                    base64Data: compressedDataUrl,
+                    fileName: file.name
+                });
+            };
+            img.onerror = () => reject(new Error('Gagal memuat gambar untuk kompresi'));
+        };
+        reader.onerror = () => reject(new Error('Gagal membaca file'));
+    });
+}
+
+window.onAdminPhotoSelected = function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    selectedUploadFile = file;
+
+    const nameEl = document.getElementById('selectedPhotoFileName');
+    const judulInput = document.getElementById('adminPhotoJudul');
+    if (nameEl) {
+        nameEl.style.display = 'block';
+        nameEl.innerHTML = `<i class="fas fa-check-circle"></i> File dipilih: <strong>${escapeHtml(file.name)}</strong> (${(file.size / 1024).toFixed(1)} KB)`;
+    }
+    if (judulInput && !judulInput.value.trim()) {
+        judulInput.value = file.name.replace(/\.[^/.]+$/, '').replace(/[_\-]+/g, ' ');
+    }
+};
+
+window.executePhotoUpload = async function() {
+    const fileInput = document.getElementById('adminPhotoFileInput');
+    const file = selectedUploadFile || (fileInput && fileInput.files && fileInput.files[0]);
+    const msgEl = document.getElementById('photoUploadMsg');
+    const btn = document.getElementById('btnUploadPhoto');
+    const origBtnHtml = btn ? btn.innerHTML : '';
+
+    if (!file) {
+        alert('Silakan pilih file foto terlebih dahulu.');
+        return;
+    }
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengompresi & Mengunggah ke Google Drive...';
+    }
+    if (msgEl) msgEl.style.display = 'none';
+
+    try {
+        const compressed = await compressImage(file);
+        const judul = document.getElementById('adminPhotoJudul').value.trim() || file.name.replace(/\.[^/.]+$/, '');
+        const kategori = document.getElementById('adminPhotoKategori').value;
+        const deskripsi = document.getElementById('adminPhotoDeskripsi').value.trim();
+        const aktif = document.getElementById('adminPhotoAktif').checked;
+
+        const response = await fetch(CONFIG.API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({
+                action: 'uploadPhoto',
+                adminUsername: localStorage.getItem('adminUsername') || 'admin',
+                adminPassword: sessionStorage.getItem('adminPass') || '',
+                base64Data: compressed.base64Data,
+                fileName: compressed.fileName,
+                judul: judul,
+                kategori: kategori,
+                deskripsi: deskripsi,
+                aktif: aktif
+            }),
+            redirect: 'follow'
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+            if (msgEl) {
+                msgEl.style.display = 'block';
+                msgEl.style.background = '#dcfce7';
+                msgEl.style.color = '#15803d';
+                msgEl.style.border = '1px solid #86efac';
+                msgEl.innerHTML = '<i class="fas fa-check-circle"></i> <strong>Berhasil!</strong> Foto telah diunggah ke Google Drive dan langsung terdaftar di website.';
+            }
+            selectedUploadFile = null;
+            if (fileInput) fileInput.value = '';
+            document.getElementById('adminPhotoJudul').value = '';
+            document.getElementById('adminPhotoDeskripsi').value = '';
+            const nameEl = document.getElementById('selectedPhotoFileName');
+            if (nameEl) nameEl.style.display = 'none';
+
+            loadPhotosAdmin(true);
+        } else {
+            if (msgEl) {
+                msgEl.style.display = 'block';
+                msgEl.style.background = '#fee2e2';
+                msgEl.style.color = '#b91c1c';
+                msgEl.style.border = '1px solid #fca5a5';
+                msgEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal mengunggah: ' + (result.message || 'Terjadi kesalahan sistem');
+            }
+        }
+    } catch(err) {
+        if (msgEl) {
+            msgEl.style.display = 'block';
+            msgEl.style.background = '#fee2e2';
+            msgEl.style.color = '#b91c1c';
+            msgEl.style.border = '1px solid #fca5a5';
+            msgEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Kesalahan: ' + (err.message || 'Gagal memproses file foto.');
+        }
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = origBtnHtml;
+        }
+    }
+};
+
+window.loadPhotosAdmin = async function(forceRefresh = false) {
+    const grid = document.getElementById('adminPhotosGrid');
+    const countBadge = document.getElementById('photoCountBadge');
+    if (!grid) return;
+
+    if (forceRefresh || currentPhotosList.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column:1/-1;text-align:center;padding:36px;color:#94a3b8;font-style:italic;">
+                <i class="fas fa-spinner fa-spin" style="font-size:1.8rem;margin-bottom:10px;display:block;"></i>
+                Memuat koleksi foto dari Google Drive...
+            </div>
+        `;
+        try {
+            const response = await fetch(CONFIG.API_URL + '?action=getPhotos', { redirect: 'follow' });
+            const result = await response.json();
+            if (result.status === 'success' && Array.isArray(result.data)) {
+                currentPhotosList = result.data;
+            }
+        } catch(e) {
+            console.warn('Error loading photos from backend:', e);
+        }
+    }
+
+    renderAdminPhotosGrid();
+};
+
+window.filterAdminPhotos = function(category) {
+    currentPhotoFilter = category;
+    const tabs = document.querySelectorAll('#photoFilterTabs button');
+    tabs.forEach(btn => {
+        if (btn.getAttribute('data-photo-filter') === category) {
+            btn.className = 'btn btn-sm btn-primary';
+        } else {
+            btn.className = 'btn btn-sm btn-outline-secondary';
+        }
+    });
+    renderAdminPhotosGrid();
+};
+
+window.renderAdminPhotosGrid = function() {
+    const grid = document.getElementById('adminPhotosGrid');
+    const countBadge = document.getElementById('photoCountBadge');
+    if (!grid) return;
+
+    let filtered = currentPhotosList;
+    if (currentPhotoFilter !== 'all') {
+        filtered = currentPhotosList.filter(p => p.kategori === currentPhotoFilter);
+    }
+
+    if (countBadge) {
+        countBadge.textContent = `${filtered.length} Foto Ditampilkan (${currentPhotosList.length} Total)`;
+    }
+
+    if (filtered.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column:1/-1;text-align:center;padding:36px;color:#94a3b8;background:#fff;border-radius:10px;border:1px dashed #cbd5e1;">
+                <i class="fas fa-images" style="font-size:2rem;margin-bottom:8px;display:block;opacity:0.6;"></i>
+                Belum ada foto untuk kategori ini. Gunakan form di atas untuk mengunggah foto ke Google Drive.
+            </div>
+        `;
+        return;
+    }
+
+    const categoryBadges = {
+        slide: { bg: '#fef3c7', text: '#92400e', label: 'Slide Beranda' },
+        fasilitas: { bg: '#e0f2fe', text: '#0369a1', label: 'Fasilitas' },
+        kegiatan: { bg: '#dcfce7', text: '#15803d', label: 'Kegiatan' },
+        prestasi: { bg: '#f3e8ff', text: '#7e22ce', label: 'Prestasi' },
+        berita: { bg: '#ccfbf1', text: '#0f766e', label: 'Berita' },
+        kepsek: { bg: '#e0e7ff', text: '#3730a3', label: 'Foto Kepsek' },
+        lainnya: { bg: '#f1f5f9', text: '#475569', label: 'Lainnya' }
+    };
+
+    grid.innerHTML = filtered.map((p, idx) => {
+        const cat = categoryBadges[p.kategori] || categoryBadges.lainnya;
+        const isAktif = p.aktif !== false;
+        const thumbSrc = p.thumbnailUrl || (p.driveFileId ? `https://lh3.googleusercontent.com/d/${p.driveFileId}=w600` : p.fileUrl);
+
+        return `
+            <div class="photo-admin-card" style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;">
+                <div style="position:relative;width:100%;height:160px;background:#f1f5f9;overflow:hidden;">
+                    <img src="${escapeHtml(thumbSrc)}" 
+                         alt="${escapeHtml(p.judul)}" 
+                         loading="lazy"
+                         onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100%25\' height=\'100%25\' fill=\'%23e2e8f0\'><text x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'14\' fill=\'%2364748b\'>Foto Google Drive</text></svg>'"
+                         style="width:100%;height:100%;object-fit:cover;">
+                    <div style="position:absolute;top:8px;left:8px;display:flex;gap:4px;">
+                        <span style="background:${cat.bg};color:${cat.text};padding:3px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">
+                            ${cat.label}
+                        </span>
+                    </div>
+                    <div style="position:absolute;top:8px;right:8px;">
+                        <span style="background:${isAktif ? '#dcfce7' : '#fee2e2'};color:${isAktif ? '#15803d' : '#b91c1c'};padding:3px 8px;border-radius:4px;font-size:0.72rem;font-weight:700;">
+                            ${isAktif ? 'Aktif' : 'Nonaktif'}
+                        </span>
+                    </div>
+                </div>
+                <div style="padding:14px;flex:1;display:flex;flex-direction:column;justify-content:space-between;">
+                    <div>
+                        <h5 style="margin:0 0 6px 0;font-size:0.95rem;color:var(--primary-dark);">${escapeHtml(p.judul || 'Tanpa Judul')}</h5>
+                        <p style="margin:0 0 10px 0;font-size:0.8rem;color:#64748b;line-height:1.4;">${escapeHtml(p.deskripsi || '-')}</p>
+                    </div>
+                    <div style="border-top:1px solid #f1f5f9;padding-top:10px;display:flex;justify-content:space-between;align-items:center;">
+                        <small style="color:#94a3b8;font-size:0.75rem;">Urutan: #${p.urutan || 0}</small>
+                        <div style="display:flex;gap:4px;">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                    style="padding:4px 8px;font-size:0.78rem;" 
+                                    title="${isAktif ? 'Sembunyikan dari Publik' : 'Tampilkan ke Publik'}" 
+                                    onclick="togglePhotoStatus('${p.id}')">
+                                <i class="fas ${isAktif ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                    style="padding:4px 8px;font-size:0.78rem;" 
+                                    title="Edit Metadata" 
+                                    onclick="openPhotoEditModal('${p.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-danger btn-sm" 
+                                    style="padding:4px 8px;font-size:0.78rem;" 
+                                    title="Hapus Foto" 
+                                    onclick="deletePhotoConfirm('${p.id}')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+};
+
+window.togglePhotoStatus = async function(id) {
+    const photo = currentPhotosList.find(p => p.id === id);
+    if (!photo) return;
+    const newStatus = !photo.aktif;
+
+    photo.aktif = newStatus;
+    renderAdminPhotosGrid();
+
+    try {
+        await fetch(CONFIG.API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({
+                action: 'updatePhoto',
+                id: id,
+                aktif: newStatus,
+                adminUsername: localStorage.getItem('adminUsername') || 'admin',
+                adminPassword: sessionStorage.getItem('adminPass') || ''
+            }),
+            redirect: 'follow'
+        });
+    } catch(e) {
+        console.error('Error updating photo status:', e);
+    }
+};
+
+window.openPhotoEditModal = function(id) {
+    const photo = currentPhotosList.find(p => p.id === id);
+    if (!photo) return;
+
+    document.getElementById('editPhotoId').value = photo.id;
+    document.getElementById('editPhotoJudul').value = photo.judul || '';
+    document.getElementById('editPhotoKategori').value = photo.kategori || 'fasilitas';
+    document.getElementById('editPhotoDeskripsi').value = photo.deskripsi || '';
+    document.getElementById('editPhotoUrutan').value = photo.urutan || 1;
+    document.getElementById('editPhotoAktif').checked = photo.aktif !== false;
+    document.getElementById('editPhotoPreview').src = photo.thumbnailUrl || (photo.driveFileId ? `https://lh3.googleusercontent.com/d/${photo.driveFileId}=w600` : photo.fileUrl);
+    document.getElementById('editPhotoNewFile').value = '';
+    editPhotoNewFileSelected = null;
+
+    const msg = document.getElementById('editPhotoMsg');
+    if (msg) msg.style.display = 'none';
+
+    const modal = document.getElementById('photoEditModal');
+    if (modal) modal.classList.add('active');
+};
+
+window.closePhotoEditModal = function() {
+    const modal = document.getElementById('photoEditModal');
+    if (modal) modal.classList.remove('active');
+};
+
+window.onEditPhotoNewFileSelected = function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    editPhotoNewFileSelected = file;
+    const previewImg = document.getElementById('editPhotoPreview');
+    if (previewImg) {
+        const reader = new FileReader();
+        reader.onload = (ev) => { previewImg.src = ev.target.result; };
+        reader.readAsDataURL(file);
+    }
+};
+
+window.submitPhotoEditMetadata = async function() {
+    const id = document.getElementById('editPhotoId').value;
+    const judul = document.getElementById('editPhotoJudul').value.trim();
+    const kategori = document.getElementById('editPhotoKategori').value;
+    const deskripsi = document.getElementById('editPhotoDeskripsi').value.trim();
+    const urutan = parseInt(document.getElementById('editPhotoUrutan').value, 10) || 1;
+    const aktif = document.getElementById('editPhotoAktif').checked;
+    const btn = document.getElementById('btnSaveEditPhoto');
+    const msg = document.getElementById('editPhotoMsg');
+
+    if (!judul) {
+        alert('Judul foto wajib diisi.');
+        return;
+    }
+
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; }
+    if (msg) msg.style.display = 'none';
+
+    const payload = {
+        action: 'updatePhoto',
+        id: id,
+        judul: judul,
+        kategori: kategori,
+        deskripsi: deskripsi,
+        urutan: urutan,
+        aktif: aktif,
+        adminUsername: localStorage.getItem('adminUsername') || 'admin',
+        adminPassword: sessionStorage.getItem('adminPass') || ''
+    };
+
+    try {
+        if (editPhotoNewFileSelected) {
+            const compressed = await compressImage(editPhotoNewFileSelected);
+            payload.newBase64Data = compressed.base64Data;
+            payload.fileName = compressed.fileName;
+        }
+
+        const response = await fetch(CONFIG.API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload),
+            redirect: 'follow'
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+            closePhotoEditModal();
+            loadPhotosAdmin(true);
+        } else {
+            if (msg) {
+                msg.style.display = 'block';
+                msg.style.background = '#fee2e2';
+                msg.style.color = '#b91c1c';
+                msg.innerHTML = result.message || 'Gagal menyimpan perubahan.';
+            }
+        }
+    } catch(e) {
+        if (msg) {
+            msg.style.display = 'block';
+            msg.style.background = '#fee2e2';
+            msg.style.color = '#b91c1c';
+            msg.innerHTML = 'Kesalahan koneksi saat menyimpan metadata foto.';
+        }
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan Perubahan'; }
+    }
+};
+
+window.deletePhotoConfirm = async function(id) {
+    const photo = currentPhotosList.find(p => p.id === id);
+    const title = photo ? photo.judul : 'foto ini';
+    if (!confirm(`Hapus foto "${title}" secara permanen dari Google Drive dan database website?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(CONFIG.API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({
+                action: 'deletePhoto',
+                id: id,
+                adminUsername: localStorage.getItem('adminUsername') || 'admin',
+                adminPassword: sessionStorage.getItem('adminPass') || ''
+            }),
+            redirect: 'follow'
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+            currentPhotosList = currentPhotosList.filter(p => p.id !== id);
+            renderAdminPhotosGrid();
+        } else {
+            alert('Gagal menghapus: ' + (result.message || 'Terjadi kesalahan'));
+        }
+    } catch(e) {
+        alert('Gagal menghubungi server saat menghapus foto.');
+    }
 };
 
 async function loadSettingsData() {
