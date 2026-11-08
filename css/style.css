@@ -1512,6 +1512,63 @@ p {
   color: var(--primary-light);
 }
 
+/* CMS Sub-Navigation Pills & Sub-boxes */
+.cms-nav-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: #ffffff;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  margin-bottom: 24px;
+  position: sticky;
+  top: 75px;
+  z-index: 100;
+}
+
+.cms-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  text-decoration: none;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.cms-pill:hover,
+.cms-pill.active {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+.cms-sub-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.cms-sub-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Modals */
 .modal-overlay {
   position: fixed;
@@ -2085,4 +2142,164 @@ p {
   font-size: 0.9rem;
   color: var(--text-light);
   margin: 0;
+}
+
+/* ==========================================================================
+   21. GOOGLE DRIVE HOME SLIDER & DYNAMIC GALLERY ENHANCEMENTS
+   ========================================================================== */
+.section-home-slider {
+  padding: 30px 0 10px 0;
+  background: var(--bg-alt, #f8fafc);
+}
+
+.home-slider-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  background: #0f172a;
+}
+
+.home-slider-track {
+  position: relative;
+  width: 100%;
+  height: 440px;
+}
+
+@media (max-width: 992px) {
+  .home-slider-track {
+    height: 340px;
+  }
+}
+
+@media (max-width: 576px) {
+  .home-slider-track {
+    height: 240px;
+  }
+}
+
+.home-slide-item {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.7s ease, visibility 0.7s ease;
+}
+
+.home-slide-item.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.home-slide-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.home-slide-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 32px 24px 20px 24px;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.45) 60%, transparent 100%);
+  color: #ffffff;
+}
+
+.home-slide-caption h3 {
+  font-size: 1.35rem;
+  margin-bottom: 6px;
+  color: #ffffff;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.home-slide-caption p {
+  font-size: 0.95rem;
+  color: #e2e8f0;
+  margin: 0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.65);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.slider-btn:hover {
+  background: var(--primary, #153e7e);
+  color: #ffffff;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.slider-btn.prev {
+  left: 16px;
+}
+
+.slider-btn.next {
+  right: 16px;
+}
+
+.slider-indicators {
+  position: absolute;
+  bottom: 16px;
+  right: 24px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.slider-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.slider-dot.active {
+  background: #ffffff;
+  width: 24px;
+  border-radius: 12px;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+}
+
+/* Dynamic Gallery Enhancements */
+.gallery-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lightbox-image img {
+  max-width: 90vw;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  display: block;
+  margin: 0 auto;
 }
