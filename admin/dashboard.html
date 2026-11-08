@@ -320,29 +320,45 @@
 
                 <!-- ==================== TAB 3: CMS (EDIT KONTEN WEBSITE) ==================== -->
                 <div class="admin-tab-content" id="tab-cms">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
                         <div>
-                            <h2 style="font-size:1.4rem;color:var(--primary-dark);margin:0;">Manajemen Konten Halaman Utama (CMS)</h2>
-                            <p style="color:#64748b;font-size:0.88rem;margin:4px 0 0 0;">Ubah teks, judul, visi misi, sambutan kepala sekolah, dan data yang tampil di website utama.</p>
+                            <h2 style="font-size:1.4rem;color:var(--primary-dark);margin:0;">Manajemen Seluruh Konten Website (CMS)</h2>
+                            <p style="color:#64748b;font-size:0.88rem;margin:4px 0 0 0;">Kontrol penuh seluruh teks, judul, berita, jadwal, galeri, formulir, dan kontak yang tampil di website utama.</p>
                         </div>
                         <button type="button" class="btn btn-primary btn-lg" onclick="saveCmsContent()" id="btnSaveCmsTop">
                             <i class="fas fa-save"></i> Simpan Seluruh Konten
                         </button>
                     </div>
 
+                    <!-- Quick Navigation Jump Pills -->
+                    <div class="cms-nav-pills">
+                        <a href="#cms-sec-identitas" class="cms-pill"><i class="fas fa-school"></i> 1. Identitas & Sosmed</a>
+                        <a href="#cms-sec-hero" class="cms-pill"><i class="fas fa-flag"></i> 2. Banner & SPMB</a>
+                        <a href="#cms-sec-stats" class="cms-pill"><i class="fas fa-chart-line"></i> 3. Statistik</a>
+                        <a href="#cms-sec-sambutan" class="cms-pill"><i class="fas fa-user-tie"></i> 4. Sambutan Kepsek</a>
+                        <a href="#cms-sec-visimisi" class="cms-pill"><i class="fas fa-bullseye"></i> 5. Visi & Misi</a>
+                        <a href="#cms-sec-program" class="cms-pill"><i class="fas fa-star"></i> 6. Program Unggulan</a>
+                        <a href="#cms-sec-alur" class="cms-pill"><i class="fas fa-stream"></i> 7. Alur Pendaftaran</a>
+                        <a href="#cms-sec-berita" class="cms-pill"><i class="fas fa-newspaper"></i> 8. Pengumuman & Berita</a>
+                        <a href="#cms-sec-jadwal" class="cms-pill"><i class="fas fa-calendar-alt"></i> 9. Jadwal SPMB</a>
+                        <a href="#cms-sec-galeri" class="cms-pill"><i class="fas fa-images"></i> 10. Galeri Foto</a>
+                        <a href="#cms-sec-cta" class="cms-pill"><i class="fas fa-file-signature"></i> 11. CTA & Syarat</a>
+                        <a href="#cms-sec-kontak" class="cms-pill"><i class="fas fa-phone-alt"></i> 12. Kontak & Profil</a>
+                    </div>
+
                     <div id="cmsMessage" style="display:none;margin-bottom:20px;padding:14px 20px;border-radius:10px;"></div>
 
                     <form id="cmsForm">
-                        <!-- 1. Header & Identitas Sekolah -->
-                        <div class="cms-card">
+                        <!-- 1. Header & Identitas Sekolah & Media Sosial -->
+                        <div class="cms-card" id="cms-sec-identitas">
                             <div class="cms-card-header">
-                                <h3 class="cms-card-title"><i class="fas fa-school"></i> 1. Identitas & Header Sekolah</h3>
+                                <h3 class="cms-card-title"><i class="fas fa-school"></i> 1. Identitas, Header & Media Sosial</h3>
                             </div>
                             <div class="form-row">
                                 <div class="form-group" style="flex:2;">
                                     <label for="cms_namaSekolah">Nama Sekolah Resmi</label>
                                     <input type="text" id="cms_namaSekolah" class="form-input" placeholder="SMP KP 1 BALEENDAH">
-                                    <span class="cms-hint">Tampil di navbar, hero, dan footer website.</span>
+                                    <span class="cms-hint">Tampil di navbar, hero, dokumen PDF, dan footer website.</span>
                                 </div>
                                 <div class="form-group" style="flex:1;">
                                     <label for="cms_taglineSekolah">Tagline / Slogan</label>
@@ -355,7 +371,7 @@
                                     <input type="text" id="cms_akreditasi" class="form-input" placeholder="Akreditasi A">
                                 </div>
                                 <div class="form-group" style="flex:2;">
-                                    <label for="cms_topbarAlamat">Alamat Singkat Header</label>
+                                    <label for="cms_topbarAlamat">Alamat Header Singkat</label>
                                     <input type="text" id="cms_topbarAlamat" class="form-input" placeholder="Baleendah, Kab. Bandung">
                                 </div>
                             </div>
@@ -364,15 +380,29 @@
                                 <textarea id="cms_runningText" class="form-textarea" rows="2" placeholder="Teks pengumuman penting yang berjalan di atas navbar..."></textarea>
                                 <span class="cms-hint">Pengumuman ini tampil di pita kuning berjalan tepat di atas navbar utama.</span>
                             </div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_sosialInstagram"><i class="fab fa-instagram" style="color:#e1306c;"></i> Link Instagram</label>
+                                    <input type="url" id="cms_sosialInstagram" class="form-input" placeholder="https://instagram.com/smpkp1baleendah">
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_sosialFacebook"><i class="fab fa-facebook-f" style="color:#1877f2;"></i> Link Facebook</label>
+                                    <input type="url" id="cms_sosialFacebook" class="form-input" placeholder="https://facebook.com/smpkp1baleendah">
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_sosialYoutube"><i class="fab fa-youtube" style="color:#ff0000;"></i> Link YouTube</label>
+                                    <input type="url" id="cms_sosialYoutube" class="form-input" placeholder="https://youtube.com/@smpkp1baleendah">
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- 2. Hero Banner Utama -->
-                        <div class="cms-card">
+                        <!-- 2. Hero Banner Utama & Widget SPMB -->
+                        <div class="cms-card" id="cms-sec-hero">
                             <div class="cms-card-header">
-                                <h3 class="cms-card-title"><i class="fas fa-flag"></i> 2. Banner Utama (Hero Section)</h3>
+                                <h3 class="cms-card-title"><i class="fas fa-flag"></i> 2. Banner Utama (Hero Section) & Widget SPMB</h3>
                             </div>
                             <div class="form-group">
-                                <label for="cms_heroBadge">Badge / Teks Label Kecil</label>
+                                <label for="cms_heroBadge">Badge / Label Banner Utama</label>
                                 <input type="text" id="cms_heroBadge" class="form-input" placeholder="Penerimaan Murid Baru Tahun Ajaran 2025/2026">
                             </div>
                             <div class="form-group">
@@ -381,12 +411,66 @@
                             </div>
                             <div class="form-group">
                                 <label for="cms_heroSubtitle">Subjudul / Deskripsi Banner</label>
-                                <textarea id="cms_heroSubtitle" class="form-textarea" rows="3" placeholder="Deskripsi sambutan singkat di banner utama..."></textarea>
+                                <textarea id="cms_heroSubtitle" class="form-textarea" rows="2" placeholder="Deskripsi sambutan singkat di banner utama..."></textarea>
+                            </div>
+
+                            <hr style="border:none;border-top:1px dashed #e2e8f0;margin:20px 0;">
+                            <h4 style="color:var(--primary-dark);margin-bottom:12px;font-size:1rem;"><i class="fas fa-bullhorn"></i> Widget Info Kilas SPMB (Samping Banner Beranda)</h4>
+                            
+                            <div class="form-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_spmbBadge">Badge Widget</label>
+                                    <input type="text" id="cms_spmbBadge" class="form-input" placeholder="PENERIMAAN ONLINE">
+                                </div>
+                                <div class="form-group" style="flex:2;">
+                                    <label for="cms_spmbTitle">Judul Widget SPMB</label>
+                                    <input type="text" id="cms_spmbTitle" class="form-input" placeholder="Informasi Singkat SPMB">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cms_spmbDesc">Deskripsi Ringkas</label>
+                                <input type="text" id="cms_spmbDesc" class="form-input" placeholder="Segera daftarkan putra/putri Anda sebelum kuota terpenuhi.">
+                            </div>
+
+                            <div class="cms-sub-box">
+                                <div class="cms-sub-title"><i class="fas fa-check-circle"></i> Poin Info 1</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:1;">
+                                        <input type="text" id="cms_spmbItem1Title" class="form-input" placeholder="Jalur Reguler & Prestasi">
+                                    </div>
+                                    <div class="form-group" style="flex:2;">
+                                        <input type="text" id="cms_spmbItem1Desc" class="form-input" placeholder="Beasiswa siswa berprestasi akademik & tahfidz">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="cms-sub-box">
+                                <div class="cms-sub-title"><i class="fas fa-users"></i> Poin Info 2</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:1;">
+                                        <input type="text" id="cms_spmbItem2Title" class="form-input" placeholder="Kuota Terbatas">
+                                    </div>
+                                    <div class="form-group" style="flex:2;">
+                                        <input type="text" id="cms_spmbItem2Desc" class="form-input" placeholder="Maksimal 32 siswa per rombel belajar">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="cms-sub-box">
+                                <div class="cms-sub-title"><i class="fas fa-hand-holding-usd"></i> Poin Info 3</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:1;">
+                                        <input type="text" id="cms_spmbItem3Title" class="form-input" placeholder="Biaya Terjangkau">
+                                    </div>
+                                    <div class="form-group" style="flex:2;">
+                                        <input type="text" id="cms_spmbItem3Desc" class="form-input" placeholder="Transparan & fasilitas cicilan pembayaran">
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
                         <!-- 3. Statistik Sekolah -->
-                        <div class="cms-card">
+                        <div class="cms-card" id="cms-sec-stats">
                             <div class="cms-card-header">
                                 <h3 class="cms-card-title"><i class="fas fa-chart-line"></i> 3. Statistik Sekolah (4 Angka di Banner)</h3>
                             </div>
@@ -429,7 +513,7 @@
                         </div>
 
                         <!-- 4. Sambutan Kepala Sekolah -->
-                        <div class="cms-card">
+                        <div class="cms-card" id="cms-sec-sambutan">
                             <div class="cms-card-header">
                                 <h3 class="cms-card-title"><i class="fas fa-user-tie"></i> 4. Sambutan Kepala Sekolah</h3>
                             </div>
@@ -454,7 +538,7 @@
                         </div>
 
                         <!-- 5. Visi & Misi Sekolah -->
-                        <div class="cms-card">
+                        <div class="cms-card" id="cms-sec-visimisi">
                             <div class="cms-card-header">
                                 <h3 class="cms-card-title"><i class="fas fa-bullseye"></i> 5. Visi & Misi Sekolah</h3>
                             </div>
@@ -463,65 +547,475 @@
                                 <textarea id="cms_visiSekolah" class="form-textarea" rows="3" placeholder="Rumusan visi sekolah..."></textarea>
                             </div>
                             <div class="form-group">
-                                <label for="cms_misiSekolah">Misi Sekolah (Pisahkan dengan baris baru untuk setiap poin misi)</label>
-                                <textarea id="cms_misiSekolah" class="form-textarea" rows="5" placeholder="Contoh:
-Menyelenggarakan pembelajaran berkualitas
-Menanamkan nilai-nilai keimanan dan ketaqwaan
-Mengembangkan literasi digital"></textarea>
-                                <span class="cms-hint">Setiap baris akan otomatis ditampilkan menjadi nomor urut (1, 2, 3...) di website.</span>
+                                <label for="cms_misiSekolah">Misi Sekolah (Pisahkan dengan baris baru untuk setiap butir misi)</label>
+                                <textarea id="cms_misiSekolah" class="form-textarea" rows="5" placeholder="Satu baris untuk setiap poin misi..."></textarea>
+                                <span class="cms-hint">Setiap baris baru akan otomatis ditampilkan sebagai nomor urut 1, 2, 3... di website.</span>
                             </div>
                         </div>
 
                         <!-- 6. Program Unggulan -->
-                        <div class="cms-card">
+                        <div class="cms-card" id="cms-sec-program">
                             <div class="cms-card-header">
                                 <h3 class="cms-card-title"><i class="fas fa-star"></i> 6. Program Unggulan (4 Pilar)</h3>
                             </div>
                             <div class="form-row">
                                 <div class="form-group" style="flex:1;">
                                     <label for="cms_prog1Judul">Program 1: Judul</label>
-                                    <input type="text" id="cms_prog1Judul" class="form-input" placeholder="Kurikulum Merdeka">
+                                    <input type="text" id="cms_prog1Judul" class="form-input" placeholder="Kurikulum Merdeka Terintegrasi">
                                     <textarea id="cms_prog1Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Penjelasan program 1..."></textarea>
                                 </div>
                                 <div class="form-group" style="flex:1;">
                                     <label for="cms_prog2Judul">Program 2: Judul</label>
-                                    <input type="text" id="cms_prog2Judul" class="form-input" placeholder="Pembiasaan Keagamaan">
+                                    <input type="text" id="cms_prog2Judul" class="form-input" placeholder="Pembiasaan Keagamaan & Karakter">
                                     <textarea id="cms_prog2Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Penjelasan program 2..."></textarea>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group" style="flex:1;">
                                     <label for="cms_prog3Judul">Program 3: Judul</label>
-                                    <input type="text" id="cms_prog3Judul" class="form-input" placeholder="Literasi Digital & IT">
+                                    <input type="text" id="cms_prog3Judul" class="form-input" placeholder="Literasi Digital & Komputer">
                                     <textarea id="cms_prog3Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Penjelasan program 3..."></textarea>
                                 </div>
                                 <div class="form-group" style="flex:1;">
                                     <label for="cms_prog4Judul">Program 4: Judul</label>
-                                    <input type="text" id="cms_prog4Judul" class="form-input" placeholder="Ekstrakurikuler & Prestasi">
+                                    <input type="text" id="cms_prog4Judul" class="form-input" placeholder="Pengembangan Minat & Ekstrakurikuler">
                                     <textarea id="cms_prog4Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Penjelasan program 4..."></textarea>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 7. Kontak & Jam Operasional -->
-                        <div class="cms-card">
+                        <!-- 7. Alur Pendaftaran -->
+                        <div class="cms-card" id="cms-sec-alur">
                             <div class="cms-card-header">
-                                <h3 class="cms-card-title"><i class="fas fa-address-book"></i> 7. Kontak Resmi & Jam Operasional</h3>
+                                <h3 class="cms-card-title"><i class="fas fa-stream"></i> 7. Alur Pendaftaran SPMB (4 Langkah)</h3>
                             </div>
                             <div class="form-row">
                                 <div class="form-group" style="flex:1;">
-                                    <label for="cms_telepon">No. Telepon / WhatsApp Panitia</label>
-                                    <input type="text" id="cms_telepon" class="form-input" placeholder="(022) 1234-5678 / 08123456789">
+                                    <label for="cms_alurStep1Title">Langkah 1: Judul</label>
+                                    <input type="text" id="cms_alurStep1Title" class="form-input" placeholder="1. Pengisian Formulir Online">
+                                    <textarea id="cms_alurStep1Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Deskripsi langkah 1..."></textarea>
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_alurStep2Title">Langkah 2: Judul</label>
+                                    <input type="text" id="cms_alurStep2Title" class="form-input" placeholder="2. Verifikasi Dokumen">
+                                    <textarea id="cms_alurStep2Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Deskripsi langkah 2..."></textarea>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_alurStep3Title">Langkah 3: Judul</label>
+                                    <input type="text" id="cms_alurStep3Title" class="form-input" placeholder="3. Tes Pemetaan Potensi">
+                                    <textarea id="cms_alurStep3Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Deskripsi langkah 3..."></textarea>
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_alurStep4Title">Langkah 4: Judul</label>
+                                    <input type="text" id="cms_alurStep4Title" class="form-input" placeholder="4. Daftar Ulang & Orientasi">
+                                    <textarea id="cms_alurStep4Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Deskripsi langkah 4..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 8. Pengumuman, Info Terbaru & Berita -->
+                        <div class="cms-card" id="cms-sec-berita">
+                            <div class="cms-card-header">
+                                <h3 class="cms-card-title"><i class="fas fa-newspaper"></i> 8. Pengumuman, Info Terbaru & Berita (6 Card)</h3>
+                            </div>
+                            <p style="color:#64748b;font-size:0.88rem;margin-bottom:16px;">Konten ini tampil di halaman Beranda dan halaman Informasi & Berita (dengan filter kategori otomatis).</p>
+
+                            <!-- Pengumuman 1 & 2 -->
+                            <div style="font-weight:700;color:var(--primary);margin-bottom:10px;"><i class="fas fa-bullhorn"></i> Kategori: Pengumuman Resmi</div>
+                            <div class="cms-sub-box">
+                                <div class="cms-sub-title">Pengumuman 1</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:2;">
+                                        <label for="cms_pengumuman1Title">Judul</label>
+                                        <input type="text" id="cms_pengumuman1Title" class="form-input" placeholder="Pembukaan Pendaftaran Siswa Baru Gelombang 1">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_pengumuman1Date">Tanggal</label>
+                                        <input type="text" id="cms_pengumuman1Date" class="form-input" placeholder="15 Oktober 2025">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_pengumuman1Author">Penulis</label>
+                                        <input type="text" id="cms_pengumuman1Author" class="form-input" placeholder="Panitia SPMB">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_pengumuman1Excerpt">Isi Ringkas / Cuplikan</label>
+                                    <textarea id="cms_pengumuman1Excerpt" class="form-textarea" rows="2" placeholder="Cuplikan pengumuman..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="cms-sub-box">
+                                <div class="cms-sub-title">Pengumuman 2</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:2;">
+                                        <label for="cms_pengumuman2Title">Judul</label>
+                                        <input type="text" id="cms_pengumuman2Title" class="form-input" placeholder="Ketentuan & Format Dokumen Persyaratan">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_pengumuman2Date">Tanggal</label>
+                                        <input type="text" id="cms_pengumuman2Date" class="form-input" placeholder="12 Oktober 2025">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_pengumuman2Author">Penulis</label>
+                                        <input type="text" id="cms_pengumuman2Author" class="form-input" placeholder="Panitia SPMB">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_pengumuman2Excerpt">Isi Ringkas / Cuplikan</label>
+                                    <textarea id="cms_pengumuman2Excerpt" class="form-textarea" rows="2" placeholder="Cuplikan pengumuman..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Info Terbaru 1 & 2 -->
+                            <div style="font-weight:700;color:#0284c7;margin:20px 0 10px 0;"><i class="fas fa-info-circle"></i> Kategori: Info Terbaru</div>
+                            <div class="cms-sub-box">
+                                <div class="cms-sub-title">Info Terbaru 1</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:2;">
+                                        <label for="cms_info1Title">Judul</label>
+                                        <input type="text" id="cms_info1Title" class="form-input" placeholder="Layanan Bantuan Pengisian Formulir di Sekolah">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_info1Date">Tanggal</label>
+                                        <input type="text" id="cms_info1Date" class="form-input" placeholder="10 Oktober 2025">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_info1Author">Penulis</label>
+                                        <input type="text" id="cms_info1Author" class="form-input" placeholder="Tata Usaha">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_info1Excerpt">Isi Ringkas / Cuplikan</label>
+                                    <textarea id="cms_info1Excerpt" class="form-textarea" rows="2" placeholder="Cuplikan info..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="cms-sub-box">
+                                <div class="cms-sub-title">Info Terbaru 2</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:2;">
+                                        <label for="cms_info2Title">Judul</label>
+                                        <input type="text" id="cms_info2Title" class="form-input" placeholder="Program Beasiswa Berprestasi Akademik & Tahfidz">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_info2Date">Tanggal</label>
+                                        <input type="text" id="cms_info2Date" class="form-input" placeholder="08 Oktober 2025">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_info2Author">Penulis</label>
+                                        <input type="text" id="cms_info2Author" class="form-input" placeholder="Kesiswaan">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_info2Excerpt">Isi Ringkas / Cuplikan</label>
+                                    <textarea id="cms_info2Excerpt" class="form-textarea" rows="2" placeholder="Cuplikan info..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Berita 1 & 2 -->
+                            <div style="font-weight:700;color:#059669;margin:20px 0 10px 0;"><i class="fas fa-newspaper"></i> Kategori: Berita & Kegiatan Sekolah</div>
+                            <div class="cms-sub-box">
+                                <div class="cms-sub-title">Berita 1</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:2;">
+                                        <label for="cms_berita1Title">Judul</label>
+                                        <input type="text" id="cms_berita1Title" class="form-input" placeholder="Siswa SMP KP 1 Baleendah Raih Juara 1 Lomba Cerdas Cermat">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_berita1Date">Tanggal</label>
+                                        <input type="text" id="cms_berita1Date" class="form-input" placeholder="05 Oktober 2025">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_berita1Author">Penulis</label>
+                                        <input type="text" id="cms_berita1Author" class="form-input" placeholder="Humas">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_berita1Excerpt">Isi Ringkas / Cuplikan</label>
+                                    <textarea id="cms_berita1Excerpt" class="form-textarea" rows="2" placeholder="Cuplikan berita..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="cms-sub-box">
+                                <div class="cms-sub-title">Berita 2</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:2;">
+                                        <label for="cms_berita2Title">Judul</label>
+                                        <input type="text" id="cms_berita2Title" class="form-input" placeholder="Kegiatan Perkemahan Pramuka & Pelatihan Karakter Mandiri">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_berita2Date">Tanggal</label>
+                                        <input type="text" id="cms_berita2Date" class="form-input" placeholder="28 September 2025">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_berita2Author">Penulis</label>
+                                        <input type="text" id="cms_berita2Author" class="form-input" placeholder="Pembina OSIS">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_berita2Excerpt">Isi Ringkas / Cuplikan</label>
+                                    <textarea id="cms_berita2Excerpt" class="form-textarea" rows="2" placeholder="Cuplikan berita..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 9. Jadwal & Timeline Seleksi -->
+                        <div class="cms-card" id="cms-sec-jadwal">
+                            <div class="cms-card-header">
+                                <h3 class="cms-card-title"><i class="fas fa-calendar-alt"></i> 9. Jadwal & Timeline Seleksi SPMB (6 Tahapan)</h3>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_jadwalSectionTitle">Judul Bagian Timeline</label>
+                                    <input type="text" id="cms_jadwalSectionTitle" class="form-input" placeholder="Timeline SPMB 2025/2026">
+                                </div>
+                                <div class="form-group" style="flex:2;">
+                                    <label for="cms_jadwalSectionDesc">Keterangan Subjudul</label>
+                                    <input type="text" id="cms_jadwalSectionDesc" class="form-input" placeholder="Berikut adalah jadwal lengkap kegiatan Seleksi Penerimaan Murid Baru">
+                                </div>
+                            </div>
+
+                            <div class="cms-sub-box">
+                                <div class="cms-sub-title"><i class="fas fa-edit"></i> Tahap 1: Pendaftaran Online</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_jadwal1Title">Nama Kegiatan</label>
+                                        <input type="text" id="cms_jadwal1Title" class="form-input" placeholder="Pendaftaran Online">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_jadwal1Date">Rentang Waktu</label>
+                                        <input type="text" id="cms_jadwal1Date" class="form-input" placeholder="1 Oktober - 30 November 2025">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_jadwal1Desc">Keterangan Kegiatan</label>
+                                    <textarea id="cms_jadwal1Desc" class="form-textarea" rows="2" placeholder="Keterangan tahap 1..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="cms-sub-box">
+                                <div class="cms-sub-title"><i class="fas fa-clipboard-check"></i> Tahap 2: Verifikasi Dokumen</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_jadwal2Title">Nama Kegiatan</label>
+                                        <input type="text" id="cms_jadwal2Title" class="form-input" placeholder="Verifikasi Dokumen">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_jadwal2Date">Rentang Waktu</label>
+                                        <input type="text" id="cms_jadwal2Date" class="form-input" placeholder="1 - 15 Desember 2025">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_jadwal2Desc">Keterangan Kegiatan</label>
+                                    <textarea id="cms_jadwal2Desc" class="form-textarea" rows="2" placeholder="Keterangan tahap 2..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="cms-sub-box">
+                                <div class="cms-sub-title"><i class="fas fa-pencil-alt"></i> Tahap 3: Tes Seleksi</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_jadwal3Title">Nama Kegiatan</label>
+                                        <input type="text" id="cms_jadwal3Title" class="form-input" placeholder="Tes Seleksi">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_jadwal3Date">Rentang Waktu</label>
+                                        <input type="text" id="cms_jadwal3Date" class="form-input" placeholder="20 - 22 Desember 2025">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_jadwal3Desc">Keterangan Kegiatan</label>
+                                    <textarea id="cms_jadwal3Desc" class="form-textarea" rows="2" placeholder="Keterangan tahap 3..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="cms-sub-box">
+                                <div class="cms-sub-title"><i class="fas fa-bullhorn"></i> Tahap 4: Pengumuman Hasil</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_jadwal4Title">Nama Kegiatan</label>
+                                        <input type="text" id="cms_jadwal4Title" class="form-input" placeholder="Pengumuman Hasil">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_jadwal4Date">Rentang Waktu</label>
+                                        <input type="text" id="cms_jadwal4Date" class="form-input" placeholder="5 Januari 2026">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_jadwal4Desc">Keterangan Kegiatan</label>
+                                    <textarea id="cms_jadwal4Desc" class="form-textarea" rows="2" placeholder="Keterangan tahap 4..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="cms-sub-box">
+                                <div class="cms-sub-title"><i class="fas fa-file-invoice"></i> Tahap 5: Daftar Ulang</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_jadwal5Title">Nama Kegiatan</label>
+                                        <input type="text" id="cms_jadwal5Title" class="form-input" placeholder="Daftar Ulang">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_jadwal5Date">Rentang Waktu</label>
+                                        <input type="text" id="cms_jadwal5Date" class="form-input" placeholder="6 - 15 Januari 2026">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_jadwal5Desc">Keterangan Kegiatan</label>
+                                    <textarea id="cms_jadwal5Desc" class="form-textarea" rows="2" placeholder="Keterangan tahap 5..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="cms-sub-box">
+                                <div class="cms-sub-title"><i class="fas fa-graduation-cap"></i> Tahap 6: Masa Orientasi</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_jadwal6Title">Nama Kegiatan</label>
+                                        <input type="text" id="cms_jadwal6Title" class="form-input" placeholder="Masa Orientasi">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_jadwal6Date">Rentang Waktu</label>
+                                        <input type="text" id="cms_jadwal6Date" class="form-input" placeholder="15 - 17 Juli 2026">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cms_jadwal6Desc">Keterangan Kegiatan</label>
+                                    <textarea id="cms_jadwal6Desc" class="form-textarea" rows="2" placeholder="Keterangan tahap 6..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 10. Galeri Foto & Fasilitas -->
+                        <div class="cms-card" id="cms-sec-galeri">
+                            <div class="cms-card-header">
+                                <h3 class="cms-card-title"><i class="fas fa-images"></i> 10. Galeri Dokumentasi, Fasilitas & Prestasi (9 Item)</h3>
+                            </div>
+                            <p style="color:#64748b;font-size:0.88rem;margin-bottom:16px;">Ubah judul caption dan label kategori untuk setiap kartu galeri foto.</p>
+
+                            <div class="form-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_galeri1Caption">Galeri 1: Caption</label>
+                                    <input type="text" id="cms_galeri1Caption" class="form-input" placeholder="Gedung Sekolah">
+                                    <input type="text" id="cms_galeri1Category" class="form-input" style="margin-top:6px;" placeholder="Fasilitas">
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_galeri2Caption">Galeri 2: Caption</label>
+                                    <input type="text" id="cms_galeri2Caption" class="form-input" placeholder="Perpustakaan">
+                                    <input type="text" id="cms_galeri2Category" class="form-input" style="margin-top:6px;" placeholder="Fasilitas">
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_galeri3Caption">Galeri 3: Caption</label>
+                                    <input type="text" id="cms_galeri3Caption" class="form-input" placeholder="Laboratorium IPA">
+                                    <input type="text" id="cms_galeri3Category" class="form-input" style="margin-top:6px;" placeholder="Fasilitas">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_galeri4Caption">Galeri 4: Caption</label>
+                                    <input type="text" id="cms_galeri4Caption" class="form-input" placeholder="Kegiatan Olahraga">
+                                    <input type="text" id="cms_galeri4Category" class="form-input" style="margin-top:6px;" placeholder="Kegiatan">
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_galeri5Caption">Galeri 5: Caption</label>
+                                    <input type="text" id="cms_galeri5Caption" class="form-input" placeholder="Kelas Seni">
+                                    <input type="text" id="cms_galeri5Category" class="form-input" style="margin-top:6px;" placeholder="Kegiatan">
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_galeri6Caption">Galeri 6: Caption</label>
+                                    <input type="text" id="cms_galeri6Caption" class="form-input" placeholder="Perkemahan Pramuka">
+                                    <input type="text" id="cms_galeri6Category" class="form-input" style="margin-top:6px;" placeholder="Kegiatan">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_galeri7Caption">Galeri 7: Caption</label>
+                                    <input type="text" id="cms_galeri7Caption" class="form-input" placeholder="Juara Olimpiade">
+                                    <input type="text" id="cms_galeri7Category" class="form-input" style="margin-top:6px;" placeholder="Prestasi">
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_galeri8Caption">Galeri 8: Caption</label>
+                                    <input type="text" id="cms_galeri8Caption" class="form-input" placeholder="Lomba Cerdas Cermat">
+                                    <input type="text" id="cms_galeri8Category" class="form-input" style="margin-top:6px;" placeholder="Prestasi">
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_galeri9Caption">Galeri 9: Caption</label>
+                                    <input type="text" id="cms_galeri9Caption" class="form-input" placeholder="Lab Komputer">
+                                    <input type="text" id="cms_galeri9Category" class="form-input" style="margin-top:6px;" placeholder="Fasilitas">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 11. CTA & Persyaratan Formulir Pendaftaran -->
+                        <div class="cms-card" id="cms-sec-cta">
+                            <div class="cms-card-header">
+                                <h3 class="cms-card-title"><i class="fas fa-file-signature"></i> 11. Ajakan Mendaftar (CTA) & Catatan Formulir</h3>
+                            </div>
+                            <div class="form-group">
+                                <label for="cms_ctaTitle">Judul Banner Ajakan Mendaftar</label>
+                                <input type="text" id="cms_ctaTitle" class="form-input" placeholder="Siap Bergabung dengan SMP KP 1 BALEENDAH?">
+                            </div>
+                            <div class="form-group">
+                                <label for="cms_ctaDesc">Teks Penjelasan Ajakan</label>
+                                <textarea id="cms_ctaDesc" class="form-textarea" rows="2" placeholder="Daftarkan putra-putri Anda sekarang dan dapatkan lingkungan belajar terbaik..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="cms_ctaButtonText">Teks Tombol Ajakan</label>
+                                <input type="text" id="cms_ctaButtonText" class="form-input" placeholder="Daftar SPMB Online Sekarang">
+                            </div>
+
+                            <hr style="border:none;border-top:1px dashed #e2e8f0;margin:20px 0;">
+                            <h4 style="color:var(--primary-dark);margin-bottom:12px;font-size:1rem;"><i class="fas fa-paperclip"></i> Keterangan Format Berkas & Catatan Sukses Pendaftaran</h4>
+
+                            <div class="form-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_syaratFoto">Petunjuk Upload Pas Foto</label>
+                                    <input type="text" id="cms_syaratFoto" class="form-input" placeholder="Format: JPG, PNG (Maks. 2MB)">
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_syaratKK">Petunjuk Upload Kartu Keluarga</label>
+                                    <input type="text" id="cms_syaratKK" class="form-input" placeholder="Format: JPG, PNG, PDF (Maks. 2MB)">
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_syaratAkta">Petunjuk Upload Akta Kelahiran</label>
+                                    <input type="text" id="cms_syaratAkta" class="form-input" placeholder="Format: JPG, PNG, PDF (Maks. 2MB)">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cms_catatanPendaftaran">Catatan Kartu Sukses Pendaftaran</label>
+                                <input type="text" id="cms_catatanPendaftaran" class="form-input" placeholder="Simpan nomor pendaftaran ini untuk mengecek status pendaftaran Anda.">
+                            </div>
+                        </div>
+
+                        <!-- 12. Kontak Resmi & Profil Footer -->
+                        <div class="cms-card" id="cms-sec-kontak">
+                            <div class="cms-card-header">
+                                <h3 class="cms-card-title"><i class="fas fa-address-book"></i> 12. Kontak Resmi, Jam Layanan & Footer</h3>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_telepon">No. Telepon Kantor</label>
+                                    <input type="text" id="cms_telepon" class="form-input" placeholder="(022) 1234-5678">
+                                </div>
+                                <div class="form-group" style="flex:1;">
+                                    <label for="cms_whatsapp">No. WhatsApp Panitia (Tanpa Spasi / Tanda Hubung)</label>
+                                    <input type="text" id="cms_whatsapp" class="form-input" placeholder="081234567890">
                                 </div>
                                 <div class="form-group" style="flex:1;">
                                     <label for="cms_email">Email Resmi Sekolah</label>
                                     <input type="email" id="cms_email" class="form-input" placeholder="info@smpkp1baleendah.sch.id">
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label for="cms_whatsappMessage">Pesan Otomatis WhatsApp (Template Percakapan Awal)</label>
+                                <input type="text" id="cms_whatsappMessage" class="form-input" placeholder="Halo Panitia SPMB SMP KP 1 Baleendah, saya ingin bertanya mengenai pendaftaran murid baru.">
+                            </div>
                             <div class="form-row">
                                 <div class="form-group" style="flex:2;">
                                     <label for="cms_alamat">Alamat Lengkap</label>
-                                    <input type="text" id="cms_alamat" class="form-input" placeholder="Jl. Adipati Agung, No. 32 Baleendah, Bandung, Jawa Barat 40375">
+                                    <input type="text" id="cms_alamat" class="form-input" placeholder="Jl. Adipati Agung No. 16, Baleendah, Bandung, Jawa Barat 40375">
                                 </div>
                                 <div class="form-group" style="flex:1;">
                                     <label for="cms_jamLayanan">Jam Operasional Layanan</label>
@@ -573,6 +1067,52 @@ Mengembangkan literasi digital"></textarea>
 
                             <button type="submit" class="btn btn-primary btn-lg" id="saveSettingsBtn">
                                 <i class="fas fa-save"></i> Simpan Status Pendaftaran
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Card 2: Pengaturan Kontak WhatsApp Panitia -->
+                    <div class="table-card" style="max-width:800px;margin-top:24px;">
+                        <h3 style="font-size:1.2rem;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+                            <i class="fab fa-whatsapp" style="color:#25D366;font-size:1.3rem;"></i>
+                            Kontak WhatsApp Panitia SPMB
+                        </h3>
+                        
+                        <div id="waSettingsMessage" style="display:none;margin-bottom:16px;"></div>
+
+                        <form id="waSettingsForm">
+                            <div class="form-group" style="margin-bottom:18px;">
+                                <label for="setting_whatsapp" style="font-size:0.95rem;font-weight:600;color:var(--text-dark);margin-bottom:8px;display:block;">
+                                    Nomor WhatsApp Panitia: <span style="color:var(--danger);">*</span>
+                                </label>
+                                <input type="text" id="setting_whatsapp" class="form-input" placeholder="Contoh: 081234567890 atau +6281234567890" required>
+                                <small style="display:block;margin-top:6px;color:#64748b;line-height:1.5;">
+                                    Nomor dapat dimasukkan dalam format <code>08xxxxxxxxxx</code> atau <code>+62xxxxxxxxxx</code>. Sistem otomatis menormalisasi ke format internasional untuk tautan WhatsApp.
+                                </small>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom:18px;">
+                                <label for="setting_whatsappMessage" style="font-size:0.95rem;font-weight:600;color:var(--text-dark);margin-bottom:8px;display:block;">
+                                    Pesan Otomatis WhatsApp (Opsional):
+                                </label>
+                                <textarea id="setting_whatsappMessage" class="form-textarea" rows="3" placeholder="Contoh: Halo Panitia SPMB SMP KP 1 Baleendah, saya ingin bertanya mengenai pendaftaran murid baru."></textarea>
+                                <small style="display:block;margin-top:6px;color:#64748b;line-height:1.5;">
+                                    Pesan otomatis ini akan langsung terisi pada chat WhatsApp saat calon pendaftar mengklik tombol atau tautan kontak WhatsApp di website.
+                                </small>
+                            </div>
+
+                            <!-- Live URL Preview -->
+                            <div class="form-group" style="background:#f0fdf4;padding:14px 18px;border-radius:10px;border:1px solid #bbf7d0;margin-bottom:24px;">
+                                <div style="font-size:0.85rem;color:#166534;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+                                    <i class="fas fa-external-link-alt"></i> Live Preview Tautan WhatsApp:
+                                </div>
+                                <a href="https://wa.me/6281234567890" id="setting_waPreview" target="_blank" rel="noopener noreferrer" style="font-size:0.85rem;color:#15803d;word-break:break-all;text-decoration:underline;">
+                                    https://wa.me/6281234567890
+                                </a>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg" id="saveWaSettingsBtn">
+                                <i class="fas fa-save"></i> Simpan Kontak WhatsApp
                             </button>
                         </form>
                     </div>
