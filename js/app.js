@@ -92,13 +92,23 @@ async function initCmsLoader() {
                 }
             });
 
-            // 3. WhatsApp Links with [data-cms-wa="key"]
+            // 3. WhatsApp Links with [data-cms-wa]
             document.querySelectorAll('[data-cms-wa]').forEach(el => {
-                const key = el.getAttribute('data-cms-wa');
-                if (data[key]) {
-                    let clean = data[key].replace(/\D/g, '');
+                const key = el.getAttribute('data-cms-wa') || 'whatsapp';
+                const rawWa = data[key] || data['whatsapp'];
+                if (rawWa) {
+                    let clean = String(rawWa).replace(/\D/g, '');
                     if (clean.startsWith('0')) clean = '62' + clean.slice(1);
-                    el.href = 'https://wa.me/' + clean;
+                    else if (clean.startsWith('8')) clean = '62' + clean;
+
+                    let waUrl = 'https://wa.me/' + clean;
+                    const autoMsg = data['whatsappMessage'] || el.getAttribute('data-wa-text');
+                    if (autoMsg && autoMsg.trim() !== '') {
+                        waUrl += '?text=' + encodeURIComponent(autoMsg.trim());
+                    }
+                    el.href = waUrl;
+                    el.target = '_blank';
+                    el.rel = 'noopener noreferrer';
                 }
             });
 
