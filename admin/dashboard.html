@@ -922,66 +922,157 @@
                             </div>
                         </div>
 
-                        <!-- 10. Galeri Foto & Fasilitas -->
+                        <!-- 10. Manajemen Foto & Media Google Drive (Galeri & Slider) -->
                         <div class="cms-card" id="cms-sec-galeri">
-                            <div class="cms-card-header">
-                                <h3 class="cms-card-title"><i class="fas fa-images"></i> 10. Galeri Dokumentasi, Fasilitas & Prestasi (9 Item)</h3>
-                            </div>
-                            <p style="color:#64748b;font-size:0.88rem;margin-bottom:16px;">Ubah judul caption dan label kategori untuk setiap kartu galeri foto.</p>
-
-                            <div class="form-row">
-                                <div class="form-group" style="flex:1;">
-                                    <label for="cms_galeri1Caption">Galeri 1: Caption</label>
-                                    <input type="text" id="cms_galeri1Caption" class="form-input" placeholder="Gedung Sekolah">
-                                    <input type="text" id="cms_galeri1Category" class="form-input" style="margin-top:6px;" placeholder="Fasilitas">
+                            <div class="cms-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                                <div>
+                                    <h3 class="cms-card-title" style="margin:0;"><i class="fas fa-images" style="color:var(--primary);"></i> 10. Manajemen Foto & Media Google Drive (Galeri & Slider)</h3>
+                                    <small style="color:#64748b;display:block;margin-top:4px;">
+                                        Unggah dan kelola foto website langsung tersimpan di Google Drive dan terdata di Google Sheets. Foto otomatis tampil di Slide Beranda, Galeri Sekolah, dan Berita.
+                                    </small>
                                 </div>
-                                <div class="form-group" style="flex:1;">
-                                    <label for="cms_galeri2Caption">Galeri 2: Caption</label>
-                                    <input type="text" id="cms_galeri2Caption" class="form-input" placeholder="Perpustakaan">
-                                    <input type="text" id="cms_galeri2Category" class="form-input" style="margin-top:6px;" placeholder="Fasilitas">
-                                </div>
-                                <div class="form-group" style="flex:1;">
-                                    <label for="cms_galeri3Caption">Galeri 3: Caption</label>
-                                    <input type="text" id="cms_galeri3Caption" class="form-input" placeholder="Laboratorium IPA">
-                                    <input type="text" id="cms_galeri3Category" class="form-input" style="margin-top:6px;" placeholder="Fasilitas">
-                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadPhotosAdmin(true)">
+                                    <i class="fas fa-sync-alt"></i> Refresh Foto
+                                </button>
                             </div>
 
-                            <div class="form-row">
-                                <div class="form-group" style="flex:1;">
-                                    <label for="cms_galeri4Caption">Galeri 4: Caption</label>
-                                    <input type="text" id="cms_galeri4Caption" class="form-input" placeholder="Kegiatan Olahraga">
-                                    <input type="text" id="cms_galeri4Category" class="form-input" style="margin-top:6px;" placeholder="Kegiatan">
+                            <!-- Photo Upload Form Box -->
+                            <div style="background:#f8fafc;padding:20px;border-radius:12px;border:1px solid #e2e8f0;margin-bottom:24px;">
+                                <h4 style="font-size:1rem;margin-bottom:14px;color:var(--primary-dark);display:flex;align-items:center;gap:8px;">
+                                    <i class="fas fa-cloud-upload-alt"></i> Unggah Foto Baru ke Google Drive
+                                </h4>
+
+                                <div id="photoUploadMsg" style="display:none;margin-bottom:14px;padding:10px 14px;border-radius:8px;font-size:0.9rem;"></div>
+
+                                <!-- Drag & Drop File Area -->
+                                <div id="photoDropArea" style="border:2px dashed #93c5fd;border-radius:10px;padding:24px;text-align:center;background:#eff6ff;cursor:pointer;margin-bottom:16px;transition:all 0.2s;"
+                                     onclick="document.getElementById('adminPhotoFileInput').click()">
+                                    <i class="fas fa-file-image" style="font-size:2.4rem;color:#3b82f6;margin-bottom:8px;display:block;"></i>
+                                    <strong style="color:var(--primary-dark);font-size:0.95rem;display:block;">Klik untuk memilih foto atau seret file gambar ke sini</strong>
+                                    <small style="color:#64748b;display:block;margin-top:4px;">Mendukung format JPG, PNG, WebP (Otomatis dikompresi ringan sebelum upload)</small>
+                                    <div id="selectedPhotoFileName" style="margin-top:8px;font-weight:600;color:#15803d;display:none;"></div>
                                 </div>
-                                <div class="form-group" style="flex:1;">
-                                    <label for="cms_galeri5Caption">Galeri 5: Caption</label>
-                                    <input type="text" id="cms_galeri5Caption" class="form-input" placeholder="Kelas Seni">
-                                    <input type="text" id="cms_galeri5Category" class="form-input" style="margin-top:6px;" placeholder="Kegiatan">
+                                <input type="file" id="adminPhotoFileInput" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="onAdminPhotoSelected(event)">
+
+                                <div class="form-row" style="gap:14px;margin-bottom:14px;">
+                                    <div class="form-group" style="flex:2;">
+                                        <label for="adminPhotoJudul" style="font-size:0.88rem;font-weight:600;">Judul Foto / Caption:</label>
+                                        <input type="text" id="adminPhotoJudul" class="form-input" placeholder="Contoh: Upacara Bendera HUT RI">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="adminPhotoKategori" style="font-size:0.88rem;font-weight:600;">Kategori / Posisi:</label>
+                                        <select id="adminPhotoKategori" class="form-select">
+                                            <option value="fasilitas">Galeri — Fasilitas</option>
+                                            <option value="kegiatan">Galeri — Kegiatan & Ekskul</option>
+                                            <option value="prestasi">Galeri — Prestasi</option>
+                                            <option value="slide">Slide Foto Beranda</option>
+                                            <option value="berita">Gambar Berita / Info</option>
+                                            <option value="kepsek">Foto Kepala Sekolah</option>
+                                            <option value="lainnya">Dokumentasi Lainnya</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="form-group" style="flex:1;">
-                                    <label for="cms_galeri6Caption">Galeri 6: Caption</label>
-                                    <input type="text" id="cms_galeri6Caption" class="form-input" placeholder="Perkemahan Pramuka">
-                                    <input type="text" id="cms_galeri6Category" class="form-input" style="margin-top:6px;" placeholder="Kegiatan">
+
+                                <div class="form-row" style="gap:14px;margin-bottom:18px;">
+                                    <div class="form-group" style="flex:2;">
+                                        <label for="adminPhotoDeskripsi" style="font-size:0.88rem;font-weight:600;">Deskripsi Singkat (Opsional):</label>
+                                        <input type="text" id="adminPhotoDeskripsi" class="form-input" placeholder="Keterangan singkat kegiatan atau fasilitas...">
+                                    </div>
+                                    <div class="form-group" style="flex:1;display:flex;align-items:center;margin-top:22px;">
+                                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:0.9rem;color:var(--success);">
+                                            <input type="checkbox" id="adminPhotoAktif" style="width:18px;height:18px;" checked>
+                                            Langsung Publikasikan (Aktif)
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-primary" id="btnUploadPhoto" onclick="executePhotoUpload()" style="padding:10px 20px;">
+                                    <i class="fas fa-cloud-upload-alt"></i> Unggah Foto ke Google Drive
+                                </button>
+                            </div>
+
+                            <!-- Filter & List Controls -->
+                            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;" id="photoFilterTabs">
+                                    <button type="button" class="btn btn-sm btn-primary" data-photo-filter="all" onclick="filterAdminPhotos('all')">Semua</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-photo-filter="slide" onclick="filterAdminPhotos('slide')">Slide Beranda</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-photo-filter="fasilitas" onclick="filterAdminPhotos('fasilitas')">Fasilitas</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-photo-filter="kegiatan" onclick="filterAdminPhotos('kegiatan')">Kegiatan</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-photo-filter="prestasi" onclick="filterAdminPhotos('prestasi')">Prestasi</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-photo-filter="berita" onclick="filterAdminPhotos('berita')">Berita</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-photo-filter="kepsek" onclick="filterAdminPhotos('kepsek')">Kepsek</button>
+                                </div>
+                                <span id="photoCountBadge" class="badge" style="background:#e0f2fe;color:#0369a1;padding:6px 12px;border-radius:6px;font-size:0.85rem;font-weight:600;">
+                                    Memuat foto...
+                                </span>
+                            </div>
+
+                            <!-- Photos Grid -->
+                            <div id="adminPhotosGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:16px;margin-bottom:24px;">
+                                <div style="grid-column:1/-1;text-align:center;padding:36px;color:#94a3b8;font-style:italic;">
+                                    <i class="fas fa-spinner fa-spin" style="font-size:1.8rem;margin-bottom:10px;display:block;"></i>
+                                    Memuat koleksi foto dari Google Drive...
                                 </div>
                             </div>
 
-                            <div class="form-row">
-                                <div class="form-group" style="flex:1;">
-                                    <label for="cms_galeri7Caption">Galeri 7: Caption</label>
-                                    <input type="text" id="cms_galeri7Caption" class="form-input" placeholder="Juara Olimpiade">
-                                    <input type="text" id="cms_galeri7Category" class="form-input" style="margin-top:6px;" placeholder="Prestasi">
+                            <!-- Legacy Backup Captions (Collapsed) -->
+                            <details style="background:#f8fafc;padding:12px 16px;border-radius:8px;border:1px solid #e2e8f0;margin-top:16px;">
+                                <summary style="cursor:pointer;font-weight:600;color:#64748b;font-size:0.85rem;user-select:none;">
+                                    <i class="fas fa-history"></i> Pengaturan Caption Galeri Statis / Legacy (9 Kartu Awal)
+                                </summary>
+                                <p style="color:#94a3b8;font-size:0.8rem;margin:8px 0 14px 0;">Digunakan sebagai fallback jika galeri Google Drive belum memiliki foto.</p>
+                                <div class="form-row">
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_galeri1Caption">Galeri 1</label>
+                                        <input type="text" id="cms_galeri1Caption" class="form-input" placeholder="Gedung Sekolah">
+                                        <input type="text" id="cms_galeri1Category" class="form-input" style="margin-top:4px;" placeholder="Fasilitas">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_galeri2Caption">Galeri 2</label>
+                                        <input type="text" id="cms_galeri2Caption" class="form-input" placeholder="Perpustakaan">
+                                        <input type="text" id="cms_galeri2Category" class="form-input" style="margin-top:4px;" placeholder="Fasilitas">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_galeri3Caption">Galeri 3</label>
+                                        <input type="text" id="cms_galeri3Caption" class="form-input" placeholder="Laboratorium IPA">
+                                        <input type="text" id="cms_galeri3Category" class="form-input" style="margin-top:4px;" placeholder="Fasilitas">
+                                    </div>
                                 </div>
-                                <div class="form-group" style="flex:1;">
-                                    <label for="cms_galeri8Caption">Galeri 8: Caption</label>
-                                    <input type="text" id="cms_galeri8Caption" class="form-input" placeholder="Lomba Cerdas Cermat">
-                                    <input type="text" id="cms_galeri8Category" class="form-input" style="margin-top:6px;" placeholder="Prestasi">
+                                <div class="form-row" style="margin-top:8px;">
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_galeri4Caption">Galeri 4</label>
+                                        <input type="text" id="cms_galeri4Caption" class="form-input" placeholder="Kegiatan Olahraga">
+                                        <input type="text" id="cms_galeri4Category" class="form-input" style="margin-top:4px;" placeholder="Kegiatan">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_galeri5Caption">Galeri 5</label>
+                                        <input type="text" id="cms_galeri5Caption" class="form-input" placeholder="Kelas Seni">
+                                        <input type="text" id="cms_galeri5Category" class="form-input" style="margin-top:4px;" placeholder="Kegiatan">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_galeri6Caption">Galeri 6</label>
+                                        <input type="text" id="cms_galeri6Caption" class="form-input" placeholder="Perkemahan Pramuka">
+                                        <input type="text" id="cms_galeri6Category" class="form-input" style="margin-top:4px;" placeholder="Kegiatan">
+                                    </div>
                                 </div>
-                                <div class="form-group" style="flex:1;">
-                                    <label for="cms_galeri9Caption">Galeri 9: Caption</label>
-                                    <input type="text" id="cms_galeri9Caption" class="form-input" placeholder="Lab Komputer">
-                                    <input type="text" id="cms_galeri9Category" class="form-input" style="margin-top:6px;" placeholder="Fasilitas">
+                                <div class="form-row" style="margin-top:8px;">
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_galeri7Caption">Galeri 7</label>
+                                        <input type="text" id="cms_galeri7Caption" class="form-input" placeholder="Juara Olimpiade">
+                                        <input type="text" id="cms_galeri7Category" class="form-input" style="margin-top:4px;" placeholder="Prestasi">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_galeri8Caption">Galeri 8</label>
+                                        <input type="text" id="cms_galeri8Caption" class="form-input" placeholder="Lomba Cerdas Cermat">
+                                        <input type="text" id="cms_galeri8Category" class="form-input" style="margin-top:4px;" placeholder="Prestasi">
+                                    </div>
+                                    <div class="form-group" style="flex:1;">
+                                        <label for="cms_galeri9Caption">Galeri 9</label>
+                                        <input type="text" id="cms_galeri9Caption" class="form-input" placeholder="Lab Komputer">
+                                        <input type="text" id="cms_galeri9Category" class="form-input" style="margin-top:4px;" placeholder="Fasilitas">
+                                    </div>
                                 </div>
-                            </div>
+                            </details>
                         </div>
 
                         <!-- 11. CTA & Persyaratan Formulir Pendaftaran -->
@@ -1218,6 +1309,69 @@
                 <button class="btn-icon" id="detailModalClose" style="background:none;border:none;font-size:1.4rem;cursor:pointer;">&times;</button>
             </div>
             <div class="modal-body" id="detailModalBody"></div>
+        </div>
+    </div>
+
+    <!-- ==================== PHOTO EDIT MODAL ==================== -->
+    <div class="modal-overlay" id="photoEditModal">
+        <div class="modal" style="max-width:550px;">
+            <div class="modal-header">
+                <h3 style="margin:0;display:flex;align-items:center;gap:8px;">
+                    <i class="fas fa-edit" style="color:var(--primary);"></i>
+                    Edit Metadata Foto Google Drive
+                </h3>
+                <button class="btn-icon" id="photoEditModalClose" onclick="closePhotoEditModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editPhotoId">
+                <div style="text-align:center;margin-bottom:16px;">
+                    <img id="editPhotoPreview" src="" alt="Pratinjau" style="max-height:160px;max-width:100%;border-radius:8px;border:1px solid #e2e8f0;object-fit:cover;">
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="editPhotoJudul" style="font-weight:600;font-size:0.9rem;">Judul Foto / Caption: <span style="color:var(--danger);">*</span></label>
+                    <input type="text" id="editPhotoJudul" class="form-input" required>
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="editPhotoKategori" style="font-weight:600;font-size:0.9rem;">Kategori / Posisi:</label>
+                    <select id="editPhotoKategori" class="form-select">
+                        <option value="fasilitas">Galeri — Fasilitas</option>
+                        <option value="kegiatan">Galeri — Kegiatan & Ekskul</option>
+                        <option value="prestasi">Galeri — Prestasi</option>
+                        <option value="slide">Slide Foto Beranda</option>
+                        <option value="berita">Gambar Berita / Info</option>
+                        <option value="kepsek">Foto Kepala Sekolah</option>
+                        <option value="lainnya">Dokumentasi Lainnya</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="editPhotoDeskripsi" style="font-weight:600;font-size:0.9rem;">Deskripsi Foto:</label>
+                    <textarea id="editPhotoDeskripsi" class="form-textarea" rows="2" placeholder="Keterangan singkat..."></textarea>
+                </div>
+                <div class="form-row" style="margin-bottom:12px;gap:12px;">
+                    <div class="form-group" style="flex:1;">
+                        <label for="editPhotoUrutan" style="font-weight:600;font-size:0.9rem;">Urutan Tampil:</label>
+                        <input type="number" id="editPhotoUrutan" class="form-input" min="1">
+                    </div>
+                    <div class="form-group" style="flex:1;display:flex;align-items:center;margin-top:22px;">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:0.9rem;color:var(--success);">
+                            <input type="checkbox" id="editPhotoAktif" style="width:18px;height:18px;">
+                            Aktif (Tampil Publik)
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:16px;background:#f8fafc;padding:12px;border-radius:8px;border:1px dashed #cbd5e1;">
+                    <label style="font-weight:600;font-size:0.85rem;display:block;margin-bottom:6px;">Ganti File Foto di Google Drive (Opsional):</label>
+                    <input type="file" id="editPhotoNewFile" accept="image/jpeg,image/png,image/webp" class="form-input" style="font-size:0.85rem;" onchange="onEditPhotoNewFileSelected(event)">
+                    <small style="color:#64748b;display:block;margin-top:4px;">Kosongkan jika hanya ingin mengedit judul, deskripsi, atau kategori.</small>
+                </div>
+                <div id="editPhotoMsg" style="display:none;margin-bottom:12px;padding:8px 12px;border-radius:6px;font-size:0.88rem;"></div>
+                <div style="display:flex;justify-content:flex-end;gap:10px;">
+                    <button type="button" class="btn btn-secondary" onclick="closePhotoEditModal()">Batal</button>
+                    <button type="button" class="btn btn-primary" id="btnSaveEditPhoto" onclick="submitPhotoEditMetadata()">
+                        <i class="fas fa-save"></i> Simpan Perubahan
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
