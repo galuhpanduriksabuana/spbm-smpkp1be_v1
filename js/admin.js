@@ -1154,6 +1154,196 @@ window.updateProgramPreview = function() {
     }).join('');
 };
 
+/* -------------------------------------------------------------
+   PDF NOTES FUNCTIONS
+   ------------------------------------------------------------- */
+const DEFAULT_PDF_NOTES = [
+    "Simpan lembar bukti pendaftaran ini sebagai tanda bukti resmi pendaftaran online Anda.",
+    "Cek status hasil seleksi secara berkala melalui menu 'Cek Status' di website resmi.",
+    "Bawa cetakan bukti ini beserta dokumen asli saat jadwal verifikasi fisik / daftar ulang."
+];
+
+let currentPdfNotes = [...DEFAULT_PDF_NOTES];
+
+window.renderPdfNotesAdmin = function() {
+    const listEl = document.getElementById('pdfNotesList');
+    if (!listEl) return;
+
+    if (currentPdfNotes.length === 0) {
+        listEl.innerHTML = '<div style="color:#94a3b8;font-style:italic;padding:12px;background:#fff;border-radius:8px;border:1px dashed #cbd5e1;text-align:center;">Belum ada catatan PDF. Klik tombol "+ Tambah Catatan PDF" di atas.</div>';
+        updatePdfNotesPreview();
+        return;
+    }
+
+    listEl.innerHTML = currentPdfNotes.map((note, idx) => {
+        const isFirst = idx === 0;
+        const isLast = idx === currentPdfNotes.length - 1;
+        return `
+            <div class="pdf-note-item" style="display:flex;align-items:flex-start;gap:10px;background:#ffffff;border:1px solid #e2e8f0;padding:10px 14px;border-radius:8px;">
+                <span style="font-weight:700;color:var(--primary);width:24px;text-align:center;font-size:0.95rem;margin-top:6px;">${idx + 1}.</span>
+                <textarea class="form-textarea" style="flex:1;padding:8px 12px;font-size:0.9rem;min-height:48px;resize:vertical;" 
+                          rows="2"
+                          maxlength="200"
+                          placeholder="Tulis instruksi / catatan untuk dicetak pada PDF..."
+                          oninput="updatePdfNoteText(${idx}, this.value)">${escapeHtml(note)}</textarea>
+                <div style="display:flex;gap:4px;margin-top:4px;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" 
+                            style="padding:6px 10px;font-size:0.8rem;" 
+                            title="Pindah ke Atas" 
+                            ${isFirst ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : `onclick="movePdfNote(${idx}, -1)"`}>
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" 
+                            style="padding:6px 10px;font-size:0.8rem;" 
+                            title="Pindah ke Bawah" 
+                            ${isLast ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : `onclick="movePdfNote(${idx}, 1)"`}>
+                        <i class="fas fa-arrow-down"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                            style="padding:6px 10px;font-size:0.8rem;" 
+                            title="Hapus Catatan" 
+                            onclick="deletePdfNote(${idx})">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    updatePdfNotesPreview();
+};
+
+window.addPdfNote = function() {
+    currentPdfNotes.push('');
+    renderPdfNotesAdmin();
+    setTimeout(() => {
+        const listEl = document.getElementById('pdfNotesList');
+        if (listEl) {
+            const textareas = listEl.querySelectorAll('textarea');
+            if (textareas.length > 0) textareas[textareas.length - 1].focus();
+        }
+    }, 50);
+};
+
+window.updatePdfNoteText = function(index, value) {
+    if (index >= 0 && index < currentPdfNotes.length) {
+        currentPdfNotes[index] = value;
+        updatePdfNotesPreview();
+    }
+};
+
+window.movePdfNote = function(index, direction) {
+    const targetIdx = index + direction;
+    if (targetIdx < 0 || targetIdx >= currentPdfNotes.length) return;
+    const temp = currentPdfNotes[index];
+    currentPdfNotes[index] = currentPdfNotes[targetIdx];
+    currentPdfNotes[targetIdx] = temp;
+    renderPdfNotesAdmin();
+};
+
+window.deletePdfNote = function(index) {
+    const noteText = currentPdfNotes[index] || `Catatan ${index + 1}`;
+    const preview = noteText.length > 40 ? noteText.substring(0, 40) + '...' : noteText;
+    if (confirm(`Apakah Anda yakin ingin menghapus catatan "${preview}"?\n(Perubahan permanen disimpan saat Anda menekan tombol Simpan Catatan PDF)`)) {
+        currentPdfNotes.splice(index, 1);
+        renderPdfNotesAdmin();
+    }
+};
+
+window.updatePdfNotesPreview = function() {
+    const previewEl = document.getElementById('pdfNotesLivePreview');
+    if (!previewEl) return;
+
+    const validNotes = currentPdfNotes.map(n => n.trim()).filter(n => n.length > 0);
+    if (validNotes.length === 0) {
+        previewEl.innerHTML = '<span style="color:#a16207;font-style:italic;">Tidak ada catatan khusus yang aktif. Bagian catatan pada PDF akan dikosongkan.</span>';
+        return;
+    }
+
+    previewEl.innerHTML = validNotes.map((n, idx) => `
+        <div style="display:flex;gap:8px;margin-bottom:4px;">
+            <strong>${idx + 1}.</strong>
+            <span>${escapeHtml(n)}</span>
+        </div>
+    `).join('');
+};
+
+window.savePdfNotes = async function() {
+    const btn = document.getElementById('savePdfNotesBtn');
+    const msg = document.getElementById('pdfNotesMessage');
+    const origHtml = btn ? btn.innerHTML : '';
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan Catatan...';
+    }
+    if (msg) msg.style.display = 'none';
+
+    const cleanedNotes = currentPdfNotes.map(n => n.trim()).filter(n => n.length > 0);
+
+    try {
+        const response = await fetch(CONFIG.API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({
+                action: 'updateSettings',
+                settings: {
+                    catatanPdf: JSON.stringify(cleanedNotes)
+                }
+            }),
+            redirect: 'follow'
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+            currentPdfNotes = cleanedNotes;
+            renderPdfNotesAdmin();
+            if (msg) {
+                msg.style.display = 'block';
+                msg.style.background = '#dcfce7';
+                msg.style.color = '#15803d';
+                msg.style.border = '1px solid #86efac';
+                msg.innerHTML = '<i class="fas fa-check-circle"></i> <strong>Berhasil!</strong> Catatan bukti pendaftaran PDF telah diperbarui di Google Sheets dan otomatis tampil saat pembuatan bukti pendaftaran baru.';
+                msg.scrollIntoView({ behavior: 'smooth' });
+            }
+        } else {
+            if (msg) {
+                msg.style.display = 'block';
+                msg.style.background = '#fee2e2';
+                msg.style.color = '#b91c1c';
+                msg.style.border = '1px solid #fca5a5';
+                msg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal menyimpan: ' + (result.message || 'Terjadi kesalahan sistem');
+            }
+        }
+    } catch(err) {
+        if (msg) {
+            msg.style.display = 'block';
+            msg.style.background = '#fee2e2';
+            msg.style.color = '#b91c1c';
+            msg.style.border = '1px solid #fca5a5';
+            msg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Kesalahan koneksi saat menyimpan catatan PDF.';
+        }
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+        }
+    }
+};
+
+window.previewDummyPdf = function() {
+    const dummyData = {
+        "No Pendaftaran": "SPMB-2026-000-CONTOH",
+        "Nama Lengkap": "CONTOH SISWA SIMULASI",
+        "Jenis Kelamin": "Laki-laki",
+        "Nama Orang Tua": "Budi Santoso (Orang Tua / Wali)",
+        "No HP": "0812-3456-7890",
+        "Status": "Tercatat dalam Sistem",
+        "Timestamp": new Date().toISOString()
+    };
+    renderReceiptDocument(dummyData, currentPdfNotes, true);
+};
+
 async function loadSettingsData() {
     try {
         const response = await fetch(CONFIG.API_URL + '?action=getSettings', { redirect: 'follow' });
@@ -1207,14 +1397,27 @@ async function loadSettingsData() {
                 }
             }
             renderProgramsAdmin();
+
+            // Populate PDF Notes data
+            if (data.catatanPdf) {
+                try {
+                    const parsed = typeof data.catatanPdf === 'string' ? JSON.parse(data.catatanPdf) : data.catatanPdf;
+                    if (Array.isArray(parsed)) currentPdfNotes = parsed;
+                } catch(e) {
+                    console.error('Error parsing catatanPdf:', e);
+                }
+            }
+            renderPdfNotesAdmin();
         } else {
             renderTaglineAdmin();
             renderProgramsAdmin();
+            renderPdfNotesAdmin();
         }
     } catch (e) {
         console.error('Error loading settings:', e);
         renderTaglineAdmin();
         renderProgramsAdmin();
+        renderPdfNotesAdmin();
     }
 }
 
@@ -1242,6 +1445,7 @@ window.saveCmsContent = async function () {
     // Inject tagline and program data
     settingsPayload.kepsekTagline = JSON.stringify(currentTaglines.map(t => t.trim()).filter(t => t.length > 0));
     settingsPayload.programList = JSON.stringify(currentPrograms);
+    settingsPayload.catatanPdf = JSON.stringify(currentPdfNotes.map(n => n.trim()).filter(n => n.length > 0));
 
     // Backward compatibility for legacy CMS keys (prog1Judul ... prog4Desc)
     const activeProgs = currentPrograms.filter(p => p.active !== false);
@@ -1512,7 +1716,7 @@ function exportToCsv() {
     document.body.removeChild(link);
 }
 
-window.generateStudentPDF = function (data) {
+function renderReceiptDocument(data, notesList, isDummy = false) {
     if (!window.jspdf || !window.jspdf.jsPDF) {
         alert('Library PDF belum siap.');
         return;
@@ -1528,65 +1732,76 @@ window.generateStudentPDF = function (data) {
     const primaryColor = [21, 62, 126];
     const darkColor = [15, 23, 42];
 
+    // Header Background
     doc.setFillColor(...primaryColor);
     doc.rect(0, 0, 210, 32, 'F');
 
+    // School Name & Header Text
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(17);
-    doc.text(CONFIG.SCHOOL_NAME || 'SMP KP 1 BALEENDAH', 105, 14, { align: 'center' });
+    doc.setFontSize(16);
+    doc.text(CONFIG.SCHOOL_NAME || 'SMP KP 1 BALEENDAH', 105, 13, { align: 'center' });
 
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text('BUKTI PENDAFTARAN SPMB ONLINE TAHUN AJARAN 2025/2026', 105, 22, { align: 'center' });
+    doc.text('BUKTI PENDAFTARAN SPMB ONLINE TAHUN AJARAN 2026/2027', 105, 21, { align: 'center' });
 
+    // Dummy watermark if preview
+    if (isDummy) {
+        doc.setFontSize(8);
+        doc.setTextColor(254, 240, 138);
+        doc.text('*** PRATINJAU DOKUMEN / DATA SIMULASI DUMMY ***', 105, 28, { align: 'center' });
+    }
+
+    // Registration Box
     doc.setDrawColor(226, 232, 240);
     doc.setFillColor(248, 250, 252);
-    doc.roundedRect(15, 40, 180, 26, 3, 3, 'FD');
+    doc.roundedRect(15, 38, 180, 24, 3, 3, 'FD');
 
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setTextColor(100, 116, 139);
-    doc.text('Nomor Registrasi:', 22, 50);
+    doc.text('Nomor Pendaftaran:', 22, 47);
 
-    doc.setFontSize(15);
+    doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...primaryColor);
-    doc.text(data['No Pendaftaran'] || '-', 22, 59);
+    doc.text(data['No Pendaftaran'] || 'SPMB-2026-000', 22, 55);
 
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setTextColor(100, 116, 139);
     doc.setFont('helvetica', 'normal');
-    doc.text('Status:', 130, 50);
+    doc.text('Tanggal Terbit:', 130, 47);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...darkColor);
-    doc.text(data['Status'] || 'Proses', 130, 58);
+    const dateStr = data['Timestamp'] 
+        ? new Date(data['Timestamp']).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+        : new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    doc.text(dateStr, 130, 55);
 
-    doc.setFontSize(11);
+    // Section 1: Non-Sensitive Student Data (Section D.2)
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...primaryColor);
-    doc.text('DATA CALON SISWA', 15, 76);
+    doc.text('DATA CALON SISWA', 15, 71);
     doc.setDrawColor(...primaryColor);
-    doc.setLineWidth(0.5);
-    doc.line(15, 78, 195, 78);
+    doc.setLineWidth(0.4);
+    doc.line(15, 73, 195, 73);
 
     const fields = [
-        ['Nama Lengkap', data['Nama Lengkap'] || '-'],
-        ['NIK', data['NIK'] || '-'],
-        ['Tempat, Tanggal Lahir', `${data['Tempat Lahir'] || '-'}, ${data['Tanggal Lahir'] || '-'}`],
+        ['Nama Lengkap Calon Siswa', data['Nama Lengkap'] || '-'],
         ['Jenis Kelamin', data['Jenis Kelamin'] || '-'],
-        ['Alamat Lengkap', data['Alamat'] || '-'],
         ['Nama Orang Tua / Wali', data['Nama Orang Tua'] || '-'],
-        ['No. WhatsApp', data['No HP'] || '-'],
-        ['Waktu Registrasi', data['Timestamp'] ? new Date(data['Timestamp']).toLocaleString('id-ID') : '-']
+        ['No. WhatsApp / Kontak', data['No HP'] || '-'],
+        ['Status Pendaftaran', data['Status'] || 'Tercatat dalam Sistem']
     ];
 
-    let currentY = 86;
-    doc.setFontSize(10);
+    let currentY = 80;
+    doc.setFontSize(9.5);
 
     fields.forEach(([label, val], idx) => {
         if (idx % 2 === 0) {
             doc.setFillColor(241, 245, 249);
-            doc.rect(15, currentY - 5, 180, 8, 'F');
+            doc.rect(15, currentY - 4.5, 180, 7.5, 'F');
         }
 
         doc.setFont('helvetica', 'bold');
@@ -1595,18 +1810,75 @@ window.generateStudentPDF = function (data) {
 
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(...darkColor);
+        doc.text(String(val), 82, currentY);
 
-        if (label === 'Alamat Lengkap' && val.length > 50) {
-            const splitVal = doc.splitTextToSize(val, 110);
-            doc.text(splitVal, 80, currentY);
-            currentY += (splitVal.length - 1) * 5;
-        } else {
-            doc.text(val, 80, currentY);
-        }
-
-        currentY += 8;
+        currentY += 7.5;
     });
 
-    const filename = `Bukti_${data['No Pendaftaran'] || 'SPMB'}.pdf`;
+    // Section 2: Legal Disclaimer Box (Section D.3)
+    currentY += 4;
+    doc.setFillColor(239, 246, 255);
+    doc.setDrawColor(191, 219, 254);
+    doc.roundedRect(15, currentY, 180, 16, 2, 2, 'FD');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(30, 64, 175);
+    doc.text('STATUS DOKUMEN:', 20, currentY + 5.5);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(30, 58, 138);
+    const disclaimerText = 'Bukti pendaftaran ini menyatakan bahwa formulir telah berhasil dikirim dan tercatat dalam sistem. Dokumen ini bukan bukti kelulusan atau penerimaan akhir.';
+    const splitDisclaimer = doc.splitTextToSize(disclaimerText, 170);
+    doc.text(splitDisclaimer, 20, currentY + 10.5);
+
+    // Section 3: Panitia Notes (Section D.4)
+    currentY += 21;
+    const notesToRender = Array.isArray(notesList) && notesList.length > 0 
+        ? notesList.map(n => n.trim()).filter(n => n.length > 0)
+        : DEFAULT_PDF_NOTES;
+
+    doc.setFillColor(254, 243, 199);
+    doc.setDrawColor(245, 158, 11);
+    
+    // Estimate box height based on notes
+    let noteLinesTotal = 0;
+    notesToRender.forEach((note, idx) => {
+        const lines = doc.splitTextToSize(`${idx + 1}. ${note}`, 168);
+        noteLinesTotal += lines.length;
+    });
+    const boxHeight = Math.max(22, 10 + noteLinesTotal * 4.5);
+
+    doc.roundedRect(15, currentY, 180, boxHeight, 2, 2, 'FD');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(146, 64, 14);
+    doc.text('PETUNJUK & CATATAN PANITIA SPMB:', 20, currentY + 6);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(120, 53, 15);
+
+    let noteY = currentY + 11;
+    notesToRender.forEach((note, idx) => {
+        const lines = doc.splitTextToSize(`${idx + 1}. ${note}`, 168);
+        doc.text(lines, 20, noteY);
+        noteY += lines.length * 4.5;
+    });
+
+    // Footer (Section D.5)
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(148, 163, 184);
+    doc.text(`Dokumen ini diterbitkan secara elektronik oleh Sistem SPMB ${CONFIG.SCHOOL_NAME || 'SMP KP 1 BALEENDAH'} dan sah tanpa tanda tangan basah.`, 105, 283, { align: 'center' });
+
+    const safeRegNo = (data['No Pendaftaran'] || 'SPMB').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const filename = `Bukti_Pendaftaran_${safeRegNo}.pdf`;
     doc.save(filename);
+}
+
+window.generateStudentPDF = function (data) {
+    renderReceiptDocument(data, currentPdfNotes);
 };
