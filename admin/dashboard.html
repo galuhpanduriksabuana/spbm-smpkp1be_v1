@@ -1152,6 +1152,56 @@
                             </button>
                         </form>
                     </div>
+
+                    <!-- Card 3: Pengaturan Catatan Bukti Pendaftaran PDF -->
+                    <div class="table-card" style="max-width:800px;margin-top:24px;" id="sec-catatan-pdf">
+                        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+                            <div>
+                                <h3 style="font-size:1.2rem;margin:0;display:flex;align-items:center;gap:8px;">
+                                    <i class="fas fa-file-pdf" style="color:var(--primary);font-size:1.3rem;"></i>
+                                    Catatan Bukti Pendaftaran (PDF Receipt)
+                                </h3>
+                                <small style="display:block;margin-top:4px;color:#64748b;line-height:1.5;">
+                                    Kelola poin catatan/instruksi panitia yang dicetak otomatis pada Bukti Pendaftaran PDF calon murid.
+                                </small>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addPdfNote()">
+                                <i class="fas fa-plus"></i> Tambah Catatan PDF
+                            </button>
+                        </div>
+
+                        <div id="pdfNotesMessage" style="display:none;margin-bottom:16px;padding:12px 16px;border-radius:8px;"></div>
+
+                        <!-- List of PDF Notes -->
+                        <div id="pdfNotesList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+                            <!-- Rendered by js/admin.js -->
+                        </div>
+
+                        <!-- Live Preview Box -->
+                        <div style="background:#fefce8;border:1px solid #fef08a;border-radius:10px;padding:16px 20px;margin-bottom:24px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                                <small style="font-weight:700;color:#854d0e;text-transform:uppercase;font-size:0.75rem;letter-spacing:0.5px;">
+                                    <i class="fas fa-eye"></i> Pratinjau Tampilan Kotak Catatan pada PDF:
+                                </small>
+                                <span style="font-size:0.75rem;color:#a16207;background:#fef9c3;padding:2px 8px;border-radius:4px;font-weight:600;">
+                                    PENTING / PERHATIAN
+                                </span>
+                            </div>
+                            <div id="pdfNotesLivePreview" style="font-size:0.86rem;color:#713f12;line-height:1.6;">
+                                <!-- Live preview rendered by js/admin.js -->
+                            </div>
+                        </div>
+
+                        <!-- Actions Bar -->
+                        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                            <button type="button" class="btn btn-outline-secondary" onclick="previewDummyPdf()">
+                                <i class="fas fa-file-pdf"></i> Cetak Preview PDF (Data Dummy)
+                            </button>
+                            <button type="button" class="btn btn-primary btn-lg" id="savePdfNotesBtn" onclick="savePdfNotes()">
+                                <i class="fas fa-save"></i> Simpan Catatan PDF
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
