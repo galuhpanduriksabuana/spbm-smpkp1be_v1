@@ -4,6 +4,11 @@
  */
 
 let lastRegistrationData = null;
+let schoolPdfNotes = [
+    "Simpan lembar bukti pendaftaran ini sebagai tanda bukti resmi pendaftaran online Anda.",
+    "Cek status hasil seleksi secara berkala melalui menu 'Cek Status' di website resmi.",
+    "Bawa cetakan bukti ini beserta dokumen asli saat jadwal verifikasi fisik / daftar ulang."
+];
 
 document.addEventListener('DOMContentLoaded', function () {
     initNavbar();
@@ -189,6 +194,18 @@ async function initCmsLoader() {
                     console.warn('CMS Loader: error rendering dynamic programList:', e);
                 }
             }
+
+            // 8. PDF Receipt Notes
+            if (data.catatanPdf) {
+                try {
+                    const parsedNotes = typeof data.catatanPdf === 'string' ? JSON.parse(data.catatanPdf) : data.catatanPdf;
+                    if (Array.isArray(parsedNotes) && parsedNotes.length > 0) {
+                        schoolPdfNotes = parsedNotes;
+                    }
+                } catch (e) {
+                    console.warn('CMS Loader: error parsing catatanPdf:', e);
+                }
+            }
         }
     } catch (e) {
         console.warn('CMS Loader using default content:', e);
@@ -320,6 +337,15 @@ function initRegistrationForm() {
                     successSec.style.display = 'block';
                     successSec.scrollIntoView({ behavior: 'smooth' });
                 }
+
+                // Automatic SPMB Registration Receipt PDF Download
+                setTimeout(() => {
+                    try {
+                        window.cetakBuktiPendaftaran(payload);
+                    } catch (pdfErr) {
+                        console.warn('Auto-download PDF gagal atau diblokir browser, tombol manual fallback tersedia:', pdfErr);
+                    }
+                }, 400);
             } else {
                 alert('Gagal mengirim pendaftaran: ' + (result.message || 'Terjadi kesalahan sistem'));
             }
@@ -485,65 +511,69 @@ window.cetakBuktiPendaftaran = function (dataOverride) {
     const primaryColor = [21, 62, 126];
     const darkColor = [15, 23, 42];
 
+    // Header Background
     doc.setFillColor(...primaryColor);
     doc.rect(0, 0, 210, 32, 'F');
 
+    // School Name & Header Text (Section D.1)
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(17);
-    doc.text(CONFIG.SCHOOL_NAME || 'SMP KP 1 BALEENDAH', 105, 14, { align: 'center' });
+    doc.setFontSize(16);
+    doc.text(CONFIG.SCHOOL_NAME || 'SMP KP 1 BALEENDAH', 105, 13, { align: 'center' });
 
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text('BUKTI PENDAFTARAN SPMB ONLINE TAHUN AJARAN 2025/2026', 105, 22, { align: 'center' });
+    doc.text('BUKTI PENDAFTARAN SPMB ONLINE TAHUN AJARAN 2026/2027', 105, 21, { align: 'center' });
 
+    // Registration Box
     doc.setDrawColor(226, 232, 240);
     doc.setFillColor(248, 250, 252);
-    doc.roundedRect(15, 40, 180, 26, 3, 3, 'FD');
+    doc.roundedRect(15, 38, 180, 24, 3, 3, 'FD');
 
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setTextColor(100, 116, 139);
-    doc.text('Nomor Pendaftaran:', 22, 50);
+    doc.text('Nomor Pendaftaran:', 22, 47);
 
-    doc.setFontSize(15);
+    doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...primaryColor);
-    doc.text(data['No Pendaftaran'] || '-', 22, 59);
+    doc.text(data['No Pendaftaran'] || 'SPMB-2026-000', 22, 55);
 
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setTextColor(100, 116, 139);
     doc.setFont('helvetica', 'normal');
-    doc.text('Tanggal Cetak:', 130, 50);
+    doc.text('Tanggal Terbit:', 130, 47);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...darkColor);
-    doc.text(new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }), 130, 58);
+    const dateStr = data['Timestamp']
+        ? new Date(data['Timestamp']).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+        : new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    doc.text(dateStr, 130, 55);
 
-    doc.setFontSize(11);
+    // Section 1: Non-Sensitive Student Data (Section D.2: NO NIK, NO KK, NO Alamat Lengkap)
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...primaryColor);
-    doc.text('DATA CALON SISWA', 15, 76);
+    doc.text('DATA CALON SISWA', 15, 71);
     doc.setDrawColor(...primaryColor);
-    doc.setLineWidth(0.5);
-    doc.line(15, 78, 195, 78);
+    doc.setLineWidth(0.4);
+    doc.line(15, 73, 195, 73);
 
     const fields = [
-        ['Nama Lengkap', data['Nama Lengkap'] || '-'],
-        ['NIK', data['NIK'] || '-'],
-        ['Tempat, Tanggal Lahir', `${data['Tempat Lahir'] || '-'}, ${data['Tanggal Lahir'] || '-'}`],
+        ['Nama Lengkap Calon Siswa', data['Nama Lengkap'] || data['namaLengkap'] || '-'],
         ['Jenis Kelamin', data['Jenis Kelamin'] || '-'],
-        ['Alamat Lengkap', data['Alamat'] || '-'],
         ['Nama Orang Tua / Wali', data['Nama Orang Tua'] || '-'],
-        ['No. WhatsApp / HP', data['No HP'] || '-'],
-        ['Status Pendaftaran', data['Status'] || 'Proses']
+        ['No. WhatsApp / Kontak', data['No HP'] || data['noHp'] || '-'],
+        ['Status Pendaftaran', data['Status'] || data['status'] || 'Tercatat dalam Sistem']
     ];
 
-    let currentY = 86;
-    doc.setFontSize(10);
+    let currentY = 80;
+    doc.setFontSize(9.5);
 
     fields.forEach(([label, val], idx) => {
         if (idx % 2 === 0) {
             doc.setFillColor(241, 245, 249);
-            doc.rect(15, currentY - 5, 180, 8, 'F');
+            doc.rect(15, currentY - 4.5, 180, 7.5, 'F');
         }
 
         doc.setFont('helvetica', 'bold');
@@ -552,39 +582,77 @@ window.cetakBuktiPendaftaran = function (dataOverride) {
 
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(...darkColor);
+        doc.text(String(val), 82, currentY);
 
-        if (label === 'Alamat Lengkap' && val.length > 50) {
-            const splitVal = doc.splitTextToSize(val, 110);
-            doc.text(splitVal, 80, currentY);
-            currentY += (splitVal.length - 1) * 5;
-        } else {
-            doc.text(val, 80, currentY);
-        }
-
-        currentY += 8;
+        currentY += 7.5;
     });
 
-    currentY += 8;
-    doc.setFillColor(254, 243, 199);
-    doc.setDrawColor(245, 158, 11);
-    doc.roundedRect(15, currentY, 180, 26, 2, 2, 'FD');
+    // Section 2: Legal Disclaimer Box (Section D.3)
+    currentY += 4;
+    doc.setFillColor(239, 246, 255);
+    doc.setDrawColor(191, 219, 254);
+    doc.roundedRect(15, currentY, 180, 16, 2, 2, 'FD');
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.setTextColor(146, 64, 14);
-    doc.text('PENTING / PERHATIAN:', 20, currentY + 7);
+    doc.setFontSize(8.5);
+    doc.setTextColor(30, 64, 175);
+    doc.text('STATUS DOKUMEN:', 20, currentY + 5.5);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
-    doc.text('1. Simpan lembar bukti pendaftaran ini sebagai tanda bukti resmi pendaftaran online Anda.', 20, currentY + 12);
-    doc.text('2. Cek status hasil seleksi secara berkala melalui menu "Cek Status" di website resmi.', 20, currentY + 17);
-    doc.text('3. Bawa cetakan bukti ini beserta dokumen asli saat jadwal verifikasi fisik / daftar ulang.', 20, currentY + 22);
+    doc.setTextColor(30, 58, 138);
+    const disclaimerText = 'Bukti pendaftaran ini menyatakan bahwa formulir telah berhasil dikirim dan tercatat dalam sistem. Dokumen ini bukan bukti kelulusan atau penerimaan akhir.';
+    const splitDisclaimer = doc.splitTextToSize(disclaimerText, 170);
+    doc.text(splitDisclaimer, 20, currentY + 10.5);
 
+    // Section 3: Panitia Notes (Section D.4 - Dynamic from schoolPdfNotes)
+    currentY += 21;
+    const notesToRender = Array.isArray(schoolPdfNotes) && schoolPdfNotes.length > 0
+        ? schoolPdfNotes.map(n => n.trim()).filter(n => n.length > 0)
+        : [
+            "Simpan lembar bukti pendaftaran ini sebagai tanda bukti resmi pendaftaran online Anda.",
+            "Cek status hasil seleksi secara berkala melalui menu 'Cek Status' di website resmi.",
+            "Bawa cetakan bukti ini beserta dokumen asli saat jadwal verifikasi fisik / daftar ulang."
+        ];
+
+    doc.setFillColor(254, 243, 199);
+    doc.setDrawColor(245, 158, 11);
+
+    // Estimate box height based on notes
+    let noteLinesTotal = 0;
+    notesToRender.forEach((note, idx) => {
+        const lines = doc.splitTextToSize(`${idx + 1}. ${note}`, 168);
+        noteLinesTotal += lines.length;
+    });
+    const boxHeight = Math.max(22, 10 + noteLinesTotal * 4.5);
+
+    doc.roundedRect(15, currentY, 180, boxHeight, 2, 2, 'FD');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(146, 64, 14);
+    doc.text('PETUNJUK & CATATAN PANITIA SPMB:', 20, currentY + 6);
+
+    doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
-    doc.setTextColor(148, 163, 184);
-    doc.text(`Dicetak secara otomatis oleh Sistem SPMB ${CONFIG.SCHOOL_NAME || 'SMP KP 1 BALEENDAH'}`, 105, 285, { align: 'center' });
+    doc.setTextColor(120, 53, 15);
 
-    const filename = `Bukti_Pendaftaran_${data['No Pendaftaran'] || 'SPMB'}.pdf`;
+    let noteY = currentY + 11;
+    notesToRender.forEach((note, idx) => {
+        const lines = doc.splitTextToSize(`${idx + 1}. ${note}`, 168);
+        doc.text(lines, 20, noteY);
+        noteY += lines.length * 4.5;
+    });
+
+    // Footer (Section D.5)
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(148, 163, 184);
+    doc.text(`Dokumen ini diterbitkan secara elektronik oleh Sistem SPMB ${CONFIG.SCHOOL_NAME || 'SMP KP 1 BALEENDAH'} dan sah tanpa tanda tangan basah.`, 105, 283, { align: 'center' });
+
+    // Safe Non-Sensitive Filename (Section G.12)
+    const safeRegNo = (data['No Pendaftaran'] || 'SPMB').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const filename = `Bukti_Pendaftaran_${safeRegNo}.pdf`;
     doc.save(filename);
 };
 
@@ -682,7 +750,7 @@ function displayStatusResult(data) {
                 "Nama Lengkap": data.namaLengkap,
                 "Status": status
             })})'>
-                <i class="fas fa-print"></i> Cetak Bukti Pendaftaran
+                <i class="fas fa-file-pdf"></i> Unduh / Cetak Bukti PDF
             </button>
         `;
     }
