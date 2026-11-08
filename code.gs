@@ -31,6 +31,8 @@ const DEFAULT_SETTINGS = {
   namaSekolah: "SDN Harapan Bangsa",
   alamat: "Jl. Pendidikan No. 123, Kota Pelajar, Indonesia 12345",
   telepon: "(021) 1234-5678",
+  whatsapp: "081234567890",
+  whatsappMessage: "Halo Panitia SPMB SMP KP 1 Baleendah, saya ingin bertanya mengenai pendaftaran murid baru.",
   email: "info@sdnharapanbangsa.sch.id",
   deskripsi: "Mencetak generasi penerus bangsa yang cerdas, berakhlak mulia, dan siap menghadapi tantangan masa depan dengan pendidikan berkualitas.",
   statusPendaftaran: "Buka",
@@ -171,6 +173,22 @@ function handleUpdateSettings(newSettings) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(SETTINGS_SHEET_NAME);
   if (!sheet) throw new Error("Settings sheet not found");
+
+  // Server-side validation for WhatsApp contact
+  if (newSettings.whatsapp !== undefined && newSettings.whatsapp !== null) {
+    var rawWa = String(newSettings.whatsapp).trim();
+    if (rawWa !== "") {
+      var cleanWa = rawWa.replace(/\D/g, '');
+      var isValid = /^(08[1-9][0-9]{7,11}|628[1-9][0-9]{7,11})$/.test(cleanWa);
+      if (!isValid) {
+        return ContentService.createTextOutput(JSON.stringify({
+          status: "error",
+          message: "Nomor WhatsApp tidak valid. Gunakan format 08xxxxxxxxxx atau +62xxxxxxxxxx."
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+      newSettings.whatsapp = cleanWa.startsWith('0') ? '62' + cleanWa.slice(1) : cleanWa;
+    }
+  }
 
   const data = sheet.getDataRange().getValues();
   
