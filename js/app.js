@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initRegistrationForm();
     initStatusCheck();
     initGallery();
+    initPublicPhotos();
     initCurrentYear();
 });
 
@@ -819,8 +820,16 @@ function initGallery() {
             const category = item.querySelector('.gallery-category')?.textContent || '';
 
             if (lightboxImage && imgDiv) {
-                lightboxImage.innerHTML = imgDiv.innerHTML;
-                lightboxImage.style.background = imgDiv.style.background;
+                const fullImg = imgDiv.getAttribute('data-full-img');
+                const innerImg = imgDiv.querySelector('img');
+                if (fullImg || innerImg) {
+                    const src = fullImg || innerImg.src;
+                    lightboxImage.innerHTML = `<img src="${src}" alt="${escapeHtml(caption)}" style="max-width:90vw;max-height:80vh;object-fit:contain;border-radius:12px;">`;
+                    lightboxImage.style.background = 'transparent';
+                } else {
+                    lightboxImage.innerHTML = imgDiv.innerHTML;
+                    lightboxImage.style.background = imgDiv.style.background;
+                }
             }
             if (lightboxCaption) {
                 lightboxCaption.innerHTML = `<h4>${caption}</h4><small>${category}</small>`;
@@ -841,4 +850,200 @@ function initGallery() {
             }
         });
     }
+}
+
+/* ==========================================================================
+   7. GOOGLE DRIVE PUBLIC PHOTOS (SLIDER & DYNAMIC GALLERY)
+   ========================================================================== */
+async function initPublicPhotos() {
+    const hasSlider = document.getElementById('heroSliderContainer');
+    const hasGallery = document.getElementById('galleryGridContainer');
+    const hasKepsek = document.getElementById('kepsekImgContainer');
+
+    // Only run if relevant elements exist on this page
+    if (!hasSlider && !hasGallery && !hasKepsek) return;
+
+    try {
+        const response = await fetch(CONFIG.API_URL + '?action=getPhotos&public=true', { redirect: 'follow' });
+        const result = await response.json();
+
+        if (result.status === 'success' && Array.isArray(result.data) && result.data.length > 0) {
+            const photos = result.data.filter(p => p.aktif === true || p.aktif === 'true');
+
+            // 1. Render Hero Slider (index.html)
+            if (hasSlider) {
+                const slidePhotos = photos.filter(p => p.kategori === 'slide');
+                if (slidePhotos.length > 0) {
+                    renderHomeSlider(slidePhotos);
+                }
+            }
+
+            // 2. Render Gallery (galeri.html)
+            if (hasGallery) {
+                const galleryPhotos = photos.filter(p => p.kategori !== 'slide' && p.kategori !== 'kepsek');
+                if (galleryPhotos.length > 0) {
+                    renderPublicGallery(galleryPhotos);
+                }
+            }
+
+            // 3. Render Kepala Sekolah (index.html)
+            if (hasKepsek) {
+                const kepsekPhoto = photos.find(p => p.kategori === 'kepsek');
+                if (kepsekPhoto && (kepsekPhoto.fileUrl || kepsekPhoto.thumbnailUrl)) {
+                    hasKepsek.innerHTML = `
+                        <img src="${escapeHtml(kepsekPhoto.thumbnailUrl || kepsekPhoto.fileUrl)}" 
+                             alt="${escapeHtml(kepsekPhoto.judul || 'Kepala Sekolah')}" 
+                             style="width:100%;height:100%;object-fit:cover;border-radius:14px;box-shadow:0 4px 15px rgba(0,0,0,0.15);"
+                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                        <div class="kepsek-placeholder" style="display:none;">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                    `;
+                }
+            }
+        }
+    } catch (err) {
+        console.warn('Gagal memuat foto publik Google Drive:', err);
+    }
+}
+
+let homeSliderInterval = null;
+let currentSlideIndex = 0;
+
+function renderHomeSlider(slidePhotos) {
+    const section = document.getElementById('homeSliderSection');
+    const container = document.getElementById('heroSliderContainer');
+    const dotsContainer = document.getElementById('sliderDotsContainer');
+    const prevBtn = document.getElementById('sliderPrevBtn');
+    const nextBtn = document.getElementById('sliderNextBtn');
+
+    if (!section || !container || !slidePhotos || slidePhotos.length === 0) return;
+
+    // Show slider section
+    section.style.display = 'block';
+
+    // Sort by urutan
+    slidePhotos.sort((a, b) => (Number(a.urutan) || 0) - (Number(b.urutan) || 0));
+
+    // Render slides
+    let slidesHtml = '';
+    let dotsHtml = '';
+
+    slidePhotos.forEach((slide, idx) => {
+        const isActive = idx === 0 ? 'active' : '';
+        const imgUrl = slide.fileUrl || slide.thumbnailUrl;
+        slidesHtml += `
+            <div class="home-slide-item ${isActive}" data-slide-index="${idx}">
+                <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(slide.judul || 'Slide SMP KP 1')}" class="home-slide-img" loading="${idx === 0 ? 'eager' : 'lazy'}">
+                ${(slide.judul || slide.deskripsi) ? `
+                <div class="home-slide-caption">
+                    ${slide.judul ? `<h3>${escapeHtml(slide.judul)}</h3>` : ''}
+                    ${slide.deskripsi ? `<p>${escapeHtml(slide.deskripsi)}</p>` : ''}
+                </div>` : ''}
+            </div>
+        `;
+        dotsHtml += `<div class="slider-dot ${isActive}" data-dot-index="${idx}"></div>`;
+    });
+
+    container.innerHTML = slidesHtml;
+    if (dotsContainer) dotsContainer.innerHTML = dotsHtml;
+
+    // Slide Controls
+    const slideItems = container.querySelectorAll('.home-slide-item');
+    const dots = dotsContainer ? dotsContainer.querySelectorAll('.slider-dot') : [];
+    const totalSlides = slideItems.length;
+
+    if (totalSlides <= 1) {
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        if (dotsContainer) dotsContainer.style.display = 'none';
+        return;
+    }
+
+    function goToSlide(index) {
+        slideItems[currentSlideIndex]?.classList.remove('active');
+        dots[currentSlideIndex]?.classList.remove('active');
+
+        currentSlideIndex = (index + totalSlides) % totalSlides;
+
+        slideItems[currentSlideIndex]?.classList.add('active');
+        dots[currentSlideIndex]?.classList.add('active');
+    }
+
+    if (nextBtn) {
+        nextBtn.onclick = () => {
+            goToSlide(currentSlideIndex + 1);
+            resetSliderTimer();
+        };
+    }
+
+    if (prevBtn) {
+        prevBtn.onclick = () => {
+            goToSlide(currentSlideIndex - 1);
+            resetSliderTimer();
+        };
+    }
+
+    dots.forEach((dot, idx) => {
+        dot.onclick = () => {
+            goToSlide(idx);
+            resetSliderTimer();
+        };
+    });
+
+    function startSliderTimer() {
+        if (homeSliderInterval) clearInterval(homeSliderInterval);
+        homeSliderInterval = setInterval(() => {
+            goToSlide(currentSlideIndex + 1);
+        }, 5000);
+    }
+
+    function resetSliderTimer() {
+        clearInterval(homeSliderInterval);
+        startSliderTimer();
+    }
+
+    const wrapper = section.querySelector('.home-slider-wrapper');
+    if (wrapper) {
+        wrapper.addEventListener('mouseenter', () => clearInterval(homeSliderInterval));
+        wrapper.addEventListener('mouseleave', () => startSliderTimer());
+    }
+
+    startSliderTimer();
+}
+
+function renderPublicGallery(galleryPhotos) {
+    const container = document.getElementById('galleryGridContainer');
+    if (!container || !galleryPhotos.length) return;
+
+    // Sort by urutan
+    galleryPhotos.sort((a, b) => (Number(a.urutan) || 0) - (Number(b.urutan) || 0));
+
+    let html = '';
+    galleryPhotos.forEach((photo, idx) => {
+        const cat = (photo.kategori || 'fasilitas').toLowerCase();
+        const displayCat = cat.charAt(0).toUpperCase() + cat.slice(1);
+        const imgUrl = photo.thumbnailUrl || photo.fileUrl;
+        const fullImgUrl = photo.fileUrl || photo.thumbnailUrl;
+
+        html += `
+            <div class="gallery-item" data-category="${escapeHtml(cat)}" data-aos="fade-up" data-aos-delay="${(idx % 4) * 100}">
+                <div class="gallery-image" style="background:#0f172a;" data-full-img="${escapeHtml(fullImgUrl)}">
+                    <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(photo.judul || 'Galeri Foto')}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                    <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:linear-gradient(135deg,#153e7e,#1e40af);color:#fff;font-size:3rem;">
+                        <i class="fas fa-image"></i>
+                    </div>
+                </div>
+                <div class="gallery-overlay">
+                    <span class="gallery-caption">${escapeHtml(photo.judul || 'Foto Dokumentasi')}</span>
+                    <span class="gallery-category">${escapeHtml(displayCat)}</span>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+
+    // Re-bind gallery filters & lightbox
+    initGallery();
 }
