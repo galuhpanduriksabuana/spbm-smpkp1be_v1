@@ -785,22 +785,21 @@ window.resetStatusCheck = function () {
    ========================================================================== */
 function initGallery() {
     const filterBtns = document.querySelectorAll('.gallery-filter .filter-btn');
-    const galleryItems = document.querySelectorAll('.gallery-grid .gallery-item');
     const lightbox = document.getElementById('galleryLightbox');
     const lightboxClose = document.getElementById('lightboxClose');
     const lightboxImage = document.getElementById('lightboxImage');
     const lightboxCaption = document.getElementById('lightboxCaption');
 
-    if (!galleryItems.length) return;
-
     filterBtns.forEach(btn => {
-        btn.addEventListener('click', function () {
+        btn.onclick = function () {
             filterBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
 
             const filterValue = this.getAttribute('data-filter');
 
-            galleryItems.forEach(item => {
+            // Re-query current gallery items in the DOM
+            const currentItems = document.querySelectorAll('.gallery-grid .gallery-item');
+            currentItems.forEach(item => {
                 const category = item.getAttribute('data-category');
                 if (filterValue === 'all' || category === filterValue) {
                     item.style.display = 'block';
@@ -808,11 +807,12 @@ function initGallery() {
                     item.style.display = 'none';
                 }
             });
-        });
+        };
     });
 
+    const galleryItems = document.querySelectorAll('.gallery-grid .gallery-item');
     galleryItems.forEach(item => {
-        item.addEventListener('click', function () {
+        item.onclick = function () {
             if (!lightbox) return;
 
             const imgDiv = item.querySelector('.gallery-image');
@@ -822,9 +822,9 @@ function initGallery() {
             if (lightboxImage && imgDiv) {
                 const fullImg = imgDiv.getAttribute('data-full-img');
                 const innerImg = imgDiv.querySelector('img');
-                if (fullImg || innerImg) {
+                if (fullImg || (innerImg && innerImg.src && !innerImg.src.includes('data:image/svg'))) {
                     const src = fullImg || innerImg.src;
-                    lightboxImage.innerHTML = `<img src="${src}" alt="${escapeHtml(caption)}" style="max-width:90vw;max-height:80vh;object-fit:contain;border-radius:12px;">`;
+                    lightboxImage.innerHTML = `<img src="${src}" alt="${escapeHtml(caption)}" style="max-width:90vw;max-height:80vh;object-fit:contain;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.5);">`;
                     lightboxImage.style.background = 'transparent';
                 } else {
                     lightboxImage.innerHTML = imgDiv.innerHTML;
@@ -832,18 +832,18 @@ function initGallery() {
                 }
             }
             if (lightboxCaption) {
-                lightboxCaption.innerHTML = `<h4>${caption}</h4><small>${category}</small>`;
+                lightboxCaption.innerHTML = `<h4>${escapeHtml(caption)}</h4><small>${escapeHtml(category)}</small>`;
             }
 
             lightbox.classList.add('active');
-        });
+        };
     });
 
     if (lightboxClose && lightbox) {
-        lightboxClose.addEventListener('click', () => lightbox.classList.remove('active'));
-        lightbox.addEventListener('click', (e) => {
+        lightboxClose.onclick = () => lightbox.classList.remove('active');
+        lightbox.onclick = (e) => {
             if (e.target === lightbox) lightbox.classList.remove('active');
-        });
+        };
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && lightbox.classList.contains('active')) {
                 lightbox.classList.remove('active');
@@ -855,6 +855,63 @@ function initGallery() {
 /* ==========================================================================
    7. GOOGLE DRIVE PUBLIC PHOTOS (SLIDER & DYNAMIC GALLERY)
    ========================================================================== */
+function extractPhotoMedia(p) {
+    if (!p) return null;
+
+    // Ekstrak ID File Google Drive dari berbagai kemungkinan field data
+    let fileId = p.driveFileId || '';
+    if (!fileId) {
+        const raw = (p.thumbnailUrl || '') + ' ' + (p.fileUrl || '') + ' ' + (p.newBase64Data || '') + ' ' + (p.base64Data || '') + ' ' + (p.url || '');
+        const match = raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
+                      raw.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
+                      raw.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+        if (match) fileId = match[1];
+    }
+
+    let thumbUrl = '';
+    let fullUrl = '';
+    let fallbackUrl = '';
+
+    if (fileId) {
+        thumbUrl = `https://lh3.googleusercontent.com/d/${fileId}=w800`;
+        fullUrl = `https://lh3.googleusercontent.com/d/${fileId}=w1600`;
+        fallbackUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
+    } else if (p.thumbnailUrl && p.thumbnailUrl.startsWith('http')) {
+        thumbUrl = p.thumbnailUrl;
+        fullUrl = p.fileUrl || p.thumbnailUrl;
+    } else if (p.fileUrl && p.fileUrl.startsWith('http') && !p.fileUrl.includes('drive.google.com/file/d/')) {
+        thumbUrl = p.fileUrl;
+        fullUrl = p.fileUrl;
+    } else if (p.base64Data && p.base64Data.startsWith('data:image/')) {
+        thumbUrl = p.base64Data;
+        fullUrl = p.base64Data;
+    } else {
+        // Bukan berkas gambar valid, lewati
+        return null;
+    }
+
+    const isAktif = (p.aktif === true || p.aktif === 'true' || p.aktif === 'True' || p.aktif === 1 || p.aktif === undefined);
+    const cat = String(p.kategori || 'fasilitas').toLowerCase().trim() || 'fasilitas';
+    const judul = String(p.judul || p.fileName || 'Foto Dokumentasi').trim();
+    const deskripsi = String(p.deskripsi || '').trim();
+    const urutan = parseInt(p.urutan, 10) || 0;
+    const id = p.id || fileId || `img_${Date.now()}`;
+
+    return {
+        id,
+        driveFileId: fileId,
+        thumbnailUrl: thumbUrl,
+        fullUrl: fullUrl,
+        fallbackUrl: fallbackUrl,
+        fileUrl: fullUrl,
+        judul,
+        deskripsi,
+        kategori: cat,
+        aktif: isAktif,
+        urutan
+    };
+}
+
 async function initPublicPhotos() {
     const hasSlider = document.getElementById('heroSliderContainer');
     const hasGallery = document.getElementById('galleryGridContainer');
@@ -868,11 +925,18 @@ async function initPublicPhotos() {
         const result = await response.json();
 
         if (result.status === 'success' && Array.isArray(result.data) && result.data.length > 0) {
-            const photos = result.data.filter(p => p.aktif === true || p.aktif === 'true');
+            // Normalisasi dan filter hanya berkas gambar valid yang aktif
+            const validPhotos = [];
+            result.data.forEach(p => {
+                const norm = extractPhotoMedia(p);
+                if (norm && norm.aktif) {
+                    validPhotos.push(norm);
+                }
+            });
 
             // 1. Render Hero Slider (index.html)
             if (hasSlider) {
-                const slidePhotos = photos.filter(p => p.kategori === 'slide');
+                const slidePhotos = validPhotos.filter(p => p.kategori === 'slide');
                 if (slidePhotos.length > 0) {
                     renderHomeSlider(slidePhotos);
                 }
@@ -880,7 +944,7 @@ async function initPublicPhotos() {
 
             // 2. Render Gallery (galeri.html)
             if (hasGallery) {
-                const galleryPhotos = photos.filter(p => p.kategori !== 'slide' && p.kategori !== 'kepsek');
+                const galleryPhotos = validPhotos.filter(p => p.kategori !== 'slide' && p.kategori !== 'kepsek');
                 if (galleryPhotos.length > 0) {
                     renderPublicGallery(galleryPhotos);
                 }
@@ -888,13 +952,13 @@ async function initPublicPhotos() {
 
             // 3. Render Kepala Sekolah (index.html)
             if (hasKepsek) {
-                const kepsekPhoto = photos.find(p => p.kategori === 'kepsek');
-                if (kepsekPhoto && (kepsekPhoto.fileUrl || kepsekPhoto.thumbnailUrl)) {
+                const kepsekPhoto = validPhotos.find(p => p.kategori === 'kepsek');
+                if (kepsekPhoto && kepsekPhoto.thumbnailUrl) {
                     hasKepsek.innerHTML = `
-                        <img src="${escapeHtml(kepsekPhoto.thumbnailUrl || kepsekPhoto.fileUrl)}" 
+                        <img src="${escapeHtml(kepsekPhoto.thumbnailUrl)}" 
                              alt="${escapeHtml(kepsekPhoto.judul || 'Kepala Sekolah')}" 
                              style="width:100%;height:100%;object-fit:cover;border-radius:14px;box-shadow:0 4px 15px rgba(0,0,0,0.15);"
-                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                             onerror="if(!this.dataset.fallback && '${escapeHtml(kepsekPhoto.fallbackUrl)}'){this.dataset.fallback='1';this.src='${escapeHtml(kepsekPhoto.fallbackUrl)}';}else{this.style.display='none';this.nextElementSibling.style.display='flex';}">
                         <div class="kepsek-placeholder" style="display:none;">
                             <i class="fas fa-user-tie"></i>
                         </div>
@@ -931,10 +995,16 @@ function renderHomeSlider(slidePhotos) {
 
     slidePhotos.forEach((slide, idx) => {
         const isActive = idx === 0 ? 'active' : '';
-        const imgUrl = slide.fileUrl || slide.thumbnailUrl;
+        const imgUrl = slide.thumbnailUrl || slide.fileUrl;
+        const fallbackUrl = slide.fallbackUrl || '';
+
         slidesHtml += `
             <div class="home-slide-item ${isActive}" data-slide-index="${idx}">
-                <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(slide.judul || 'Slide SMP KP 1')}" class="home-slide-img" loading="${idx === 0 ? 'eager' : 'lazy'}">
+                <img src="${escapeHtml(imgUrl)}" 
+                     alt="${escapeHtml(slide.judul || 'Slide SMP KP 1')}" 
+                     class="home-slide-img" 
+                     loading="${idx === 0 ? 'eager' : 'lazy'}"
+                     onerror="if(!this.dataset.fallback && '${escapeHtml(fallbackUrl)}'){this.dataset.fallback='1';this.src='${escapeHtml(fallbackUrl)}';}">
                 ${(slide.judul || slide.deskripsi) ? `
                 <div class="home-slide-caption">
                     ${slide.judul ? `<h3>${escapeHtml(slide.judul)}</h3>` : ''}
@@ -1016,20 +1086,49 @@ function renderPublicGallery(galleryPhotos) {
     const container = document.getElementById('galleryGridContainer');
     if (!container || !galleryPhotos.length) return;
 
-    // Sort by urutan
+    // 1. Dinamiskan tombol filter kategori jika ada kategori khusus (misal: berita, lainnya)
+    const filterContainer = document.querySelector('.gallery-filter');
+    if (filterContainer) {
+        const catMap = {
+            fasilitas: 'Fasilitas',
+            kegiatan: 'Kegiatan',
+            prestasi: 'Prestasi',
+            berita: 'Berita',
+            lainnya: 'Lainnya'
+        };
+        const activeCategories = new Set();
+        galleryPhotos.forEach(p => activeCategories.add(p.kategori));
+        // Selalu sertakan kategori dasar
+        ['fasilitas', 'kegiatan', 'prestasi'].forEach(c => activeCategories.add(c));
+
+        let filterHtml = '<button class="filter-btn active" data-filter="all">Semua</button>';
+        activeCategories.forEach(cat => {
+            const label = catMap[cat] || (cat.charAt(0).toUpperCase() + cat.slice(1));
+            filterHtml += `<button class="filter-btn" data-filter="${escapeHtml(cat)}">${escapeHtml(label)}</button>`;
+        });
+        filterContainer.innerHTML = filterHtml;
+    }
+
+    // 2. Sort berdasarkan urutan ascending
     galleryPhotos.sort((a, b) => (Number(a.urutan) || 0) - (Number(b.urutan) || 0));
 
+    // 3. Render kartu galeri dinamis Google Drive
     let html = '';
     galleryPhotos.forEach((photo, idx) => {
         const cat = (photo.kategori || 'fasilitas').toLowerCase();
         const displayCat = cat.charAt(0).toUpperCase() + cat.slice(1);
-        const imgUrl = photo.thumbnailUrl || photo.fileUrl;
-        const fullImgUrl = photo.fileUrl || photo.thumbnailUrl;
+        const thumbUrl = photo.thumbnailUrl;
+        const fullUrl = photo.fullUrl || photo.thumbnailUrl;
+        const fallbackUrl = photo.fallbackUrl || '';
 
         html += `
-            <div class="gallery-item" data-category="${escapeHtml(cat)}" data-aos="fade-up" data-aos-delay="${(idx % 4) * 100}">
-                <div class="gallery-image" style="background:#0f172a;" data-full-img="${escapeHtml(fullImgUrl)}">
-                    <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(photo.judul || 'Galeri Foto')}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="gallery-item dynamic-photo" data-category="${escapeHtml(cat)}" data-aos="fade-up" data-aos-delay="${(idx % 4) * 80}">
+                <div class="gallery-image" style="background:#0f172a;" data-full-img="${escapeHtml(fullUrl)}">
+                    <img src="${escapeHtml(thumbUrl)}" 
+                         alt="${escapeHtml(photo.judul || 'Galeri Foto')}" 
+                         loading="lazy" 
+                         style="width:100%;height:100%;object-fit:cover;"
+                         onerror="if(!this.dataset.fallback && '${escapeHtml(fallbackUrl)}'){this.dataset.fallback='1';this.src='${escapeHtml(fallbackUrl)}';}else{this.style.display='none';this.nextElementSibling.style.display='flex';}">
                     <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:linear-gradient(135deg,#153e7e,#1e40af);color:#fff;font-size:3rem;">
                         <i class="fas fa-image"></i>
                     </div>
@@ -1044,6 +1143,6 @@ function renderPublicGallery(galleryPhotos) {
 
     container.innerHTML = html;
 
-    // Re-bind gallery filters & lightbox
+    // Re-bind gallery filters & lightbox dengan elemen-elemen baru
     initGallery();
 }
