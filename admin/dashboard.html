@@ -535,6 +535,38 @@
                                 <label for="cms_kepsekSambutan">Isi Pidato / Teks Sambutan</label>
                                 <textarea id="cms_kepsekSambutan" class="form-textarea" rows="4" placeholder="Teks sambutan hangat untuk calon peserta didik dan orang tua..."></textarea>
                             </div>
+
+                            <!-- Pengaturan Tagline Sambutan -->
+                            <div style="border-top:1px dashed #cbd5e1;padding-top:20px;margin-top:20px;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                                    <div>
+                                        <label style="font-weight:700;color:var(--text-dark);font-size:1rem;margin:0;display:flex;align-items:center;gap:8px;">
+                                            <i class="fas fa-tags" style="color:var(--primary);"></i> Pengaturan Poin Tagline Sambutan
+                                        </label>
+                                        <small style="color:#64748b;display:block;margin-top:2px;">
+                                            Kelola poin tagline yang tampil di bagian bawah sambutan (misal: "Berakhlak Mulia", "Cerdas & Mandiri", "Berprestasi").
+                                        </small>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="addTaglinePoint()">
+                                        <i class="fas fa-plus"></i> Tambah Poin Tagline
+                                    </button>
+                                </div>
+
+                                <!-- Container list of tagline points -->
+                                <div id="taglinePointsList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+                                    <!-- Rendered dynamically by js/admin.js -->
+                                </div>
+
+                                <!-- Live Preview Box for Tagline -->
+                                <div style="background:#f8fafc;padding:14px 18px;border-radius:10px;border:1px solid #e2e8f0;">
+                                    <small style="font-weight:700;color:#64748b;display:block;margin-bottom:6px;text-transform:uppercase;font-size:0.75rem;letter-spacing:0.5px;">
+                                        <i class="fas fa-eye"></i> Pratinjau Tagline di Website:
+                                    </small>
+                                    <div id="taglineLivePreview" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:0.95rem;">
+                                        <!-- Live preview rendered dynamically -->
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- 5. Visi & Misi Sekolah -->
@@ -555,31 +587,35 @@
 
                         <!-- 6. Program Unggulan -->
                         <div class="cms-card" id="cms-sec-program">
-                            <div class="cms-card-header">
-                                <h3 class="cms-card-title"><i class="fas fa-star"></i> 6. Program Unggulan (4 Pilar)</h3>
+                            <div class="cms-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                                <div>
+                                    <h3 class="cms-card-title" style="margin:0;"><i class="fas fa-star" style="color:#eab308;"></i> 6. Kelola Program Unggulan</h3>
+                                    <small style="color:#64748b;display:block;margin-top:4px;">
+                                        Kelola program unggulan sekolah: tambah, edit, hapus, urutkan, dan aktifkan/nonaktifkan program tanpa mengubah source code.
+                                    </small>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addNewProgram()">
+                                    <i class="fas fa-plus"></i> Tambah Program Unggulan
+                                </button>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group" style="flex:1;">
-                                    <label for="cms_prog1Judul">Program 1: Judul</label>
-                                    <input type="text" id="cms_prog1Judul" class="form-input" placeholder="Kurikulum Merdeka Terintegrasi">
-                                    <textarea id="cms_prog1Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Penjelasan program 1..."></textarea>
-                                </div>
-                                <div class="form-group" style="flex:1;">
-                                    <label for="cms_prog2Judul">Program 2: Judul</label>
-                                    <input type="text" id="cms_prog2Judul" class="form-input" placeholder="Pembiasaan Keagamaan & Karakter">
-                                    <textarea id="cms_prog2Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Penjelasan program 2..."></textarea>
-                                </div>
+
+                            <!-- List of Programs (dynamic cards) -->
+                            <div id="programCardsList" style="display:flex;flex-direction:column;gap:16px;margin-bottom:20px;">
+                                <!-- Dynamic program cards rendered by js/admin.js -->
                             </div>
-                            <div class="form-row">
-                                <div class="form-group" style="flex:1;">
-                                    <label for="cms_prog3Judul">Program 3: Judul</label>
-                                    <input type="text" id="cms_prog3Judul" class="form-input" placeholder="Literasi Digital & Komputer">
-                                    <textarea id="cms_prog3Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Penjelasan program 3..."></textarea>
+
+                            <!-- Live Grid Preview for Program Unggulan -->
+                            <div style="background:#f8fafc;padding:16px 20px;border-radius:12px;border:1px solid #e2e8f0;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                                    <small style="font-weight:700;color:#64748b;text-transform:uppercase;font-size:0.75rem;letter-spacing:0.5px;">
+                                        <i class="fas fa-eye"></i> Pratinjau Grid Program Unggulan di Website:
+                                    </small>
+                                    <span id="activeProgramCountBadge" class="badge" style="background:#e0f2fe;color:#0369a1;padding:4px 8px;border-radius:6px;font-size:0.8rem;font-weight:600;">
+                                        4 Program Aktif
+                                    </span>
                                 </div>
-                                <div class="form-group" style="flex:1;">
-                                    <label for="cms_prog4Judul">Program 4: Judul</label>
-                                    <input type="text" id="cms_prog4Judul" class="form-input" placeholder="Pengembangan Minat & Ekstrakurikuler">
-                                    <textarea id="cms_prog4Desc" class="form-textarea" rows="2" style="margin-top:6px;" placeholder="Penjelasan program 4..."></textarea>
+                                <div id="programLivePreviewGrid" class="program-grid" style="gap:16px;">
+                                    <!-- Live preview cards rendered dynamically -->
                                 </div>
                             </div>
                         </div>
