@@ -27,7 +27,46 @@ const DEFAULT_FORM_FIELDS = [
   { id: "Akta Kelahiran", label: "Akta Kelahiran", type: "file", required: true }
 ];
 
+const DEFAULT_TAGLINES = [
+  "Berakhlak Mulia",
+  "Cerdas & Mandiri",
+  "Berprestasi"
+];
+
+const DEFAULT_PROGRAMS = [
+  {
+    id: "prog-1",
+    judul: "Kurikulum Merdeka",
+    desc: "Pembelajaran intrakurikuler yang beragam di mana konten dirancang lebih optimal agar peserta didik memiliki cukup waktu mendalami konsep.",
+    icon: "fas fa-book-open",
+    active: true
+  },
+  {
+    id: "prog-2",
+    judul: "Pembiasaan Keagamaan",
+    desc: "Sholat dhuha dan dzuhur berjamaah, tahfidz Al-Quran juz 30, serta pembinaan akhlak mulia sebagai fondasi moral peserta didik.",
+    icon: "fas fa-mosque",
+    active: true
+  },
+  {
+    id: "prog-3",
+    judul: "Literasi Digital & IT",
+    desc: "Pengenalan komputasi dasar, pemanfaatan laboratorium komputer modern, serta pembelajaran berbasis teknologi ramah siswa.",
+    icon: "fas fa-laptop-code",
+    active: true
+  },
+  {
+    id: "prog-4",
+    judul: "Ekstrakurikuler & Prestasi",
+    desc: "Wadah pembinaan minat bakat mulai dari Pramuka, Paskibra, PMR, Futsal, Seni Musik, hingga Club Matematika & Sains.",
+    icon: "fas fa-trophy",
+    active: true
+  }
+];
+
 const DEFAULT_SETTINGS = {
+  kepsekTagline: JSON.stringify(DEFAULT_TAGLINES),
+  programList: JSON.stringify(DEFAULT_PROGRAMS),
   namaSekolah: "SDN Harapan Bangsa",
   alamat: "Jl. Pendidikan No. 123, Kota Pelajar, Indonesia 12345",
   telepon: "(021) 1234-5678",
@@ -187,6 +226,40 @@ function handleUpdateSettings(newSettings) {
         })).setMimeType(ContentService.MimeType.JSON);
       }
       newSettings.whatsapp = cleanWa.startsWith('0') ? '62' + cleanWa.slice(1) : cleanWa;
+    }
+  }
+
+  // Server-side validation for kepsekTagline
+  if (newSettings.kepsekTagline !== undefined && newSettings.kepsekTagline !== null) {
+    try {
+      var taglines = typeof newSettings.kepsekTagline === 'string' ? JSON.parse(newSettings.kepsekTagline) : newSettings.kepsekTagline;
+      if (Array.isArray(taglines)) {
+        var cleanedTaglines = taglines.map(function(t) { return String(t).trim(); }).filter(function(t) { return t.length > 0; });
+        newSettings.kepsekTagline = JSON.stringify(cleanedTaglines);
+      }
+    } catch (e) {
+      // Keep as-is if string
+    }
+  }
+
+  // Server-side validation for programList
+  if (newSettings.programList !== undefined && newSettings.programList !== null) {
+    try {
+      var programs = typeof newSettings.programList === 'string' ? JSON.parse(newSettings.programList) : newSettings.programList;
+      if (Array.isArray(programs)) {
+        var cleanedPrograms = programs.map(function(p, idx) {
+          return {
+            id: p.id || 'prog-' + (idx + 1),
+            judul: String(p.judul || '').trim(),
+            desc: String(p.desc || '').trim(),
+            icon: String(p.icon || 'fas fa-star').trim(),
+            active: p.active !== false
+          };
+        }).filter(function(p) { return p.judul.length > 0; });
+        newSettings.programList = JSON.stringify(cleanedPrograms);
+      }
+    } catch (e) {
+      // Keep as-is if string
     }
   }
 
