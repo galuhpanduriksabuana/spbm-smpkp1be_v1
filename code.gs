@@ -11,7 +11,9 @@
 const SHEET_NAME = "Data Pendaftar";
 const ADMIN_SHEET_NAME = "Admin";
 const SETTINGS_SHEET_NAME = "Pengaturan";
+const PHOTO_SHEET_NAME = "Foto Website";
 const FOLDER_NAME = "SPMB SMP KP 1 BALEENDAH";
+const PHOTO_FOLDER_NAME = "Aset Foto Website";
 
 const DEFAULT_FORM_FIELDS = [
   { id: "Nama Lengkap", label: "Nama Lengkap", type: "text", required: true },
@@ -124,6 +126,17 @@ function setup() {
   if (!folders.hasNext()) {
     DriveApp.createFolder(FOLDER_NAME);
   }
+
+  // Setup Photo Sheet & Folder
+  let photoSheet = ss.getSheetByName(PHOTO_SHEET_NAME);
+  if (!photoSheet) {
+    photoSheet = ss.insertSheet(PHOTO_SHEET_NAME);
+    const photoHeaders = ["ID", "Drive File ID", "File Name", "File URL", "Thumbnail URL", "Judul", "Deskripsi", "Kategori", "MIME Type", "File Size", "Urutan", "Aktif", "Created At", "Updated At"];
+    photoSheet.appendRow(photoHeaders);
+    photoSheet.getRange(1, 1, 1, photoHeaders.length).setFontWeight("bold").setBackground("#e0e0e0");
+    photoSheet.setFrozenRows(1);
+  }
+  getOrCreatePhotoFolder();
 }
 
 function doPost(e) {
@@ -134,6 +147,10 @@ function doPost(e) {
     if (data.action === "checkStatus") return handleCheckStatus(data.noPendaftaran);
     if (data.action === "updateStatus") return updateStatus(data.noPendaftaran, data.newStatus);
     if (data.action === "updateSettings") return handleUpdateSettings(data.settings);
+    if (data.action === "uploadPhoto") return handleUploadPhoto(data);
+    if (data.action === "updatePhoto") return handleUpdatePhoto(data);
+    if (data.action === "deletePhoto") return handleDeletePhoto(data);
+    if (data.action === "getPhotos") return handleGetPhotos(data);
     
     return handleRegistration(data);
     
@@ -149,6 +166,9 @@ function doGet(e) {
   try {
     if (e.parameter.action === "getSettings") {
       return handleGetSettings();
+    }
+    if (e.parameter.action === "getPhotos") {
+      return handleGetPhotos(e.parameter);
     }
 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -466,6 +486,337 @@ function uploadFile(base64Data, filename, folder) {
   } catch (e) {
     return "Error uploading file";
   }
+}
+
+/* ==========================================================================
+   PHOTO MANAGEMENT (GOOGLE DRIVE & PHOTO METADATA SHEET)
+   ========================================================================== */
+
+function verifyAdmin(username, password) {
+  if (!username) return false;
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(ADMIN_SHEET_NAME);
+  if (!sheet) return false;
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === username) {
+      if (!password) return true;
+      if (data[i][1] === password) return true;
+    }
+  }
+  return false;
+}
+
+function getOrCreatePhotoFolder() {
+  const rootFolder = getOrCreateFolder(FOLDER_NAME);
+  const subfolders = rootFolder.getFoldersByName(PHOTO_FOLDER_NAME);
+  let photoFolder;
+  if (subfolders.hasNext()) {
+    photoFolder = subfolders.next();
+  } else {
+    photoFolder = rootFolder.createFolder(PHOTO_FOLDER_NAME);
+  }
+  photoFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  return photoFolder;
+}
+
+function handleUploadPhoto(data) {
+  if (!verifyAdmin(data.adminUsername, data.adminPassword)) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: "Akses ditolak: Autentikasi administrator tidak valid."
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const base64Data = data.base64Data;
+  if (!base64Data || !base64Data.startsWith('data:image/')) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: "Format file tidak valid. Hanya file gambar (JPG, PNG, WebP) yang diizinkan."
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let photoSheet = ss.getSheetByName(PHOTO_SHEET_NAME);
+  if (!photoSheet) {
+    photoSheet = ss.insertSheet(PHOTO_SHEET_NAME);
+    const headers = ["ID", "Drive File ID", "File Name", "File URL", "Thumbnail URL", "Judul", "Deskripsi", "Kategori", "MIME Type", "File Size", "Urutan", "Aktif", "Created At", "Updated At"];
+    photoSheet.appendRow(headers);
+    photoSheet.getRange(1, 1, 1, headers.length).setFontWeight("bold").setBackground("#e0e0e0");
+    photoSheet.setFrozenRows(1);
+  }
+
+  const photoFolder = getOrCreatePhotoFolder();
+  const splitBase = base64Data.split(',');
+  const type = splitBase[0].split(';')[0].replace('data:', '');
+  const byteCharacters = Utilities.base64Decode(splitBase[1]);
+  const fileSize = byteCharacters.length;
+
+  if (fileSize > 5 * 1024 * 1024) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: "Ukuran file melebihi batas maksimal (5 MB)."
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const rawFilename = (data.fileName || "foto.jpg").replace(/[^a-zA-Z0-9_\-\.]/g, '_');
+  const uniqueFilename = `web_${Date.now()}_${rawFilename}`;
+  const blob = Utilities.newBlob(byteCharacters, type, uniqueFilename);
+  const file = photoFolder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+  const fileId = file.getId();
+  const fileUrl = file.getUrl();
+  const thumbnailUrl = `https://lh3.googleusercontent.com/d/${fileId}=w1000`;
+  const photoId = `img_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+  const nowIso = new Date().toISOString();
+
+  const judul = String(data.judul || rawFilename.replace(/\.[^/.]+$/, "")).trim();
+  const deskripsi = String(data.deskripsi || "").trim();
+  const kategori = String(data.kategori || "galeri").toLowerCase().trim();
+  const urutan = parseInt(data.urutan, 10) || photoSheet.getLastRow();
+  const aktif = data.aktif !== false;
+
+  photoSheet.appendRow([
+    photoId,
+    fileId,
+    uniqueFilename,
+    fileUrl,
+    thumbnailUrl,
+    judul,
+    deskripsi,
+    kategori,
+    type,
+    fileSize,
+    urutan,
+    aktif,
+    nowIso,
+    nowIso
+  ]);
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "success",
+    message: "Foto berhasil diunggah ke Google Drive dan dicatat di database.",
+    data: {
+      id: photoId,
+      driveFileId: fileId,
+      fileName: uniqueFilename,
+      fileUrl: fileUrl,
+      thumbnailUrl: thumbnailUrl,
+      judul: judul,
+      deskripsi: deskripsi,
+      kategori: kategori,
+      mimeType: type,
+      fileSize: fileSize,
+      urutan: urutan,
+      aktif: aktif,
+      createdAt: nowIso,
+      updatedAt: nowIso
+    }
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleGetPhotos(params) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const photoSheet = ss.getSheetByName(PHOTO_SHEET_NAME);
+  if (!photoSheet) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "success",
+      data: []
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const data = photoSheet.getDataRange().getValues();
+  if (data.length <= 1) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "success",
+      data: []
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const headers = data[0];
+  const rows = data.slice(1);
+  const isPublicOnly = params && (params.public === "true" || params.public === true);
+  const filterCategory = params && params.kategori ? String(params.kategori).toLowerCase().trim() : null;
+
+  let photos = rows.map(row => {
+    let obj = {};
+    headers.forEach((h, idx) => {
+      let key = h.replace(/\s+/g, '');
+      key = key.charAt(0).toLowerCase() + key.slice(1);
+      if (h === "ID") key = "id";
+      else if (h === "Drive File ID") key = "driveFileId";
+      else if (h === "File Name") key = "fileName";
+      else if (h === "File URL") key = "fileUrl";
+      else if (h === "Thumbnail URL") key = "thumbnailUrl";
+      else if (h === "Judul") key = "judul";
+      else if (h === "Deskripsi") key = "deskripsi";
+      else if (h === "Kategori") key = "kategori";
+      else if (h === "MIME Type") key = "mimeType";
+      else if (h === "File Size") key = "fileSize";
+      else if (h === "Urutan") key = "urutan";
+      else if (h === "Aktif") key = "aktif";
+      else if (h === "Created At") key = "createdAt";
+      else if (h === "Updated At") key = "updatedAt";
+
+      obj[key] = row[idx];
+    });
+
+    obj.aktif = obj.aktif === true || String(obj.aktif).toLowerCase() === "true";
+    obj.urutan = parseInt(obj.urutan, 10) || 0;
+    return obj;
+  });
+
+  if (isPublicOnly) {
+    photos = photos.filter(p => p.aktif === true);
+  }
+
+  if (filterCategory && filterCategory !== "all" && filterCategory !== "semua") {
+    photos = photos.filter(p => String(p.kategori).toLowerCase() === filterCategory);
+  }
+
+  photos.sort((a, b) => {
+    if (a.urutan !== b.urutan) return a.urutan - b.urutan;
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "success",
+    data: photos
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleUpdatePhoto(data) {
+  if (!verifyAdmin(data.adminUsername, data.adminPassword)) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: "Akses ditolak: Autentikasi administrator tidak valid."
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const photoSheet = ss.getSheetByName(PHOTO_SHEET_NAME);
+  if (!photoSheet) throw new Error("Sheet Foto Website tidak ditemukan");
+
+  const values = photoSheet.getDataRange().getValues();
+  const headers = values[0];
+  const idIdx = headers.indexOf("ID");
+  const driveIdIdx = headers.indexOf("Drive File ID");
+  const fileNameIdx = headers.indexOf("File Name");
+  const fileUrlIdx = headers.indexOf("File URL");
+  const thumbUrlIdx = headers.indexOf("Thumbnail URL");
+  const judulIdx = headers.indexOf("Judul");
+  const deskripsiIdx = headers.indexOf("Deskripsi");
+  const kategoriIdx = headers.indexOf("Kategori");
+  const mimeIdx = headers.indexOf("MIME Type");
+  const sizeIdx = headers.indexOf("File Size");
+  const urutanIdx = headers.indexOf("Urutan");
+  const aktifIdx = headers.indexOf("Aktif");
+  const updatedIdx = headers.indexOf("Updated At");
+
+  let rowIndex = -1;
+  for (let i = 1; i < values.length; i++) {
+    if (values[i][idIdx] === data.id) {
+      rowIndex = i + 1;
+      break;
+    }
+  }
+
+  if (rowIndex === -1) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: "Foto tidak ditemukan."
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const nowIso = new Date().toISOString();
+
+  if (data.newBase64Data && data.newBase64Data.startsWith('data:image/')) {
+    const oldDriveFileId = values[rowIndex - 1][driveIdIdx];
+    try {
+      if (oldDriveFileId) DriveApp.getFileById(oldDriveFileId).setTrashed(true);
+    } catch(e) {}
+
+    const photoFolder = getOrCreatePhotoFolder();
+    const splitBase = data.newBase64Data.split(',');
+    const type = splitBase[0].split(';')[0].replace('data:', '');
+    const byteCharacters = Utilities.base64Decode(splitBase[1]);
+    const rawFilename = (data.fileName || "foto.jpg").replace(/[^a-zA-Z0-9_\-\.]/g, '_');
+    const uniqueFilename = `web_${Date.now()}_${rawFilename}`;
+    const blob = Utilities.newBlob(byteCharacters, type, uniqueFilename);
+    const newFile = photoFolder.createFile(blob);
+    newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    const newFileId = newFile.getId();
+    photoSheet.getRange(rowIndex, driveIdIdx + 1).setValue(newFileId);
+    photoSheet.getRange(rowIndex, fileNameIdx + 1).setValue(uniqueFilename);
+    photoSheet.getRange(rowIndex, fileUrlIdx + 1).setValue(newFile.getUrl());
+    photoSheet.getRange(rowIndex, thumbUrlIdx + 1).setValue(`https://lh3.googleusercontent.com/d/${newFileId}=w1000`);
+    photoSheet.getRange(rowIndex, mimeIdx + 1).setValue(type);
+    photoSheet.getRange(rowIndex, sizeIdx + 1).setValue(byteCharacters.length);
+  }
+
+  if (data.judul !== undefined) photoSheet.getRange(rowIndex, judulIdx + 1).setValue(String(data.judul).trim());
+  if (data.deskripsi !== undefined) photoSheet.getRange(rowIndex, deskripsiIdx + 1).setValue(String(data.deskripsi).trim());
+  if (data.kategori !== undefined) photoSheet.getRange(rowIndex, kategoriIdx + 1).setValue(String(data.kategori).toLowerCase().trim());
+  if (data.urutan !== undefined) photoSheet.getRange(rowIndex, urutanIdx + 1).setValue(parseInt(data.urutan, 10) || 0);
+  if (data.aktif !== undefined) photoSheet.getRange(rowIndex, aktifIdx + 1).setValue(data.aktif === true || String(data.aktif).toLowerCase() === "true");
+  photoSheet.getRange(rowIndex, updatedIdx + 1).setValue(nowIso);
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "success",
+    message: "Metadata foto berhasil diperbarui."
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleDeletePhoto(data) {
+  if (!verifyAdmin(data.adminUsername, data.adminPassword)) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: "Akses ditolak: Autentikasi administrator tidak valid."
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const photoSheet = ss.getSheetByName(PHOTO_SHEET_NAME);
+  if (!photoSheet) throw new Error("Sheet Foto Website tidak ditemukan");
+
+  const values = photoSheet.getDataRange().getValues();
+  const headers = values[0];
+  const idIdx = headers.indexOf("ID");
+  const driveIdIdx = headers.indexOf("Drive File ID");
+
+  let rowIndex = -1;
+  let driveFileId = "";
+  for (let i = 1; i < values.length; i++) {
+    if (values[i][idIdx] === data.id) {
+      rowIndex = i + 1;
+      driveFileId = values[i][driveIdIdx];
+      break;
+    }
+  }
+
+  if (rowIndex === -1) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: "Foto tidak ditemukan."
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (driveFileId) {
+    try {
+      DriveApp.getFileById(driveFileId).setTrashed(true);
+    } catch(e) {
+      console.warn("Could not trash Drive file:", e);
+    }
+  }
+
+  photoSheet.deleteRow(rowIndex);
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "success",
+    message: "Foto berhasil dihapus dari Google Drive dan database."
+  })).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doOptions(e) {
