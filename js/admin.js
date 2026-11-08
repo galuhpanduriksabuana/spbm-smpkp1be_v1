@@ -696,13 +696,13 @@ const CMS_KEYS = [
     'stat1Value', 'stat1Label', 'stat2Value', 'stat2Label', 'stat3Value', 'stat3Label', 'stat4Value', 'stat4Label',
 
     // 4. Sambutan Kepala Sekolah
-    'kepsekNama', 'kepsekJabatan', 'kepsekFoto', 'kepsekSambutan',
+    'kepsekNama', 'kepsekJabatan', 'kepsekFoto', 'kepsekSambutan', 'kepsekTagline',
 
     // 5. Visi & Misi Sekolah
     'visiSekolah', 'misiSekolah',
 
     // 6. Program Unggulan (4 Pilar)
-    'prog1Judul', 'prog1Desc', 'prog2Judul', 'prog2Desc', 'prog3Judul', 'prog3Desc', 'prog4Judul', 'prog4Desc',
+    'programList', 'prog1Judul', 'prog1Desc', 'prog2Judul', 'prog2Desc', 'prog3Judul', 'prog3Desc', 'prog4Judul', 'prog4Desc',
 
     // 7. Alur Pendaftaran (4 Langkah)
     'alurStep1Title', 'alurStep1Desc',
@@ -792,6 +792,368 @@ function updateWaPreview() {
     }
 }
 
+/* ==========================================================================
+   DYNAMIC TAGLINE & PROGRAM UNGGULAN STATE & LOGIC
+   ========================================================================== */
+let currentTaglines = [
+    "Berakhlak Mulia",
+    "Cerdas & Mandiri",
+    "Berprestasi"
+];
+
+let currentPrograms = [
+    {
+        id: "prog-1",
+        judul: "Kurikulum Merdeka",
+        desc: "Pembelajaran intrakurikuler yang beragam di mana konten dirancang lebih optimal agar peserta didik memiliki cukup waktu mendalami konsep.",
+        icon: "fas fa-book-open",
+        active: true
+    },
+    {
+        id: "prog-2",
+        judul: "Pembiasaan Keagamaan",
+        desc: "Sholat dhuha dan dzuhur berjamaah, tahfidz Al-Quran juz 30, serta pembinaan akhlak mulia sebagai fondasi moral peserta didik.",
+        icon: "fas fa-mosque",
+        active: true
+    },
+    {
+        id: "prog-3",
+        judul: "Literasi Digital & IT",
+        desc: "Pengenalan komputasi dasar, pemanfaatan laboratorium komputer modern, serta pembelajaran berbasis teknologi ramah siswa.",
+        icon: "fas fa-laptop-code",
+        active: true
+    },
+    {
+        id: "prog-4",
+        judul: "Ekstrakurikuler & Prestasi",
+        desc: "Wadah pembinaan minat bakat mulai dari Pramuka, Paskibra, PMR, Futsal, Seni Musik, hingga Club Matematika & Sains.",
+        icon: "fas fa-trophy",
+        active: true
+    }
+];
+
+const PROGRAM_ICON_PRESETS = [
+    { id: "fas fa-book-open", label: "Buku / Kurikulum" },
+    { id: "fas fa-mosque", label: "Masjid / Keagamaan" },
+    { id: "fas fa-laptop-code", label: "Komputer / IT" },
+    { id: "fas fa-trophy", label: "Piala / Prestasi" },
+    { id: "fas fa-award", label: "Medali / Prestasi" },
+    { id: "fas fa-graduation-cap", label: "Akademik" },
+    { id: "fas fa-globe", label: "Bahasa / Wawasan" },
+    { id: "fas fa-seedling", label: "Karakter / Lingkungan" },
+    { id: "fas fa-futbol", label: "Olahraga" },
+    { id: "fas fa-music", label: "Seni Musik" },
+    { id: "fas fa-palette", label: "Kreativitas & Seni" },
+    { id: "fas fa-flask", label: "Sains & Riset" },
+    { id: "fas fa-star", label: "Bintang / Unggulan" }
+];
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+/* -------------------------------------------------------------
+   TAGLINE FUNCTIONS
+   ------------------------------------------------------------- */
+window.renderTaglineAdmin = function() {
+    const listEl = document.getElementById('taglinePointsList');
+    if (!listEl) return;
+
+    if (currentTaglines.length === 0) {
+        listEl.innerHTML = '<div style="color:#94a3b8;font-style:italic;padding:10px 0;">Belum ada poin tagline. Klik tombol "Tambah Poin Tagline" di atas.</div>';
+        updateTaglinePreview();
+        return;
+    }
+
+    listEl.innerHTML = currentTaglines.map((point, idx) => {
+        const isFirst = idx === 0;
+        const isLast = idx === currentTaglines.length - 1;
+        return `
+            <div class="tagline-admin-item" style="display:flex;align-items:center;gap:10px;background:#ffffff;border:1px solid #e2e8f0;padding:8px 12px;border-radius:8px;">
+                <span style="font-weight:700;color:var(--primary);width:24px;text-align:center;font-size:0.9rem;">${idx + 1}.</span>
+                <input type="text" class="form-input" style="flex:1;padding:8px 12px;font-size:0.92rem;" 
+                       value="${escapeHtml(point)}" 
+                       maxlength="60"
+                       placeholder="Contoh: Berakhlak Mulia"
+                       oninput="updateTaglineText(${idx}, this.value)">
+                <div style="display:flex;gap:4px;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" 
+                            style="padding:6px 10px;font-size:0.8rem;" 
+                            title="Pindah ke Atas" 
+                            ${isFirst ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : `onclick="moveTagline(${idx}, -1)"`}>
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" 
+                            style="padding:6px 10px;font-size:0.8rem;" 
+                            title="Pindah ke Bawah" 
+                            ${isLast ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : `onclick="moveTagline(${idx}, 1)"`}>
+                        <i class="fas fa-arrow-down"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                            style="padding:6px 10px;font-size:0.8rem;" 
+                            title="Hapus Poin" 
+                            onclick="deleteTaglinePoint(${idx})">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    updateTaglinePreview();
+};
+
+window.addTaglinePoint = function() {
+    currentTaglines.push('');
+    renderTaglineAdmin();
+    setTimeout(() => {
+        const listEl = document.getElementById('taglinePointsList');
+        if (listEl) {
+            const inputs = listEl.querySelectorAll('input');
+            if (inputs.length > 0) inputs[inputs.length - 1].focus();
+        }
+    }, 50);
+};
+
+window.updateTaglineText = function(index, value) {
+    if (index >= 0 && index < currentTaglines.length) {
+        currentTaglines[index] = value;
+        updateTaglinePreview();
+    }
+};
+
+window.moveTagline = function(index, direction) {
+    const targetIdx = index + direction;
+    if (targetIdx < 0 || targetIdx >= currentTaglines.length) return;
+    const temp = currentTaglines[index];
+    currentTaglines[index] = currentTaglines[targetIdx];
+    currentTaglines[targetIdx] = temp;
+    renderTaglineAdmin();
+};
+
+window.deleteTaglinePoint = function(index) {
+    const pointText = currentTaglines[index] || `Poin ${index + 1}`;
+    if (confirm(`Hapus poin tagline "${pointText}"?\n(Perubahan permanen disimpan saat Anda menekan tombol Simpan Konten)`)) {
+        currentTaglines.splice(index, 1);
+        renderTaglineAdmin();
+    }
+};
+
+window.updateTaglinePreview = function() {
+    const previewEl = document.getElementById('taglineLivePreview');
+    if (!previewEl) return;
+
+    const validPoints = currentTaglines.map(p => p.trim()).filter(p => p.length > 0);
+    if (validPoints.length === 0) {
+        previewEl.innerHTML = '<span style="color:#94a3b8;font-style:italic;">Tidak ada poin tagline yang aktif.</span>';
+        return;
+    }
+
+    const htmlParts = validPoints.map(p => {
+        return `<span style="font-weight:700;color:var(--primary);display:inline-flex;align-items:center;gap:6px;"><i class="fas fa-check-circle"></i> ${escapeHtml(p)}</span>`;
+    });
+
+    previewEl.innerHTML = htmlParts.join('<span style="color:#cbd5e1;font-weight:bold;">•</span>');
+};
+
+/* -------------------------------------------------------------
+   PROGRAM UNGGULAN FUNCTIONS
+   ------------------------------------------------------------- */
+window.renderProgramsAdmin = function() {
+    const listEl = document.getElementById('programCardsList');
+    if (!listEl) return;
+
+    if (currentPrograms.length === 0) {
+        listEl.innerHTML = '<div style="color:#94a3b8;font-style:italic;padding:12px;background:#fff;border-radius:8px;border:1px dashed #cbd5e1;text-align:center;">Belum ada program unggulan. Klik tombol "+ Tambah Program Unggulan" di atas.</div>';
+        updateProgramPreview();
+        return;
+    }
+
+    listEl.innerHTML = currentPrograms.map((p, idx) => {
+        const isFirst = idx === 0;
+        const isLast = idx === currentPrograms.length - 1;
+        const isActive = p.active !== false;
+
+        let iconOptions = PROGRAM_ICON_PRESETS.map(opt => {
+            const selected = opt.id === p.icon ? 'selected' : '';
+            return `<option value="${opt.id}" ${selected}>${opt.label} (${opt.id})</option>`;
+        }).join('');
+
+        const inPreset = PROGRAM_ICON_PRESETS.some(opt => opt.id === p.icon);
+        if (!inPreset && p.icon) {
+            iconOptions += `<option value="${escapeHtml(p.icon)}" selected>Custom (${escapeHtml(p.icon)})</option>`;
+        }
+
+        return `
+            <div class="program-admin-card" style="background:#ffffff;border:1px solid ${isActive ? '#e2e8f0' : '#fecaca'};border-radius:10px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.04);position:relative;transition:all 0.2s ease;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f1f5f9;flex-wrap:wrap;gap:8px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-weight:700;color:var(--text-dark);font-size:0.95rem;background:#f1f5f9;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;">
+                            ${idx + 1}
+                        </span>
+                        <div style="width:36px;height:36px;background:var(--bg-subtle);color:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;" id="iconPreview_${p.id}">
+                            <i class="${escapeHtml(p.icon || 'fas fa-star')}"></i>
+                        </div>
+                        <div>
+                            <strong style="color:var(--primary-dark);font-size:1rem;">${escapeHtml(p.judul || 'Program Tanpa Judul')}</strong>
+                            <span style="display:inline-block;margin-left:8px;font-size:0.75rem;padding:2px 8px;border-radius:12px;font-weight:600;background:${isActive ? '#dcfce7;color:#15803d;' : '#fee2e2;color:#b91c1c;'}">
+                                ${isActive ? '<i class="fas fa-check"></i> Aktif' : '<i class="fas fa-eye-slash"></i> Nonaktif'}
+                            </span>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <button type="button" class="btn btn-sm ${isActive ? 'btn-outline-warning' : 'btn-outline-success'}" 
+                                style="padding:4px 10px;font-size:0.78rem;" 
+                                onclick="toggleProgramActive('${p.id}')">
+                            ${isActive ? '<i class="fas fa-eye-slash"></i> Nonaktifkan' : '<i class="fas fa-eye"></i> Aktifkan'}
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                style="padding:4px 8px;font-size:0.78rem;" 
+                                title="Pindah ke Atas" 
+                                ${isFirst ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : `onclick="moveProgram(${idx}, -1)"`}>
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                style="padding:4px 8px;font-size:0.78rem;" 
+                                title="Pindah ke Bawah" 
+                                ${isLast ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : `onclick="moveProgram(${idx}, 1)"`}>
+                            <i class="fas fa-arrow-down"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                style="padding:4px 8px;font-size:0.78rem;" 
+                                title="Hapus Program" 
+                                onclick="deleteProgram('${p.id}')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:10px;">
+                    <div class="form-group" style="flex:2;margin-bottom:0;">
+                        <label style="font-size:0.82rem;font-weight:600;color:#64748b;margin-bottom:4px;display:block;">Judul Program:</label>
+                        <input type="text" class="form-input" style="padding:8px 12px;font-size:0.92rem;" 
+                               value="${escapeHtml(p.judul)}" 
+                               placeholder="Nama Program Unggulan"
+                               oninput="updateProgramField('${p.id}', 'judul', this.value)">
+                    </div>
+                    <div class="form-group" style="flex:1;margin-bottom:0;">
+                        <label style="font-size:0.82rem;font-weight:600;color:#64748b;margin-bottom:4px;display:block;">Pilih Ikon:</label>
+                        <select class="form-select" style="padding:8px 12px;font-size:0.9rem;" 
+                                onchange="updateProgramField('${p.id}', 'icon', this.value)">
+                            ${iconOptions}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:0;">
+                    <label style="font-size:0.82rem;font-weight:600;color:#64748b;margin-bottom:4px;display:block;">Deskripsi Program:</label>
+                    <textarea class="form-textarea" rows="2" style="padding:8px 12px;font-size:0.9rem;" 
+                              placeholder="Penjelasan ringkas mengenai keunggulan program..."
+                              oninput="updateProgramField('${p.id}', 'desc', this.value)">${escapeHtml(p.desc)}</textarea>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    updateProgramPreview();
+};
+
+window.addNewProgram = function() {
+    const newProg = {
+        id: 'prog-' + Date.now(),
+        judul: 'Program Baru',
+        desc: 'Deskripsi program pembelajaran atau pembiasaan unggulan di sekolah...',
+        icon: 'fas fa-star',
+        active: true
+    };
+    currentPrograms.push(newProg);
+    renderProgramsAdmin();
+    setTimeout(() => {
+        const listEl = document.getElementById('programCardsList');
+        if (listEl && listEl.lastElementChild) {
+            listEl.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }, 60);
+};
+
+window.updateProgramField = function(id, field, value) {
+    const prog = currentPrograms.find(p => p.id === id);
+    if (prog) {
+        prog[field] = value;
+        if (field === 'icon') {
+            const previewBox = document.getElementById(`iconPreview_${id}`);
+            if (previewBox) previewBox.innerHTML = `<i class="${escapeHtml(value)}"></i>`;
+        }
+        updateProgramPreview();
+    }
+};
+
+window.toggleProgramActive = function(id) {
+    const prog = currentPrograms.find(p => p.id === id);
+    if (prog) {
+        prog.active = !prog.active;
+        renderProgramsAdmin();
+    }
+};
+
+window.moveProgram = function(index, direction) {
+    const targetIdx = index + direction;
+    if (targetIdx < 0 || targetIdx >= currentPrograms.length) return;
+    const temp = currentPrograms[index];
+    currentPrograms[index] = currentPrograms[targetIdx];
+    currentPrograms[targetIdx] = temp;
+    renderProgramsAdmin();
+};
+
+window.deleteProgram = function(id) {
+    const prog = currentPrograms.find(p => p.id === id);
+    const progName = prog ? prog.judul : 'program ini';
+    if (confirm(`Apakah Anda yakin ingin menghapus program "${progName}"?\n(Perubahan permanen disimpan saat Anda menekan tombol Simpan Konten)`)) {
+        currentPrograms = currentPrograms.filter(p => p.id !== id);
+        renderProgramsAdmin();
+    }
+};
+
+window.updateProgramPreview = function() {
+    const previewGrid = document.getElementById('programLivePreviewGrid');
+    const badgeEl = document.getElementById('activeProgramCountBadge');
+    if (!previewGrid) return;
+
+    const activeProgs = currentPrograms.filter(p => p.active !== false);
+
+    if (badgeEl) {
+        badgeEl.textContent = `${activeProgs.length} Program Aktif`;
+    }
+
+    if (activeProgs.length === 0) {
+        previewGrid.innerHTML = `
+            <div style="grid-column:1/-1;text-align:center;padding:24px;color:#94a3b8;font-style:italic;">
+                <i class="fas fa-info-circle" style="font-size:1.5rem;margin-bottom:8px;display:block;"></i>
+                Semua program berstatus nonaktif. Halaman publik akan menampilkan pesan default atau menyembunyikan kartu.
+            </div>
+        `;
+        return;
+    }
+
+    previewGrid.innerHTML = activeProgs.map(p => {
+        return `
+            <div class="program-card" style="box-shadow:none;border:1px solid #e2e8f0;">
+                <div class="program-icon" style="width:48px;height:48px;font-size:1.3rem;margin-bottom:14px;">
+                    <i class="${escapeHtml(p.icon || 'fas fa-star')}"></i>
+                </div>
+                <h3 style="font-size:1.1rem;margin-bottom:8px;color:var(--primary-dark);">${escapeHtml(p.judul || 'Tanpa Judul')}</h3>
+                <p style="font-size:0.86rem;color:#64748b;line-height:1.6;margin:0;">${escapeHtml(p.desc || '-')}</p>
+            </div>
+        `;
+    }).join('');
+};
+
 async function loadSettingsData() {
     try {
         const response = await fetch(CONFIG.API_URL + '?action=getSettings', { redirect: 'follow' });
@@ -823,9 +1185,36 @@ async function loadSettingsData() {
             if (waInput && data.whatsapp) waInput.value = data.whatsapp;
             if (waMsgInput && data.whatsappMessage) waMsgInput.value = data.whatsappMessage;
             updateWaPreview();
+
+            // Populate Tagline data
+            if (data.kepsekTagline) {
+                try {
+                    const parsed = typeof data.kepsekTagline === 'string' ? JSON.parse(data.kepsekTagline) : data.kepsekTagline;
+                    if (Array.isArray(parsed)) currentTaglines = parsed;
+                } catch(e) {
+                    console.error('Error parsing kepsekTagline:', e);
+                }
+            }
+            renderTaglineAdmin();
+
+            // Populate Program data
+            if (data.programList) {
+                try {
+                    const parsed = typeof data.programList === 'string' ? JSON.parse(data.programList) : data.programList;
+                    if (Array.isArray(parsed)) currentPrograms = parsed;
+                } catch(e) {
+                    console.error('Error parsing programList:', e);
+                }
+            }
+            renderProgramsAdmin();
+        } else {
+            renderTaglineAdmin();
+            renderProgramsAdmin();
         }
     } catch (e) {
         console.error('Error loading settings:', e);
+        renderTaglineAdmin();
+        renderProgramsAdmin();
     }
 }
 
@@ -849,6 +1238,20 @@ window.saveCmsContent = async function () {
             settingsPayload[key] = el.value.trim();
         }
     });
+
+    // Inject tagline and program data
+    settingsPayload.kepsekTagline = JSON.stringify(currentTaglines.map(t => t.trim()).filter(t => t.length > 0));
+    settingsPayload.programList = JSON.stringify(currentPrograms);
+
+    // Backward compatibility for legacy CMS keys (prog1Judul ... prog4Desc)
+    const activeProgs = currentPrograms.filter(p => p.active !== false);
+    for (let i = 1; i <= 4; i++) {
+        const prog = activeProgs[i - 1];
+        if (prog) {
+            settingsPayload[`prog${i}Judul`] = prog.judul || '';
+            settingsPayload[`prog${i}Desc`] = prog.desc || '';
+        }
+    }
 
     try {
         const response = await fetch(CONFIG.API_URL, {
