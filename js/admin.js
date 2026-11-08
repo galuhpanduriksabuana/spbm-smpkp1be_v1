@@ -1572,7 +1572,15 @@ window.renderAdminPhotosGrid = function() {
     grid.innerHTML = filtered.map((p, idx) => {
         const cat = categoryBadges[p.kategori] || categoryBadges.lainnya;
         const isAktif = p.aktif !== false;
-        const thumbSrc = p.thumbnailUrl || (p.driveFileId ? `https://lh3.googleusercontent.com/d/${p.driveFileId}=w600` : p.fileUrl);
+
+        let fileId = p.driveFileId || '';
+        if (!fileId) {
+            const raw = (p.thumbnailUrl || '') + ' ' + (p.fileUrl || '') + ' ' + (p.newBase64Data || '') + ' ' + (p.base64Data || '');
+            const match = raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || raw.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (match) fileId = match[1];
+        }
+        const thumbSrc = fileId ? `https://lh3.googleusercontent.com/d/${fileId}=w600` : (p.thumbnailUrl || p.fileUrl || '');
+        const fallbackThumb = fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w600` : '';
 
         return `
             <div class="photo-admin-card" style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;">
@@ -1580,7 +1588,7 @@ window.renderAdminPhotosGrid = function() {
                     <img src="${escapeHtml(thumbSrc)}" 
                          alt="${escapeHtml(p.judul)}" 
                          loading="lazy"
-                         onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100%25\' height=\'100%25\' fill=\'%23e2e8f0\'><text x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'14\' fill=\'%2364748b\'>Foto Google Drive</text></svg>'"
+                         onerror="if(!this.dataset.fallback && '${escapeHtml(fallbackThumb)}'){this.dataset.fallback='1';this.src='${escapeHtml(fallbackThumb)}';}else{this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100%25\\' height=\\'100%25\\' fill=\\'%23e2e8f0\\'><text x=\\'50%25\\' y=\\'50%25\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\' font-size=\\'14\\' fill=\\'%2364748b\\'>Foto Google Drive</text></svg>';}"
                          style="width:100%;height:100%;object-fit:cover;">
                     <div style="position:absolute;top:8px;left:8px;display:flex;gap:4px;">
                         <span style="background:${cat.bg};color:${cat.text};padding:3px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;">
