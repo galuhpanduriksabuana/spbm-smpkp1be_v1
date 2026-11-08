@@ -681,14 +681,116 @@ window.handleUpdateStatus = async function (noPendaftaran) {
    7. CMS (CONTENT MANAGEMENT SYSTEM)
    ========================================================================== */
 const CMS_KEYS = [
+    // 1. Identitas & Media Sosial
     'namaSekolah', 'taglineSekolah', 'akreditasi', 'topbarAlamat', 'runningText',
+    'sosialInstagram', 'sosialFacebook', 'sosialYoutube',
+
+    // 2. Banner Utama & Widget SPMB
     'heroBadge', 'heroTitle', 'heroSubtitle',
+    'spmbBadge', 'spmbTitle', 'spmbDesc',
+    'spmbItem1Title', 'spmbItem1Desc',
+    'spmbItem2Title', 'spmbItem2Desc',
+    'spmbItem3Title', 'spmbItem3Desc',
+
+    // 3. Statistik Sekolah
     'stat1Value', 'stat1Label', 'stat2Value', 'stat2Label', 'stat3Value', 'stat3Label', 'stat4Value', 'stat4Label',
+
+    // 4. Sambutan Kepala Sekolah
     'kepsekNama', 'kepsekJabatan', 'kepsekFoto', 'kepsekSambutan',
+
+    // 5. Visi & Misi Sekolah
     'visiSekolah', 'misiSekolah',
+
+    // 6. Program Unggulan (4 Pilar)
     'prog1Judul', 'prog1Desc', 'prog2Judul', 'prog2Desc', 'prog3Judul', 'prog3Desc', 'prog4Judul', 'prog4Desc',
-    'telepon', 'email', 'alamat', 'jamLayanan', 'deskripsi'
+
+    // 7. Alur Pendaftaran (4 Langkah)
+    'alurStep1Title', 'alurStep1Desc',
+    'alurStep2Title', 'alurStep2Desc',
+    'alurStep3Title', 'alurStep3Desc',
+    'alurStep4Title', 'alurStep4Desc',
+
+    // 8. Pengumuman, Info Terbaru & Berita (6 Card)
+    'pengumuman1Title', 'pengumuman1Date', 'pengumuman1Author', 'pengumuman1Excerpt',
+    'pengumuman2Title', 'pengumuman2Date', 'pengumuman2Author', 'pengumuman2Excerpt',
+    'info1Title', 'info1Date', 'info1Author', 'info1Excerpt',
+    'info2Title', 'info2Date', 'info2Author', 'info2Excerpt',
+    'berita1Title', 'berita1Date', 'berita1Author', 'berita1Excerpt',
+    'berita2Title', 'berita2Date', 'berita2Author', 'berita2Excerpt',
+
+    // 9. Jadwal & Timeline Seleksi SPMB (6 Tahapan)
+    'jadwalSectionTitle', 'jadwalSectionDesc',
+    'jadwal1Title', 'jadwal1Date', 'jadwal1Desc',
+    'jadwal2Title', 'jadwal2Date', 'jadwal2Desc',
+    'jadwal3Title', 'jadwal3Date', 'jadwal3Desc',
+    'jadwal4Title', 'jadwal4Date', 'jadwal4Desc',
+    'jadwal5Title', 'jadwal5Date', 'jadwal5Desc',
+    'jadwal6Title', 'jadwal6Date', 'jadwal6Desc',
+
+    // 10. Galeri Dokumentasi, Fasilitas & Prestasi (9 Item)
+    'galeri1Caption', 'galeri1Category',
+    'galeri2Caption', 'galeri2Category',
+    'galeri3Caption', 'galeri3Category',
+    'galeri4Caption', 'galeri4Category',
+    'galeri5Caption', 'galeri5Category',
+    'galeri6Caption', 'galeri6Category',
+    'galeri7Caption', 'galeri7Category',
+    'galeri8Caption', 'galeri8Category',
+    'galeri9Caption', 'galeri9Category',
+
+    // 11. CTA & Persyaratan Formulir
+    'ctaTitle', 'ctaDesc', 'ctaButtonText',
+    'syaratFoto', 'syaratKK', 'syaratAkta', 'catatanPendaftaran',
+
+    // 12. Kontak Resmi & Profil Footer
+    'telepon', 'whatsapp', 'whatsappMessage', 'email', 'alamat', 'jamLayanan', 'deskripsi'
 ];
+
+function normalizeWaNumber(raw) {
+    if (!raw) return '';
+    let clean = String(raw).trim().replace(/\D/g, '');
+    if (clean.startsWith('0')) {
+        clean = '62' + clean.slice(1);
+    } else if (clean.startsWith('8')) {
+        clean = '62' + clean;
+    }
+    return clean;
+}
+
+function isValidIndonesianWa(raw) {
+    if (!raw) return false;
+    const trimmed = String(raw).trim().replace(/[\s-]/g, '');
+    return /^(\+62|62|0)8[1-9][0-9]{7,11}$/.test(trimmed);
+}
+
+function updateWaPreview() {
+    const waInput = document.getElementById('setting_whatsapp');
+    const waMsgInput = document.getElementById('setting_whatsappMessage');
+    const previewEl = document.getElementById('setting_waPreview');
+    if (!previewEl) return;
+
+    const val = waInput ? waInput.value.trim() : '';
+    const msg = waMsgInput ? waMsgInput.value.trim() : '';
+
+    if (val && isValidIndonesianWa(val)) {
+        const normalized = normalizeWaNumber(val);
+        let url = 'https://wa.me/' + normalized;
+        if (msg) {
+            url += '?text=' + encodeURIComponent(msg);
+        }
+        previewEl.href = url;
+        previewEl.textContent = url;
+        previewEl.style.color = '#15803d';
+    } else if (val) {
+        previewEl.href = '#';
+        previewEl.textContent = 'Nomor tidak valid (harus diawali 08... atau +628...)';
+        previewEl.style.color = '#dc2626';
+    } else {
+        previewEl.href = '#';
+        previewEl.textContent = 'Masukkan nomor WhatsApp untuk melihat live preview';
+        previewEl.style.color = '#64748b';
+    }
+}
 
 async function loadSettingsData() {
     try {
@@ -714,6 +816,13 @@ async function loadSettingsData() {
                     el.value = data[key];
                 }
             });
+
+            // Populate WhatsApp Contact Settings in Tab 4
+            const waInput = document.getElementById('setting_whatsapp');
+            const waMsgInput = document.getElementById('setting_whatsappMessage');
+            if (waInput && data.whatsapp) waInput.value = data.whatsapp;
+            if (waMsgInput && data.whatsappMessage) waMsgInput.value = data.whatsappMessage;
+            updateWaPreview();
         }
     } catch (e) {
         console.error('Error loading settings:', e);
@@ -763,6 +872,13 @@ window.saveCmsContent = async function () {
                 msg.innerHTML = '<i class="fas fa-check-circle"></i> <strong>Berhasil!</strong> Seluruh konten website telah disimpan ke Google Sheets dan otomatis tampil di halaman utama.';
                 msg.scrollIntoView({ behavior: 'smooth' });
             }
+
+            // Sync to Tab 4 WhatsApp inputs
+            const waInput = document.getElementById('setting_whatsapp');
+            const waMsgInput = document.getElementById('setting_whatsappMessage');
+            if (waInput && settingsPayload.whatsapp) waInput.value = settingsPayload.whatsapp;
+            if (waMsgInput && settingsPayload.whatsappMessage !== undefined) waMsgInput.value = settingsPayload.whatsappMessage;
+            updateWaPreview();
         } else {
             if (msg) {
                 msg.style.display = 'block';
@@ -853,6 +969,115 @@ function initSettingsTab() {
             btn.innerHTML = originalText;
         }
     });
+
+    // Form Pengaturan Kontak WhatsApp Panitia
+    const waForm = document.getElementById('waSettingsForm');
+    const waInput = document.getElementById('setting_whatsapp');
+    const waMsgInput = document.getElementById('setting_whatsappMessage');
+
+    if (waInput) waInput.addEventListener('input', updateWaPreview);
+    if (waMsgInput) waMsgInput.addEventListener('input', updateWaPreview);
+
+    if (waForm) {
+        waForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // Otorisasi: Pastikan sesi admin aktif
+            if (localStorage.getItem('adminLoggedIn') !== 'true') {
+                alert('Sesi administrator Anda telah berakhir. Silakan login kembali.');
+                window.location.href = '/admin/index.html';
+                return;
+            }
+
+            const btn = document.getElementById('saveWaSettingsBtn');
+            const msg = document.getElementById('waSettingsMessage');
+            const rawNumber = waInput ? waInput.value.trim() : '';
+            const rawMessage = waMsgInput ? waMsgInput.value.trim() : '';
+
+            if (msg) msg.style.display = 'none';
+
+            // Validasi format nomor WhatsApp Indonesia
+            if (!isValidIndonesianWa(rawNumber)) {
+                if (msg) {
+                    msg.style.display = 'block';
+                    msg.style.background = '#fee2e2';
+                    msg.style.color = '#b91c1c';
+                    msg.style.border = '1px solid #fca5a5';
+                    msg.style.padding = '12px 16px';
+                    msg.style.borderRadius = '8px';
+                    msg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>Nomor WhatsApp Tidak Valid:</strong> Masukkan nomor aktif Indonesia dengan format <code>08xxxxxxxxxx</code> atau <code>+62xxxxxxxxxx</code> (10-14 digit).';
+                }
+                if (waInput) waInput.focus();
+                return;
+            }
+
+            // Normalisasi nomor ke format internasional tanpa tanda +
+            const normalizedNumber = normalizeWaNumber(rawNumber);
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan Kontak WhatsApp...';
+
+            try {
+                const response = await fetch(CONFIG.API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({
+                        action: 'updateSettings',
+                        settings: {
+                            whatsapp: normalizedNumber,
+                            whatsappMessage: rawMessage
+                        }
+                    }),
+                    redirect: 'follow'
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    // Sinkronkan nilai ke Tab 3 (CMS Section 12)
+                    const cmsWa = document.getElementById('cms_whatsapp');
+                    const cmsWaMsg = document.getElementById('cms_whatsappMessage');
+                    if (cmsWa) cmsWa.value = normalizedNumber;
+                    if (cmsWaMsg) cmsWaMsg.value = rawMessage;
+
+                    if (msg) {
+                        msg.style.display = 'block';
+                        msg.style.background = '#dcfce7';
+                        msg.style.color = '#15803d';
+                        msg.style.border = '1px solid #86efac';
+                        msg.style.padding = '12px 16px';
+                        msg.style.borderRadius = '8px';
+                        msg.innerHTML = '<i class="fas fa-check-circle"></i> <strong>Berhasil!</strong> Kontak WhatsApp Panitia berhasil disimpan ke database dan langsung aktif di seluruh website publik.';
+                    }
+                    updateWaPreview();
+                } else {
+                    if (msg) {
+                        msg.style.display = 'block';
+                        msg.style.background = '#fee2e2';
+                        msg.style.color = '#b91c1c';
+                        msg.style.border = '1px solid #fca5a5';
+                        msg.style.padding = '12px 16px';
+                        msg.style.borderRadius = '8px';
+                        msg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal menyimpan: ' + (result.message || 'Terjadi kesalahan');
+                    }
+                }
+            } catch (error) {
+                console.error('Save WhatsApp settings error:', error);
+                if (msg) {
+                    msg.style.display = 'block';
+                    msg.style.background = '#fee2e2';
+                    msg.style.color = '#b91c1c';
+                    msg.style.border = '1px solid #fca5a5';
+                    msg.style.padding = '12px 16px';
+                    msg.style.borderRadius = '8px';
+                    msg.innerHTML = '<i class="fas fa-wifi"></i> Gagal terhubung ke backend server.';
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
+    }
 }
 
 /* ==========================================================================
