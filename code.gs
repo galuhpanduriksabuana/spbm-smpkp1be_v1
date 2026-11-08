@@ -566,8 +566,8 @@ function handleUploadPhoto(data) {
   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
   const fileId = file.getId();
-  const fileUrl = file.getUrl();
-  const thumbnailUrl = `https://lh3.googleusercontent.com/d/${fileId}=w1000`;
+  const fileUrl = `https://lh3.googleusercontent.com/d/${fileId}=w1600`;
+  const thumbnailUrl = `https://lh3.googleusercontent.com/d/${fileId}=w800`;
   const photoId = `img_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
   const nowIso = new Date().toISOString();
 
@@ -619,53 +619,105 @@ function handleUploadPhoto(data) {
 function handleGetPhotos(params) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const photoSheet = ss.getSheetByName(PHOTO_SHEET_NAME);
-  if (!photoSheet) {
-    return ContentService.createTextOutput(JSON.stringify({
-      status: "success",
-      data: []
-    })).setMimeType(ContentService.MimeType.JSON);
+  let photos = [];
+
+  // 1. Baca data dari sheet Foto Website jika ada
+  if (photoSheet && photoSheet.getLastRow() > 1) {
+    const data = photoSheet.getDataRange().getValues();
+    const headers = data[0];
+    const rows = data.slice(1);
+
+    rows.forEach(row => {
+      let obj = {};
+      headers.forEach((h, idx) => {
+        let key = h.replace(/\s+/g, '');
+        key = key.charAt(0).toLowerCase() + key.slice(1);
+        if (h === "ID") key = "id";
+        else if (h === "Drive File ID") key = "driveFileId";
+        else if (h === "File Name") key = "fileName";
+        else if (h === "File URL") key = "fileUrl";
+        else if (h === "Thumbnail URL") key = "thumbnailUrl";
+        else if (h === "Judul") key = "judul";
+        else if (h === "Deskripsi") key = "deskripsi";
+        else if (h === "Kategori") key = "kategori";
+        else if (h === "MIME Type") key = "mimeType";
+        else if (h === "File Size") key = "fileSize";
+        else if (h === "Urutan") key = "urutan";
+        else if (h === "Aktif") key = "aktif";
+        else if (h === "Created At") key = "createdAt";
+        else if (h === "Updated At") key = "updatedAt";
+
+        obj[key] = row[idx];
+      });
+      photos.push(obj);
+    });
   }
 
-  const data = photoSheet.getDataRange().getValues();
-  if (data.length <= 1) {
-    return ContentService.createTextOutput(JSON.stringify({
-      status: "success",
-      data: []
-    })).setMimeType(ContentService.MimeType.JSON);
+  // 2. Dukung foto yang tersimpan sebelumnya di sheet Pendaftar agar tidak hilang
+  const regSheet = ss.getSheetByName(SHEET_NAME);
+  if (regSheet && regSheet.getLastRow() > 1) {
+    const regData = regSheet.getDataRange().getValues();
+    const regHeaders = regData[0];
+    const regRows = regData.slice(1);
+
+    const hasPhotoCols = regHeaders.some(h => ["fileName", "judul", "kategori", "newBase64Data"].includes(String(h)));
+    if (hasPhotoCols) {
+      regRows.forEach(r => {
+        let rObj = {};
+        regHeaders.forEach((h, idx) => {
+          rObj[h] = r[idx];
+        });
+
+        const rawDriveUrl = rObj.newBase64Data || rObj.base64Data || '';
+        const match = String(rawDriveUrl).match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || String(rawDriveUrl).match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (match && match[1]) {
+          const fileId = match[1];
+          const exists = photos.some(p => p.driveFileId === fileId || (p.fileUrl && p.fileUrl.includes(fileId)));
+          if (!exists) {
+            photos.push({
+              id: rObj.id && rObj.id !== 'undefined' ? rObj.id : `img_${fileId.substr(0, 8)}`,
+              driveFileId: fileId,
+              fileName: rObj.fileName || 'foto.jpg',
+              fileUrl: `https://lh3.googleusercontent.com/d/${fileId}=w1600`,
+              thumbnailUrl: `https://lh3.googleusercontent.com/d/${fileId}=w800`,
+              judul: rObj.judul || rObj.fileName || 'Dokumentasi Sekolah',
+              deskripsi: rObj.deskripsi || '',
+              kategori: (rObj.kategori || 'fasilitas').toLowerCase().trim(),
+              mimeType: 'image/jpeg',
+              fileSize: 0,
+              urutan: parseInt(rObj.urutan, 10) || 0,
+              aktif: rObj.aktif === true || String(rObj.aktif).toLowerCase() === 'true',
+              createdAt: rObj.Timestamp || new Date().toISOString(),
+              updatedAt: rObj.Timestamp || new Date().toISOString()
+            });
+          }
+        }
+      });
+    }
   }
 
-  const headers = data[0];
-  const rows = data.slice(1);
+  // Normalisasi & pastikan URL gambar valid
+  photos.forEach(p => {
+    let fileId = p.driveFileId;
+    if (!fileId) {
+      const raw = (p.fileUrl || '') + ' ' + (p.thumbnailUrl || '');
+      const match = raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || raw.match(/[?&]id=([a-zA-Z0-9_-]+)/) || raw.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+      if (match) fileId = match[1];
+    }
+    if (fileId) {
+      p.driveFileId = fileId;
+      p.thumbnailUrl = `https://lh3.googleusercontent.com/d/${fileId}=w800`;
+      p.fileUrl = `https://lh3.googleusercontent.com/d/${fileId}=w1600`;
+    }
+    p.aktif = p.aktif === true || String(p.aktif).toLowerCase() === "true";
+    p.urutan = parseInt(p.urutan, 10) || 0;
+  });
+
+  // Filter hanya yang memiliki berkas gambar valid
+  photos = photos.filter(p => p.driveFileId || p.thumbnailUrl || p.fileUrl);
+
   const isPublicOnly = params && (params.public === "true" || params.public === true);
   const filterCategory = params && params.kategori ? String(params.kategori).toLowerCase().trim() : null;
-
-  let photos = rows.map(row => {
-    let obj = {};
-    headers.forEach((h, idx) => {
-      let key = h.replace(/\s+/g, '');
-      key = key.charAt(0).toLowerCase() + key.slice(1);
-      if (h === "ID") key = "id";
-      else if (h === "Drive File ID") key = "driveFileId";
-      else if (h === "File Name") key = "fileName";
-      else if (h === "File URL") key = "fileUrl";
-      else if (h === "Thumbnail URL") key = "thumbnailUrl";
-      else if (h === "Judul") key = "judul";
-      else if (h === "Deskripsi") key = "deskripsi";
-      else if (h === "Kategori") key = "kategori";
-      else if (h === "MIME Type") key = "mimeType";
-      else if (h === "File Size") key = "fileSize";
-      else if (h === "Urutan") key = "urutan";
-      else if (h === "Aktif") key = "aktif";
-      else if (h === "Created At") key = "createdAt";
-      else if (h === "Updated At") key = "updatedAt";
-
-      obj[key] = row[idx];
-    });
-
-    obj.aktif = obj.aktif === true || String(obj.aktif).toLowerCase() === "true";
-    obj.urutan = parseInt(obj.urutan, 10) || 0;
-    return obj;
-  });
 
   if (isPublicOnly) {
     photos = photos.filter(p => p.aktif === true);
