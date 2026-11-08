@@ -53,6 +53,16 @@ function initCurrentYear() {
     if (el) el.textContent = new Date().getFullYear();
 }
 
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 /* ==========================================================================
    2. CMS DYNAMIC CONTENT LOADER
    ========================================================================== */
@@ -136,6 +146,47 @@ async function initCmsLoader() {
                             <a href="/pengumuman.html" class="btn btn-primary">Lihat Pengumuman Terbaru</a>
                         </div>
                     `;
+                }
+            }
+
+            // 6. Dynamic Kepsek Tagline
+            const taglineContainer = document.getElementById('kepsekTagline');
+            if (taglineContainer && data.kepsekTagline) {
+                try {
+                    const taglines = typeof data.kepsekTagline === 'string' ? JSON.parse(data.kepsekTagline) : data.kepsekTagline;
+                    if (Array.isArray(taglines) && taglines.length > 0) {
+                        const validPoints = taglines.map(t => String(t).trim()).filter(t => t.length > 0);
+                        if (validPoints.length > 0) {
+                            const parts = validPoints.map(p => 
+                                `<span style="font-weight:700;color:var(--primary);display:inline-flex;align-items:center;gap:6px;"><i class="fas fa-check-circle"></i> ${escapeHtml(p)}</span>`
+                            );
+                            taglineContainer.innerHTML = parts.join('<span style="color:#cbd5e1;">•</span>');
+                        }
+                    }
+                } catch(e) {
+                    console.warn('CMS Loader: error rendering dynamic kepsekTagline:', e);
+                }
+            }
+
+            // 7. Dynamic Program Unggulan
+            const programContainer = document.getElementById('programGridContainer');
+            if (programContainer && data.programList) {
+                try {
+                    const programs = typeof data.programList === 'string' ? JSON.parse(data.programList) : data.programList;
+                    if (Array.isArray(programs)) {
+                        const activePrograms = programs.filter(p => p.active !== false);
+                        if (activePrograms.length > 0) {
+                            programContainer.innerHTML = activePrograms.map(p => `
+                                <div class="program-card">
+                                    <div class="program-icon"><i class="${escapeHtml(p.icon || 'fas fa-star')}"></i></div>
+                                    <h3>${escapeHtml(p.judul || '')}</h3>
+                                    <p>${escapeHtml(p.desc || '')}</p>
+                                </div>
+                            `).join('');
+                        }
+                    }
+                } catch(e) {
+                    console.warn('CMS Loader: error rendering dynamic programList:', e);
                 }
             }
         }
