@@ -64,9 +64,16 @@ const DEFAULT_PROGRAMS = [
   }
 ];
 
+const DEFAULT_PDF_NOTES = [
+  "Simpan lembar bukti pendaftaran ini sebagai tanda bukti resmi pendaftaran online Anda.",
+  "Cek status hasil seleksi secara berkala melalui menu 'Cek Status' di website resmi.",
+  "Bawa cetakan bukti ini beserta dokumen asli saat jadwal verifikasi fisik / daftar ulang."
+];
+
 const DEFAULT_SETTINGS = {
   kepsekTagline: JSON.stringify(DEFAULT_TAGLINES),
   programList: JSON.stringify(DEFAULT_PROGRAMS),
+  catatanPdf: JSON.stringify(DEFAULT_PDF_NOTES),
   namaSekolah: "SDN Harapan Bangsa",
   alamat: "Jl. Pendidikan No. 123, Kota Pelajar, Indonesia 12345",
   telepon: "(021) 1234-5678",
@@ -257,6 +264,19 @@ function handleUpdateSettings(newSettings) {
           };
         }).filter(function(p) { return p.judul.length > 0; });
         newSettings.programList = JSON.stringify(cleanedPrograms);
+      }
+    } catch (e) {
+      // Keep as-is if string
+    }
+  }
+
+  // Server-side validation for catatanPdf
+  if (newSettings.catatanPdf !== undefined && newSettings.catatanPdf !== null) {
+    try {
+      var pdfNotes = typeof newSettings.catatanPdf === 'string' ? JSON.parse(newSettings.catatanPdf) : newSettings.catatanPdf;
+      if (Array.isArray(pdfNotes)) {
+        var cleanedPdfNotes = pdfNotes.map(function(n) { return String(n).trim(); }).filter(function(n) { return n.length > 0; });
+        newSettings.catatanPdf = JSON.stringify(cleanedPdfNotes);
       }
     } catch (e) {
       // Keep as-is if string
